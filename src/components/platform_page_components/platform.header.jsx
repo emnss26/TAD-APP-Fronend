@@ -3,7 +3,7 @@ import {useCookies} from 'react-cookie'
 import {Link, useNavigate} from 'react-router-dom'
 import {FaUser} from 'react-icons/fa'
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+const backendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL || 'http://localhost:3000'
 
 const PlatformHeader = () => {
 

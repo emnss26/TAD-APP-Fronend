@@ -6,7 +6,7 @@ import PlatformHeader from '../../components/platform_page_components/platform.h
 import  {Footer } from '../../components/general_pages_components/footer';
 import HomeImage from '/Home_Image.png'
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+const backendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL || 'http://localhost:3000'
 
 const BIM360ProjectsPage = () => {
 
