@@ -4,7 +4,7 @@ import { Header } from '../components/general_pages_components/header';
 import { Footer } from '../components/general_pages_components/footer.jsx';
 import HomeImage from '/Home_Image.png';
 
-const bakendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+const bakendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL || 'http://localhost:3000';
 const clientId = import.meta.env.VITE_CLIENT_ID;
 
 const LoginPage = () => {   
