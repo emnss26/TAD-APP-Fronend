@@ -8,9 +8,9 @@ export const simpleViewer = async (urn, access_token) => {
     const options ={
         env: 'AutodeskProduction',
         api: 'derivativeV2',
-        getAccessToken: (onGetAccessToken) => {
-            onGetAccessToken(access_token, 3600);
-          }
+        getAccessToken: (onTokenReady) => {
+            onTokenReady(access_token, 3600);
+    },
     };
 
     const viewerContainer = document.getElementById('TADSimpleViwer');
