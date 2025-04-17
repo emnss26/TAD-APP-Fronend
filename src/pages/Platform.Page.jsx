@@ -1,7 +1,7 @@
 import {useCookies} from 'react-cookie';
 import {useNavigate} from 'react-router-dom';
-import PlatformHeader  from '../components/platform_page_components/platform.header.jsx';
-import { Footer } from '../components/general_pages_components/footer.jsx';
+import PlatformHeader  from '../components/platform_page_components/platform.access.header.jsx';
+import { Footer } from '../components/general_pages_components/general.pages.footer.jsx';
 import HomeImage from '/Home_Image.png';
 
 const PlatformPage = () => {

@@ -1,11 +1,9 @@
-import {useNavigate} from 'react-router-dom'
+
 import { Header } from '../components/general_pages_components/general.pages.header'
 import { Footer } from '../components/general_pages_components/general.pages.footer.jsx'
 import Home_Image from '/Home_Image.png'
 
-const HomePage = () => {
-
-const navigate = useNavigate()
+const AboutPage = () => {
 
 return (
     <div className = 'flex flex-col min-h-screen bg-[#fbfcfb]'>
@@ -25,15 +23,20 @@ return (
             </div>
             <div className = 'w-1/2 flex flex-col justify-center items-center text-center'>
                 <h1 className = 'text-4xl md:text-5xl lg:text 6xl font-bold tracking-tigth leading-tight mb-4'>
-                    Improve Your <span className ='text-primary'> BIM </span> & <span className = 'text-primary'> VDC </span> Tools
+                    About Us
                 </h1>
-                <p className = 'text-lg text-slate-600 max-w-xl mb-6'>
-                    TAD HUB is a digital platform where you can find the best tools to improve your projects, helped with AI and automation workflows.
+                <p className="text-s text-gray-700 text-center">
+                    TAD HUB is a digital platform for architects and engineers, where you can find the best courses and tools to improve your skills and boost your career and projects.
+                    Our mission is to provide high-quality content and resources to help professionals in the AEC industry to grow and succeed in their projects and careers.
+                    We are constantly updating our platform with new courses, tools, and resources to help you stay up-to-date with the latest trends and technologies in the industry.
                 </p>
-                <button className = 'bg-[#2ea3e3] text-white font-medium px-6 py-3 rounded-md shadow hover:bg-slate-200 hover:text-black transition-colors'
-                onClick= {() => navigate ('/login')}>
-                    Get Started
-                </button>               
+                <p className="text-s text-gray-700 text-center">
+                    
+                </p>
+                <p className="text-s text-gray-700 text-center">
+                    Join TAD HUB today and take your career to the next level!
+                </p>
+                             
             </div>
         </main>
 
@@ -43,4 +46,4 @@ return (
     )
 }
 
-export default HomePage;
+export default AboutPage;

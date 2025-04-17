@@ -2,8 +2,8 @@ import {useEffect , useState} from 'react'
 
 import {Link} from 'react-router-dom'
 
-import PlatformHeader from '../../components/platform_page_components/platform.header'
-import  {Footer } from '../../components/general_pages_components/footer';
+import PlatformHeader from '../../components/platform_page_components/platform.access.header'
+import  {Footer} from '../../components/general_pages_components/general.pages.footer';
 import HomeImage from '/Home_Image.png'
 
 const backendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL || 'http://localhost:3000'
@@ -77,7 +77,7 @@ const ACCProjectsPage = () => {
                         <p>{project.attributes.description}</p>
                         </div>
                         <Link
-                        to={`/accproject/${project.id}`}
+                        to={`/accprojects/${project.relationships.hub.data.id}/${project.id}`}
                         className="bg-[#2ea3e3] text-white text-m font-semibold px-4 py-2 rounded-md shadow hover:bg-slate-200 hover:text-black transition-colors"
                         >
                         Project Home

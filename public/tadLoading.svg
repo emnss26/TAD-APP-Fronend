@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 360 260" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- ─── Gradientes y estilos ─── -->
+  <defs>
+    <linearGradient id="turquoise" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"  stop-color="#18bdfb"/>
+      <stop offset="100%" stop-color="#017bff"/>
+    </linearGradient>
+
+    <linearGradient id="pink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#ff5df1"/>
+      <stop offset="100%" stop-color="#9e4dff"/>
+    </linearGradient>
+
+    <style><![CDATA[
+      @keyframes dash { to { stroke-dashoffset: 0; } }
+
+      .panel { stroke:url(#turquoise); stroke-width:4; fill:none;
+               stroke-linejoin:round;
+               stroke-dasharray:920; stroke-dashoffset:920;
+               animation: dash 1.5s ease-out forwards; }
+
+      .bar   { stroke:url(#pink); stroke-width:4; fill:none;
+               stroke-linejoin:round;
+               stroke-dasharray:380; stroke-dashoffset:380;
+               animation: dash 1.4s ease-out forwards infinite alternate; }
+
+      .bar:nth-of-type(1){ animation-delay:.0s }
+      .bar:nth-of-type(2){ animation-delay:.12s}
+      .bar:nth-of-type(3){ animation-delay:.24s}
+      .bar:nth-of-type(4){ animation-delay:.36s}
+      .bar:nth-of-type(5){ animation-delay:.48s}
+
+      .txt { font-family: system-ui, sans-serif; font-size:20px;
+             fill:#000; letter-spacing:.5px;
+             animation: blink 1.3s ease-in-out infinite; }
+      @keyframes blink { 50% { opacity:.35 } }
+    ]]></style>
+  </defs>
+
+  <!-- ─── Panel exterior ─── -->
+  <path class="panel"
+        d="M60 40 c0-12 10-22 22-22h218c12 0 22 10 22 22v142
+           c0 12-10 22-22 22H82c-12 0-22-10-22-22Z"/>
+
+  <!-- ─── Barras internas (ajustadas) ─── -->
+  <!-- ancho barra = 20  |  separación = 20 -->
+  <path class="bar" d="M104 160 v-35  h20 v35 Z"/>   <!-- altura 35 -->
+  <path class="bar" d="M144 160 v-60  h20 v60 Z"/>   <!-- altura 60 -->
+  <path class="bar" d="M184 160 v-85  h20 v85 Z"/>   <!-- altura 85 -->
+  <path class="bar" d="M224 160 v-105 h20 v105Z"/>   <!-- altura 105 -->
+  <path class="bar" d="M264 160 v-120 h20 v120Z"/>   <!-- altura 120 (tope ≈40) -->
+
+  <!-- línea base -->
+  <line x1="94" y1="168" x2="304" y2="168"
+        stroke="#000000" stroke-opacity=".4" stroke-width="3"/>
+
+  <!-- texto -->
+  <text class="txt" x="50%" y="235" text-anchor="middle">Loading…</text>
+</svg>

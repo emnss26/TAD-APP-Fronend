@@ -1,7 +1,7 @@
 import {useCookies} from 'react-cookie';
 import {redirect, useNavigate} from 'react-router-dom';
-import { Header } from '../components/general_pages_components/header';
-import { Footer } from '../components/general_pages_components/footer.jsx';
+import { Header } from '../components/general_pages_components/general.pages.header';
+import { Footer } from '../components/general_pages_components/general.pages.footer.jsx';
 import HomeImage from '/Home_Image.png';
 
 const bakendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL || 'http://localhost:3000';

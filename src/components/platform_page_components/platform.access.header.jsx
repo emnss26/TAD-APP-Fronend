@@ -70,7 +70,7 @@ const PlatformHeader = () => {
     };
 
     return (
-        <header className="bg-[#3c3c3c] text-white w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md">
+        <header className="bg-[#3c3c3c] h-[65px] text-white w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md">
           {/* Branding (izquierda) */}
           <div className="text-md">
             <Link to="/">TAD | Taller de Arquitectura Digital</Link>
