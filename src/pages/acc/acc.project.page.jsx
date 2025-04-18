@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { simpleViewer } from "../../utils/Viewers/simple.viewer";
 import { useCookies } from "react-cookie";
@@ -111,8 +111,6 @@ const ACCProjectPage = () => {
     closed: 0,
   });
 
-  const viewerInitialized = useRef(false);
-
   //ProjectsData
   useEffect(() => {
     const getProjects = async () => {
@@ -143,40 +141,27 @@ const ACCProjectPage = () => {
 
   //Project Federated Model
   useEffect(() => {
-    async function loadAll() {
-      setLoading(true);
-      try {
-        // Ejemplo: podrías unificar TODOS tus fetches aquí con Promise.all
-        const federated = await fetchACCFederatedModel(
-          projectId,
-          cookies.access_token,
-          accountId
-        );
-        setFederatedModel(federated);
-        // ...fetch de users, issues, etc.
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadAll();
-  }, [projectId, accountId, cookies.access_token]);
+    const getFederatedModel = async () => {
+      const federatedModel = await fetchACCFederatedModel(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
+
+      //console.log("Federated Model:", federatedModel);
+
+      setFederatedModel(federatedModel);
+    };
+    getFederatedModel();
+  }, [projectId, cookies.access_token, accountId]);
 
   //Project Model Simple Viewer
   useEffect(() => {
-    if (!federatedModel || viewerInitialized.current) return;
+    if (federatedModel) {
+      simpleViewer(federatedModel, cookies.access_token);
 
-    simpleViewer(federatedModel, cookies.access_token);
-    viewerInitialized.current = true;
-
-    return () => {
-      // desmonta el viewer cuando el componente se desmonte
-      if (window.privateViewer) {
-        window.privateViewer.finish();
-        window.privateViewer = null;
-      }
-    };
+      //console.log("Token:", cookies.access_token);
+    }
   }, [federatedModel, cookies.access_token]);
 
   //Project Users
