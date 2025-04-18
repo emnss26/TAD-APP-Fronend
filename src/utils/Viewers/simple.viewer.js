@@ -1,13 +1,21 @@
 /*global Autodesk*/
 
-export const simpleViewer = async (urn, access_token) => {
-  //console.log ('urn:', urn);
-  console.log("access_token viewer:", access_token);
+const backendUrl =
+  import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
+
+
+export const simpleViewer = async (urn) => {
+  
+    const response = await fetch (`${backendUrl}/auth/token`)
+    const {data} = await response.json()
+    
+    console.log("Simple Viewer URN:", urn)
+    console.log ("token viewer:", data.access_token)
 
   const options = {
     env: "AutodeskProduction",
     api: "modelDerivativeV2",
-    getAccessToken: (onGet) => onGet(access_token, 3600),
+    accessToken: data.access_token
   };
 
   const container = document.getElementById("TADSimpleViwer");

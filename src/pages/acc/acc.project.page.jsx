@@ -158,11 +158,11 @@ const ACCProjectPage = () => {
   //Project Model Simple Viewer
   useEffect(() => {
     if (federatedModel) {
-      simpleViewer(federatedModel, cookies.access_token);
+      simpleViewer(federatedModel);
 
       //console.log("Token:", cookies.access_token);
     }
-  }, [federatedModel, cookies.access_token]);
+  }, [federatedModel]);
 
   //Project Users
   useEffect(() => {
