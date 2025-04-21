@@ -7,6 +7,14 @@
       "config": { "distDir": "dist" }
     }
   ],
+
+  "rewrites": [
+    {
+      "source": "/api/:path*", 
+      "destination": "https://tad-app-backend.vercel.app/:path*"
+    }
+  ],
+
   "routes": [
     {
       "src": "/(.*\\.(png|jpg|jpeg|gif|svg|webp))",
@@ -17,6 +25,7 @@
       "dest": "/assets/$1"
     },
     {
+      
       "src": "/(.*)",
       "dest": "/index.html"
     }
