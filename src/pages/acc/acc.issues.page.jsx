@@ -61,7 +61,7 @@ const ACCIssuesPage = () => {
     if (token && projectId && accountId) {
       loadIssues();
     }
-  }, [projectId, accountId, token]);
+  }, [projectId, token, accountId]);
 
   const { chartsData, customTitles } = useMemo(() => {
     if (!issues.length) return { chartsData: null, customTitles: [] };

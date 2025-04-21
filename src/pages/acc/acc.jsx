@@ -167,7 +167,7 @@ const ACCProjectPage = () => {
       }
     };
 
-    if (projectId && cookies.access_token && accountId) {
+    if (cookies.access_token && projectId && accountId) {
       loadAll();
     }
   }, [ projectId, cookies.access_token, accountId]);
