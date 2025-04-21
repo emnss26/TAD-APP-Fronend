@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -17,15 +16,48 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
   ChevronDown,
   ChevronUp,
   Search,
   SlidersHorizontal,
   Filter,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+/* ------------ helpers de state ------------ */
+const stateColors = {
+  active: "bg-green-100 text-green-800",
+  pending: "bg-yellow-100 text-yellow-800",
+  inactive: "bg-red-100 text-red-800",
+  unknown: "bg-gray-100 text-gray-800",
+};
+const renderStateBadge = (state = "unknown") => {
+  const key = state.toLowerCase() || "unknown";
+  return (
+    <Badge
+      className={`${stateColors[key] || stateColors.unknown} flex items-center hover:bg-[#164aa2] hover:text-white transition-colors`}
+    >
+      {state.charAt(0).toUpperCase() + state.slice(1)}
+    </Badge>
+  );
+};
+
+/* ------------ component ------------ */
 export default function UsersTable({ users = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState("name");
@@ -36,34 +68,35 @@ export default function UsersTable({ users = [] }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const getRoleDisplay = (user) => 
-    !user.roles || user.roles.length === 0
-      ? "Not specified"
-      : user.roles.map((role) => role.name).join(", ");
-  
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "active":
-        return "text-green-500";
-      case "inactive":
-        return "text-red-500";
-      case "pending":
-        return "text-yellow-100";
-      default:
-        return "text-gray-500";
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
     }
   };
+  const sortIndicator = (field) =>
+    sortField === field ? (
+      sortDirection === "asc" ? (
+        <ChevronUp className="inline h-4 w-4 ml-1" />
+      ) : (
+        <ChevronDown className="inline h-4 w-4 ml-1" />
+      )
+    ) : null;
 
-  const getCompanyColor = (companyName) => {
+  const getRoleDisplay = (u) =>
+    !u.roles || u.roles.length === 0
+      ? "Not specified"
+      : u.roles.map((r) => r.name).join(", ");
+  const getCompanyColor = (name) => {
     let hash = 0;
-    for (let i = 0; i < companyName.length; i++) {
-      hash = companyName.charCodeAt(i) + ((hash << 5) - hash);
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
     const h = Math.abs(hash % 360);
     return `hsl(${h}, 70%, 85%)`;
   };
-
   const getInitials = (name) =>
     name
       .split(" ")
@@ -72,310 +105,317 @@ export default function UsersTable({ users = [] }) {
       .toUpperCase()
       .substring(0, 2);
 
-  const filteredUsers = users.filter((user) => {
-    const text = searchTerm.toLowerCase();
-    const matchesSearch =
-      user.name.toLowerCase().includes(text) ||
-      user.email.toLowerCase().includes(text) ||
-      (user.companyName && user.companyName.toLowerCase().includes(text));
+  // Filtrado
+  const filtered = useMemo(() => {
+    return users.filter((u) => {
+      const q = searchTerm.toLowerCase();
+      const matchText =
+        u.name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        (u.companyName || "").toLowerCase().includes(q);
+      const matchStatus = statusFilter ? u.status === statusFilter : true;
+      const matchCompany = companyFilter
+        ? u.companyName === companyFilter
+        : true;
+      const matchRole = roleFilter
+        ? u.roles?.some((r) => r.name === roleFilter)
+        : true;
+      return matchText && matchStatus && matchCompany && matchRole;
+    });
+  }, [users, searchTerm, statusFilter, companyFilter, roleFilter]);
 
-    const matchesStatus = statusFilter ? user.status === statusFilter : true;
-    const matchesCompany = companyFilter
-      ? user.companyName === companyFilter
-      : true;
-    const matchesRole = roleFilter
-      ? user.roles && user.roles.some((role) => role.name === roleFilter)
-      : true;
+  // Ordenamiento
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const aVal = a[sortField] ?? "";
+      const bVal = b[sortField] ?? "";
+      return sortDirection === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [filtered, sortField, sortDirection]);
 
-    return matchesSearch && matchesStatus && matchesCompany && matchesRole;
-  });
-
-  const sortedUsers = [...filteredUsers].sort((a, b) => {
-    const aVal = a[sortField] || "";
-    const bVal = b[sortField] || "";
-    return sortDirection === "asc"
-      ? String(aVal).localeCompare(String(bVal))
-      : String(bVal).localeCompare(String(aVal));
-  });
-
-  const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
-  const paginatedUsers = sortedUsers.slice(
+  const totalPages = Math.ceil(sorted.length / itemsPerPage);
+  const paginated = sorted.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  const handleSort = (field) => {
-    if (field === sortField) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
-
-  const uniqueStatuses = Array.from(new Set(users.map((u) => u.status))).filter(Boolean);
-  const uniqueCompanies = Array.from(new Set(users.map((u) => u.companyName))).filter(Boolean);
+  const uniqueStatuses = Array.from(
+    new Set(users.map((u) => u.status))
+  ).filter(Boolean);
+  const uniqueCompanies = Array.from(
+    new Set(users.map((u) => u.companyName))
+  ).filter(Boolean);
   const uniqueRoles = Array.from(
-    new Set(users.flatMap((u) => (u.roles ? u.roles.map((r) => r.name) : [])))
+    new Set(
+      users.flatMap((u) => (u.roles ? u.roles.map((r) => r.name) : []))
+    )
   ).filter(Boolean);
 
   return (
-    <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4 flex-wrap">
-        {/* Search */}
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search user..."
-            className="pl-8"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
+    <Card className="w-full bg-white">
+      <CardHeader className="bg-slate-50 pb-2">
+        <div className="flex flex-col md:flex-row justify-between gap-4">
+          <CardTitle className="text-xl font-bold">Users List</CardTitle>
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="relative w-full md:w-64">
+              <Search className="absolute left-2 top-2 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Search users…"
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+            <Button
+              className="bg-[#2ea3e3] text-white"
+              onClick={() => {
+                setSearchTerm("");
+                setSortField("name");
+                setSortDirection("asc");
+                setStatusFilter("");
+                setCompanyFilter("");
+                setRoleFilter("");
+                setCurrentPage(1);
+              }}
+            >
+              Reset
+            </Button>
+          </div>
         </div>
-
-        {/* Filter by state */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto">
-              <SlidersHorizontal className="mr-2 h-4 w-4" />
-              {statusFilter ? `State: ${statusFilter}` : "Filter by state"}
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => {
-                setStatusFilter(null);
-                setCurrentPage(1);
-              }}
-            >
-              All States
-            </DropdownMenuItem>
-            {uniqueStatuses.map((status) => (
+        <div className="flex flex-col md:flex-row justify-between gap-4 mt-4">
+          {/* State */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full md:w-auto">
+                <SlidersHorizontal className="mr-2 h-4 w-4" />
+                {statusFilter ? `State: ${statusFilter}` : "Filter by state"}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
               <DropdownMenuItem
-                key={status}
                 onClick={() => {
-                  setStatusFilter(status);
+                  setStatusFilter("");
                   setCurrentPage(1);
                 }}
               >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                All States
               </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Filter By Company */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto">
-              <Filter className="mr-2 h-4 w-4" />
-              {companyFilter ? `Company: ${companyFilter}` : "Filter By Company"}
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => {
-                setCompanyFilter(null);
-                setCurrentPage(1);
-              }}
-            >
-              All Companies
-            </DropdownMenuItem>
-            {uniqueCompanies.map((company) => (
+              {uniqueStatuses.map((s) => (
+                <DropdownMenuItem
+                  key={s}
+                  onClick={() => {
+                    setStatusFilter(s);
+                    setCurrentPage(1);
+                  }}
+                >
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* Company */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full md:w-auto">
+                <Filter className="mr-2 h-4 w-4" />
+                {companyFilter
+                  ? `Company: ${companyFilter}`
+                  : "Filter by company"}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
               <DropdownMenuItem
-                key={company}
                 onClick={() => {
-                  setCompanyFilter(company);
+                  setCompanyFilter("");
                   setCurrentPage(1);
                 }}
               >
-                {company}
+                All Companies
               </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Filter By Rol */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto">
-              <Filter className="mr-2 h-4 w-4" />
-              {roleFilter ? `Rol: ${roleFilter}` : "Filter By Rol"}
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => {
-                setRoleFilter(null);
-                setCurrentPage(1);
-              }}
-            >
-              All Roles
-            </DropdownMenuItem>
-            {uniqueRoles.map((role) => (
+              {uniqueCompanies.map((c) => (
+                <DropdownMenuItem
+                  key={c}
+                  onClick={() => {
+                    setCompanyFilter(c);
+                    setCurrentPage(1);
+                  }}
+                >
+                  {c}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* Role */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full md:w-auto">
+                <Filter className="mr-2 h-4 w-4" />
+                {roleFilter ? `Role: ${roleFilter}` : "Filter by role"}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
               <DropdownMenuItem
-                key={role}
                 onClick={() => {
-                  setRoleFilter(role);
+                  setRoleFilter("");
                   setCurrentPage(1);
                 }}
               >
-                {role}
+                All Roles
               </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+              {uniqueRoles.map((r) => (
+                <DropdownMenuItem
+                  key={r}
+                  onClick={() => {
+                    setRoleFilter(r);
+                    setCurrentPage(1);
+                  }}
+                >
+                  {r}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardHeader>
 
-      {/* Table */}
-      <div className="rounded-md border overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead onClick={() => handleSort("name")} className="cursor-pointer">
-                <div className="flex items-center">
-                  Name
-                  {sortField === "name" &&
-                    (sortDirection === "asc" ? (
-                      <ChevronUp className="ml-1 h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    ))}
-                </div>
-              </TableHead>
-              <TableHead onClick={() => handleSort("email")} className="cursor-pointer">
-                <div className="flex items-center">
-                  Email
-                  {sortField === "email" &&
-                    (sortDirection === "asc" ? (
-                      <ChevronUp className="ml-1 h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    ))}
-                </div>
-              </TableHead>
-              <TableHead onClick={() => handleSort("status")} className="cursor-pointer">
-                <div className="flex items-center">
-                  State
-                  {sortField === "status" &&
-                    (sortDirection === "asc" ? (
-                      <ChevronUp className="ml-1 h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    ))}
-                </div>
-              </TableHead>
-              <TableHead
-                onClick={() => handleSort("companyName")}
-                className="cursor-pointer hidden md:table-cell"
-              >
-                <div className="flex items-center">
-                  Company
-                  {sortField === "companyName" &&
-                    (sortDirection === "asc" ? (
-                      <ChevronUp className="ml-1 h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    ))}
-                </div>
-              </TableHead>
-              <TableHead className="hidden md:table-cell">Roles</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {paginatedUsers.length > 0 ? (
-              paginatedUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <Avatar>
-                        <AvatarImage src={user.imageUrl || "/placeholder.svg"} alt={user.name} />
-                        <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                      </Avatar>
-                      <span>{user.name}</span>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>{user.email}</TableCell>
-
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(user.status)}>
-                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-
-                  <TableCell className="hidden md:table-cell">
-                    <div className="flex items-center">
-                      <div
-                        className="w-3 h-3 rounded-full mr-2"
-                        style={{ backgroundColor: getCompanyColor(user.companyName) }}
-                      />
-                      {user.companyName}
-                    </div>
-                  </TableCell>
-
-                  <TableCell className="hidden md:table-cell">
-                    {getRoleDisplay(user)}
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-[#f6f6f6]">
+              <TableRow>
+                <TableHead
+                  className="p-2 cursor-pointer text-black"
+                  onClick={() => handleSort("name")}
+                >
+                  Name {sortIndicator("name")}
+                </TableHead>
+                <TableHead
+                  className="p-2 cursor-pointer text-black"
+                  onClick={() => handleSort("email")}
+                >
+                  Email {sortIndicator("email")}
+                </TableHead>
+                <TableHead
+                  className="p-2 cursor-pointer text-black"
+                  onClick={() => handleSort("status")}
+                >
+                  State {sortIndicator("status")}
+                </TableHead>
+                <TableHead
+                  className="p-2 cursor-pointer text-black hidden md:table-cell"
+                  onClick={() => handleSort("companyName")}
+                >
+                  Company {sortIndicator("companyName")}
+                </TableHead>
+                <TableHead className="p-2 text-black hidden md:table-cell">
+                  Roles
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginated.length > 0 ? (
+                paginated.map((u) => (
+                  <TableRow key={u.id} className="hover:bg-gray-50">
+                    <TableCell className="p-2 font-medium">
+                      <div className="flex items-center gap-2">
+                        <Avatar>
+                          <AvatarImage
+                            src={u.imageUrl || "/placeholder.svg"}
+                            alt={u.name}
+                          />
+                          <AvatarFallback>
+                            {getInitials(u.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {u.name}
+                      </div>
+                    </TableCell>
+                    <TableCell className="p-2">{u.email}</TableCell>
+                    <TableCell className="p-2">
+                      {renderStateBadge(u.status)}
+                    </TableCell>
+                    <TableCell className="p-2 hidden md:table-cell">
+                      <div className="flex items-center">
+                        <span
+                          className="w-3 h-3 rounded-full mr-2"
+                          
+                        />
+                        {u.companyName}
+                      </div>
+                    </TableCell>
+                    <TableCell className="p-2 hidden md:table-cell">
+                      {getRoleDisplay(u)}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="p-8 text-center text-gray-500"
+                  >
+                    No users found.
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
-                  No users finded.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
-            {Math.min(currentPage * itemsPerPage, filteredUsers.length)} de{" "}
-            {filteredUsers.length} Users
-          </div>
-          <div className="flex gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => p - 1)}
-              disabled={currentPage === 1}
-            >
-              Anterior
-            </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant={page === currentPage ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </Button>
-            ))}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => p + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </div>
+              )}
+            </TableBody>
+          </Table>
         </div>
-      )}
-    </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-between items-center p-4 border-t">
+            <span className="text-sm text-gray-600">
+              Showing {paginated.length} of {sorted.length} users
+            </span>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() =>
+                      setCurrentPage((p) => Math.max(1, p - 1))
+                    }
+                    className={
+                      currentPage === 1
+                        ? "opacity-50 pointer-events-none"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <PaginationItem key={i + 1}>
+                    <PaginationLink
+                      isActive={currentPage === i + 1}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
+                    className={
+                      currentPage === totalPages
+                        ? "opacity-50 pointer-events-none"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

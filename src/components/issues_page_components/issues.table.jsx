@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/card";
 import {
   ChevronDown, ChevronUp, Search, SlidersHorizontal, Eye,
-  AlertCircle, Clock, CheckCircle2,
 } from "lucide-react";
 
 /* ------------ helpers ------------ */
@@ -25,39 +24,43 @@ const getCustom = (issue, title) =>
   issue.customAttributes?.find((a) => a.title === title)?.readableValue ??
   "Not specified";
 
+const statusColors = {
+  open: "bg-yellow-100 text-yellow-800",
+  answered: "bg-blue-100 text-blue-800",
+  "in_review": "bg-blue-100 text-blue-800",
+  "in_progress": "bg-blue-100 text-blue-800",
+  closed: "bg-gray-100 text-gray-800",
+  urgent: "bg-red-100 text-red-800",
+  unknown: "bg-gray-100 text-gray-800",
+};
+
 const renderStatusBadge = (status = "unknown") => {
   const key = status.toLowerCase?.() || "unknown";
-  const badge = {
-    open:    { variant: "default",     icon: <AlertCircle className="h-3 w-3 mr-1" /> },
-    answered:{ variant: "secondary",   icon: <Clock className="h-3 w-3 mr-1" /> },
-    "in review":   { variant: "secondary",   icon: <Clock className="h-3 w-3 mr-1" /> },
-    "in progress": { variant: "secondary",   icon: <Clock className="h-3 w-3 mr-1" /> },
-    closed:  { variant: "outline",     icon: <CheckCircle2 className="h-3 w-3 mr-1" /> },
-    urgent:  { variant: "destructive", icon: <AlertCircle className="h-3 w-3 mr-1" /> },
-    unknown: { variant: "outline",     icon: null },
-  }[key] || { variant: "outline", icon: null };
-
   return (
-    <Badge variant={badge.variant} className="flex items-center">
-      {badge.icon}
-      {status}
+    <Badge
+      className={`${statusColors[key] || statusColors.unknown} flex items-center hover:bg-[#164aa2] hover:text-white transition-colors`}
+    >
+      {status.charAt(0).toUpperCase() + status.slice(1)}
     </Badge>
   );
 };
 
-const renderPriorityBadge = (priority = "Not specified") => {
+const priorityColors = {
+  critical: "bg-purple-100 text-purple-800",
+  hard: "bg-red-100 text-red-800",
+  medium: "bg-blue-100 text-blue-800",
+  low: "bg-green-100 text-green-800",
+  unknown: "bg-gray-100 text-gray-800",
+};
+
+const renderPriorityBadge = (priority = "unknown") => {
   const key = priority.toLowerCase?.() || "unknown";
-  const colors = {
-    critical: "bg-red-100 text-red-800",
-    hard:     "bg-yellow-100 text-yellow-800",
-    medium:   "bg-blue-100 text-blue-800",
-    low:      "bg-green-100 text-green-800",
-    unknown:  "bg-gray-100 text-gray-800",
-  };
   return (
-    <span className={`text-xs px-2 py-1 rounded-full font-medium ${colors[key] || colors.unknown}`}>
-      {priority}
-    </span>
+    <Badge
+      className={`${priorityColors[key] || priorityColors.unknown} px-2 py-1 rounded-full font-medium hover:bg-[#164aa2] hover:text-white transition-colors`}
+    >
+      {priority.charAt(0).toUpperCase() + priority.slice(1)}
+    </Badge>
   );
 };
 
@@ -65,7 +68,7 @@ const renderPriorityBadge = (priority = "Not specified") => {
 export default function IssuesTable({
   issues = [],
   onViewDetails,
-  customColumns = [],      // ← nombres de atributos personalizados
+  customColumns = [],      // nombres de atributos personalizados
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm]   = useState("");
@@ -73,23 +76,21 @@ export default function IssuesTable({
   const [sortDirection, setSortDirection] = useState("asc");
   const itemsPerPage = 10;
 
-  /* ----- filtrado y orden ----- */
+  /* ----- filtered & sorted list ----- */
   const list = useMemo(() => {
     let res = [...issues];
 
-    /* búsqueda */
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
       res = res.filter((i) =>
         (i.title ?? "").toLowerCase().includes(q) ||
         (i.description ?? "").toLowerCase().includes(q) ||
-        String(i.displayId).toLowerCase().includes(q) ||
+        String(i.displayId).includes(q) ||
         (i.status ?? "").toLowerCase().includes(q) ||
         (i.assignedTo ?? "").toLowerCase().includes(q)
       );
     }
 
-    /* orden */
     if (sortField) {
       res.sort((a, b) => {
         const av = (a[sortField] ?? "").toString();
@@ -101,6 +102,7 @@ export default function IssuesTable({
     return res;
   }, [issues, searchTerm, sortField, sortDirection]);
 
+  /* ----- pagination ----- */
   const current = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return list.slice(start, start + itemsPerPage);
@@ -110,21 +112,21 @@ export default function IssuesTable({
 
   const sortIndicator = (f) =>
     sortField === f ? (
-      sortDirection === "asc" ? <ChevronUp className="inline h-4 w-4 ml-1" /> : <ChevronDown className="inline h-4 w-4 ml-1" />
+      sortDirection === "asc"
+        ? <ChevronUp className="inline h-4 w-4 ml-1" />
+        : <ChevronDown className="inline h-4 w-4 ml-1" />
     ) : null;
 
-  /* ----- JSX ----- */
   return (
-    <Card className="w-full shadow-lg border-0">
-      {/* ---------- header ---------- */}
+    <Card className="w-full bg-white">
+      {/* header */}
       <CardHeader className="bg-slate-50 pb-2">
         <div className="flex flex-col md:flex-row justify-between gap-4">
           <CardTitle className="text-xl font-bold">Issues List</CardTitle>
-
-          <div className="flex gap-2 w-full md:w-auto">
+          <div className="flex items-center gap-2 w-full md:w-auto">
             {/* search */}
             <div className="relative w-full md:w-64">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-2 h-4 w-4 text-gray-500" />
               <Input
                 placeholder="Search issues…"
                 className="pl-8"
@@ -132,88 +134,72 @@ export default function IssuesTable({
                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               />
             </div>
-
-            {/* sort dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <SlidersHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {["displayId", "dueDate", "priority", "status"].map((f) => (
-                  <DropdownMenuItem key={f} onClick={() => {
-                    setSortField(f);
-                    setSortDirection(sortField === f && sortDirection === "asc" ? "desc" : "asc");
-                  }}>
-                    Sort by {f}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* reset button */}
+            <Button className="bg-[#2ea3e3] text-white" onClick={() => { setSearchTerm(""); setSortField(null); }}>Reset</Button>
           </div>
         </div>
       </CardHeader>
 
-      {/* ---------- table ---------- */}
+      {/* table */}
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-slate-100">
+            <TableHeader className="bg-[#f6f6f6]">
               <TableRow>
-                <TableHead className="w-[80px] cursor-pointer" onClick={() => handleSort("displayId")}>
+                <TableHead className="p-2 cursor-pointer text-black" onClick={() => {
+                  setSortField("displayId");
+                  setSortDirection(sortField === "displayId" && sortDirection === "asc" ? "desc" : "asc");
+                }}>
                   ID {sortIndicator("displayId")}
                 </TableHead>
-                <TableHead className="cursor-pointer" onClick={() => handleSort("title")}>
+                <TableHead className="p-2 cursor-pointer text-black" onClick={() => {
+                  setSortField("title");
+                  setSortDirection(sortField === "title" && sortDirection === "asc" ? "desc" : "asc");
+                }}>
                   Title {sortIndicator("title")}
                 </TableHead>
-                <TableHead className="hidden md:table-cell">Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden md:table-cell">Due Date</TableHead>
-                <TableHead className="hidden lg:table-cell">Updated</TableHead>
-                <TableHead className="hidden md:table-cell">Assigned To</TableHead>
-                <TableHead>Priority</TableHead>
-
-                {/* dinámicos */}
+                <TableHead className="p-2 text-black hidden md:table-cell">Description</TableHead>
+                <TableHead className="p-2 text-black">Status</TableHead>
+                <TableHead className="p-2 text-black hidden md:table-cell">Created At</TableHead>
+                <TableHead className="p-2 text-black hidden md:table-cell">Due Date</TableHead>
+                <TableHead className="p-2 text-black hidden lg:table-cell">Updated</TableHead>
+                <TableHead className="p-2 text-black hidden md:table-cell">Assigned To</TableHead>
+                <TableHead className="p-2 text-black">Priority</TableHead>
                 {customColumns.map((c) => (
-                  <TableHead key={c} className="hidden lg:table-cell">
-                    {c}
-                  </TableHead>
+                  <TableHead key={c} className="p-2 text-black hidden lg:table-cell">{c}</TableHead>
                 ))}
-
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="p-2 text-black text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
-
             <TableBody>
               {current.length ? (
                 current.map((issue) => {
                   const prio = getCustom(issue, "Priority");
                   return (
-                    <TableRow key={issue.id} className="hover:bg-slate-50">
-                      <TableCell>{issue.displayId}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">{issue.title}</TableCell>
-                      <TableCell className="hidden md:table-cell max-w-[200px] truncate">{issue.description}</TableCell>
-                      <TableCell>{renderStatusBadge(issue.status)}</TableCell>
-                      <TableCell className="hidden md:table-cell">{issue.dueDate || "-"}</TableCell>
-                      <TableCell className="hidden lg:table-cell">{issue.updatedAt || "-"}</TableCell>
-                      <TableCell className="hidden md:table-cell">{issue.assignedTo || "-"}</TableCell>
-                      <TableCell>{renderPriorityBadge(prio)}</TableCell>
-
+                    <TableRow key={issue.id} className="hover:bg-gray-50">
+                      <TableCell className="p-2">{issue.displayId}</TableCell>
+                      <TableCell className="p-2 max-w-[200px] truncate">{issue.title}</TableCell>
+                      <TableCell className="p-2 hidden md:table-cell max-w-[200px] truncate">{issue.description}</TableCell>
+                      <TableCell className="p-2">{renderStatusBadge(issue.status)}</TableCell>
+                      <TableCell className="p-2 hidden md:table-cell">
+                      {issue.createdAt ? issue.createdAt.split("T")[0] : "-"}
+                      </TableCell>
+                      <TableCell className="p-2 hidden md:table-cell">{issue.dueDate || "-"}</TableCell>
+                      <TableCell className="p-2 hidden lg:table-cell">
+                        {issue.updatedAt ? issue.updatedAt.split("T")[0] : "-"}
+                      </TableCell>
+                      <TableCell className="p-2 hidden md:table-cell">{issue.assignedTo || "-"}</TableCell>
+                      <TableCell className="p-2">{renderPriorityBadge(prio)}</TableCell>
                       {customColumns.map((c) => (
-                        <TableCell key={c} className="hidden lg:table-cell">
-                          {getCustom(issue, c)}
-                        </TableCell>
+                        <TableCell key={c} className="p-2 text-black hidden lg:table-cell">{getCustom(issue, c)}</TableCell>
                       ))}
-
-                      <TableCell className="text-right">
+                      <TableCell className="p-2 text-right">
                         <Button
-                          variant="outline"
+                          className="bg-[#2ea3e3] text-white"
                           size="sm"
                           onClick={() => onViewDetails?.(issue.id)}
                         >
-                          <Eye className="h-3.5 w-3.5" />
-                          <span className="hidden sm:inline">Details</span>
+                          <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -221,7 +207,7 @@ export default function IssuesTable({
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={customColumns.length + 9} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={customColumns.length + 9} className="p-8 text-center text-gray-500">
                     No issues found matching your search criteria.
                   </TableCell>
                 </TableRow>
@@ -230,19 +216,18 @@ export default function IssuesTable({
           </Table>
         </div>
 
-        {/* ---------- pagination ---------- */}
+        {/* pagination */}
         {totalPages > 1 && (
-          <div className="p-4 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
-            <span className="text-sm text-muted-foreground">
+          <div className="flex justify-between items-center p-4 border-t">
+            <span className="text-sm text-gray-600">
               Showing {current.length} of {list.length} issues
             </span>
-
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    className={currentPage === 1 ? "opacity-50 pointer-events-none" : ""}
                   />
                 </PaginationItem>
                 {Array.from({ length: totalPages }, (_, i) => (
@@ -258,7 +243,7 @@ export default function IssuesTable({
                 <PaginationItem>
                   <PaginationNext
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                    className={currentPage === totalPages ? "opacity-50 pointer-events-none" : ""}
                   />
                 </PaginationItem>
               </PaginationContent>
@@ -268,10 +253,4 @@ export default function IssuesTable({
       </CardContent>
     </Card>
   );
-
-  /* ----- inner helper ----- */
-  function handleSort(field) {
-    if (sortField === field) setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    else { setSortField(field); setSortDirection("asc"); }
-  }
 }

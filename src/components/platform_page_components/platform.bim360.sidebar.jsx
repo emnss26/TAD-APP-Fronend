@@ -78,6 +78,15 @@ const BIM360SideBar = () => {
                 {!isCollapsed && <span className="ml-2 text-xs">Issues Report</span>}
             </Link>
 
+            {/* RFI Report */}
+            <Link
+            to={`/bim360projects/${accountId}/${projectId}/bim360rfis`}
+            className="mb-4 flex items-center text-[#6b7474] bg-transparent hover:text-[#2ea3e3] hover:bg-gray-50 p-2 rounded"
+            >
+            <FaEnvelope size={10} />
+            {!isCollapsed && <span className="ml-2 text-xs">RFI Report</span>}
+            </Link>
+
         </div>
     );      
 }

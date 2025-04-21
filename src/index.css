@@ -8,7 +8,18 @@
     box-sizing: border-box; /* Asegura que el padding no desborde */
   }
 
+/* Ajustes para elevar los dots del slider */
+.chart-with-dots {
+  position: relative;
+  padding-bottom: 3rem; /* deja espacio para los dots */
+}
 
+.chart-with-dots .slick-dots {
+  position: absolute;
+  bottom: 0.5rem;       /* qué tan cerca del fondo del chart */
+  left: 50%;
+  transform: translateX(-50%);
+}
 
 @layer base {
   :root {

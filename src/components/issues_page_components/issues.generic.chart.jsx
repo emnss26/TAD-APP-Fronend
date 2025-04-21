@@ -4,13 +4,13 @@ export default function DonutChartGeneric({ counts = {}, onSliceClick }) {
   const chartData = Object.entries(counts).map(([k, v]) => ({ id: k, value: v }));
 
   return (
-    <div style={{ height: 400, width: 400, margin: "1px auto" }}>
+    <div style={{ height: 500, width: 400, margin: "1px auto" }}>
       <ResponsivePie
         data={chartData}
         innerRadius={0.65}
         padAngle={1}
         activeOuterRadiusOffset={4}
-        margin={{ top: 10, right: 150, bottom: 20, left: 30 }}
+        margin={{ top: 10, right: 150, bottom: 10, left: 30 }}
         colors={["#00BCFF", "#0077b7", "#0c2c54", "#4eb3d3", "#6b7474"]}
         borderWidth={1}
         borderColor={{ from: "color", modifiers: [["darker", 0.6]] }}

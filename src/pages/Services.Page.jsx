@@ -3,7 +3,7 @@ import { Header } from '../components/general_pages_components/general.pages.hea
 import { Footer } from '../components/general_pages_components/general.pages.footer.jsx'
 import Home_Image from '/Home_Image.png'
 
-const AboutPage = () => {
+const ServicesPage = () => {
 
 return (
     <div className = 'flex flex-col min-h-screen bg-[#fbfcfb]'>
@@ -23,18 +23,18 @@ return (
             </div>
             <div className = 'w-1/2 flex flex-col justify-center items-center text-center'>
                 <h1 className = 'text-4xl md:text-5xl lg:text 6xl font-bold tracking-tigth leading-tight mb-4'>
-                    About Us
+                    Services
                 </h1>
                 <p className="text-s text-gray-700 text-center">
-                    TAD HUB is a digital platform for architects and engineers, where you can find the best courses and tools to improve your skills and boost your career and projects.
-                    Our mission is to provide high-quality content and resources to help professionals in the AEC industry to grow and succeed in their projects and careers.
-                    We are constantly updating our platform with new courses, tools, and resources to help you stay up-to-date with the latest trends and technologies in the industry.
+                    - Revit API Plugins
+                    - Autodesk Platform Services (APS) APPS
+                    - Artificial Intelligence (AI) Tools for AEC
                 </p>
                 <p className="text-s text-gray-700 text-center">
                     
                 </p>
                 <p className="text-s text-gray-700 text-center">
-                    Join TAD HUB today and take your career to the next level!
+                    Let us know if you have any questions or if you would like to discuss a project with us.
                 </p>
                              
             </div>
@@ -46,4 +46,4 @@ return (
     )
 }
 
-export default AboutPage;
+export default ServicesPage;

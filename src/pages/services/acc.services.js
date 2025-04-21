@@ -121,7 +121,7 @@ export const fetchACCProjectRFI = async (projectId, access_token, accountId) => 
         }
         const { data } = await response.json();
 
-        //console.log("ACC Project RFI:", data.rfis);
+        console.log("ACC Project RFI:", data.rfis);
 
         return data;
 
