@@ -36,8 +36,7 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/services" element={<ServicesPage />} />
 
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}></Route>
+          
 
           {/* ACC Pages */}
           <Route path="/accprojects" element={<ACCProjectsPage />} />
