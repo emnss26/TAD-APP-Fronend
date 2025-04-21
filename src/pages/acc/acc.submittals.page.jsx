@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -16,189 +16,290 @@ import submittalsStatusChart from "../../components/submittlas_page_components/s
 import SubmittalsTable from "../../components/submittlas_page_components/submittals.table";
 
 import {
+  fetchACCProjectsData,
+  fetchACCProjectData,
+  fechACCProjectUsers,
   fetchACCProjectSubmittals,
 } from "../../pages/services/acc.services";
 
-  const ACCSubmittalsPage = () => {
-    const { projectId, accountId } = useParams();
-    const [cookies] = useCookies(["access_token"]);
-    const token = cookies.access_token;
+const backendUrl =
+  import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
+
+const ACCSubmittalsPage = () => {
+  // Datos del proyecto
+  const [projectsData, setProjectsData] = useState(null);
+  const [project, setProject] = useState({});
+  const { projectId, accountId } = useParams();
+  const [cookies] = useCookies(["access_token"]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Datos submittals
+  const [submittals, setSubmittals] = useState([]);
+  const [submittalsTotals, setSubmittalsTotals] = useState({
+    total: 0,
+    waitingforsubmission: 0,
+    inreview: 0,
+    reviewed: 0,
+    submitted: 0,
+    closed: 0,
+  });
+  const [filteredSubmittals, setFilteredSubmittals] = useState([]);
+  const [statusCounts, setStatusCounts] = useState({});
+  const [specCounts, setSpecCounts] = useState({});
+
+  // Filtros
+  const [activeFilters, setActiveFilters] = useState({
+    status: null,
+    spec: null,
+  });
+
+  //ProjectsData
+  useEffect(() => {
+    const getProjects = async () => {
+      const projectsData = await fetchACCProjectsData(cookies.access_token);
+
+      //console.log("Projects Data:", projectData.name);
+
+      setProjectsData(projectsData);
+    };
+    getProjects();
+  }, [cookies.access_token]);
+
+  //ProjectData
+  useEffect(() => {
+    const getProject = async () => {
+      const projectData = await fetchACCProjectData(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
+
+      //console.log("Project Name:", projectData.name);
+
+      setProject(projectData);
+    };
+    getProject();
+  }, [projectId, cookies.access_token, accountId]);
+
+  //Submittals
+  useEffect(() => {
+    const getProjectSubmittals = async () => {
+      const projectSubmittals = await fetchACCProjectSubmittals(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
+
+      setSubmittals(projectSubmittals.submittals);
+      setSubmittalsTotals({
+        total: projectSubmittals.submittals.length,
+        waitingforsubmission: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "Waiting for submission"
+        ).length,
+        inreview: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "In review"
+        ).length,
+        reviewed: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "Reviewed"
+        ).length,
+        submitted: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "Submitted"
+        ).length,
+        closed: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "Closed"
+        ).length,
+      });
+    };
+    getProjectSubmittals();
+  }, [projectId, cookies.access_token, accountId]);
+
+  useEffect(() => {
+    if (!submittals.length) {
+      setStatusCounts({});
+      setSpecCounts({});
+      return;
+    }
   
-    // Estados
-    const [projectsData, setProjectsData] = useState(null);
-    const [project, setProject] = useState({});
-    const [submittals, setSubmittals] = useState([]);
-    const [submittalsTotals, setSubmittalsTotals] = useState({
-      total: 0,
-      waitingforsubmission: 0,
-      inreview: 0,
-      reviewed: 0,
-      submitted: 0,
-      closed: 0,
+    // 1) Conteos por estado
+    const status = submittals.reduce((acc, sub) => {
+      const key = sub.stateId || 'Unknown';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    setStatusCounts(status);
+  
+    // 2) Conteos por Spec
+    const specs = submittals.reduce((acc, sub) => {
+      const title = sub.specDetails?.title || 'Not Specified';
+      acc[title] = (acc[title] || 0) + 1;
+      return acc;
+    }, {});
+    setSpecCounts(specs);
+  }, [submittals]);
+
+  async function fetchAll(projectId, cookies, accountId) {
+    await Promise.all([
+      fetchACCProjectData(projectId, cookies.access_token, accountId),
+      fechACCProjectUsers(projectId, cookies.access_token, accountId),
+      fetchACCProjectSubmittals(projectId, cookies.access_token, accountId),
+    ]);
+  }
+
+  useEffect(() => {
+    setLoading(true);
+    fetchAll(projectId, cookies, accountId)
+      .catch(console.error)   // maneja errores
+      .finally(() => setLoading(false));
+  }, [projectId, cookies, accountId]);
+
+
+  useEffect(() => {
+    if (submittals.length === 0) {
+      setFilteredSubmittals([]);
+      return;
+    }
+
+    let updated = [...submittals];
+
+    // Filtrar por status
+    if (activeFilters.status) {
+      updated = updated.filter((sub) => sub.stateId === activeFilters.status);
+    }
+
+    // Filtrar por spec
+    if (activeFilters.spec) {
+      updated = updated.filter((sub) => {
+        const specTitle = sub.specDetails?.title || "Unknown Spec";
+        return specTitle === activeFilters.spec;
+      });
+    }
+
+    setFilteredSubmittals(updated);
+  }, [activeFilters, submittals]);
+
+  const handleFilterClick = (filterType, value) => {
+    setActiveFilters((prev) => ({
+      ...prev,
+      [filterType]: value,
+    }));
+  };
+
+  const resetFilters = () => {
+    setActiveFilters({
+      status: null,
+      spec: null,
     });
-    const [statusCounts, setStatusCounts] = useState({});
-    const [specCounts, setSpecCounts] = useState({});
-    const [activeFilters, setActiveFilters] = useState({ status: null, spec: null });
-    const [filteredSubmittals, setFilteredSubmittals] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+  };
 
-    useEffect(() => {
-      const loadData = async () => {
-        setLoading(true);
-        try {
-          const [submittalsRes] = await Promise.all([
-            fetchACCProjectSubmittals(projectId, token, accountId),
-          ]);
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    vertical: true,
+    verticalSwiping: true,
+  };
 
-          const subs = submittalsRes.submittals || [];
-          setSubmittals(subs);
-  
-          const totals = {
-            total: subs.length,
-            waitingforsubmission: subs.filter(s => s.stateId === "Waiting for submission").length,
-            inreview: subs.filter(s => s.stateId === "In review").length,
-            reviewed: subs.filter(s => s.stateId === "Reviewed").length,
-            submitted: subs.filter(s => s.stateId === "Submitted").length,
-            closed: subs.filter(s => s.stateId === "Closed").length,
-          };
-          setSubmittalsTotals(totals);
-  
-          const stateCountsTmp = {};
-          const specCountsTmp = {};
-          subs.forEach(sub => {
-            stateCountsTmp[sub.stateId] = (stateCountsTmp[sub.stateId] || 0) + 1;
-            const title = sub.specDetails?.title || 'Unknown Spec';
-            specCountsTmp[title] = (specCountsTmp[title] || 0) + 1;
-          });
-          setStatusCounts(stateCountsTmp);
-          setSpecCounts(specCountsTmp);
-        } catch (err) {
-          console.error('Error loading data:', err);
-          setError(err.message || 'Error fetching data');
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      if (token && projectId && accountId) {
-        loadData();
-      }
-    }, [token, projectId, accountId]);
+  const dataContainers = [
+    {
+      title: "Submittals Status Chart",
+      content: statusCounts,
+      chart: submittalsStatusChart,
+      data: statusCounts,
+      onClickName: (status) => handleFilterClick("status", status),
+    },
+    {
+      title: "Submittals Spec Chart",
+      content: specCounts,
+      chart: submittalsSpecChart,
+      data: specCounts,
+      onClickName: (specTitle) => handleFilterClick("spec", specTitle),
+    },
+  ];
 
-    useEffect(() => {
-      if (!submittals.length) {
-        setFilteredSubmittals([]);
-        return;
-      }
-      let updated = [...submittals];
-      if (activeFilters.status) {
-        updated = updated.filter(s => s.stateId === activeFilters.status);
-      }
-      if (activeFilters.spec) {
-        updated = updated.filter(
-          s => (s.specDetails?.title || 'Unknown Spec') === activeFilters.spec
-        );
-      }
-      setFilteredSubmittals(updated);
-    }, [submittals, activeFilters]);
-  
-    const handleFilterClick = (filterType, value) => {
-      setActiveFilters(prev => ({ ...prev, [filterType]: value }));
-    };
-  
-    const resetFilters = () => {
-      setActiveFilters({ status: null, spec: null });
-    };
-  
-    const sliderSettings = {
-      dots: true,
-      infinite: true,
-      speed: 500,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-      vertical: true,
-      verticalSwiping: true,
-    };
-  
-    const dataContainers = [
-      {
-        title: "Submittals Status Chart",
-        content: statusCounts,
-        chart: submittalsStatusChart,
-        data: statusCounts,
-        onClickName: status => handleFilterClick('status', status),
-      },
-      {
-        title: "Submittals Spec Chart",
-        content: specCounts,
-        chart: submittalsSpecChart,
-        data: specCounts,
-        onClickName: specTitle => handleFilterClick('spec', specTitle),
-      },
-    ];
-  
-    const displayedSubmittals =
-      filteredSubmittals.length || activeFilters.status || activeFilters.spec
-        ? filteredSubmittals
-        : submittals;
-  
-    return (
-      <>
-        {loading && <LoadingOverlay />}
-        {error && <p className="text-red-500">{error}</p>}
-  
-        <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
-        <div className="flex h-screen mt-14">
-          <ACCSideBar />
-          <div className="flex-1 p-2 px-4 bg-white">
-            <h1 className="text-right text-xl text-black mt-2">Submittals Report</h1>
-            <hr className="my-4 border-t border-gray-300" />
-  
-            <div className="mb-4 text-right">
-              <button
-                onClick={resetFilters}
-                className="bg-[#2ea3e3] text-white text-xs py-2 px-4 rounded mb-4 mx-2 hover:bg-[#aedb01] text-black"
-              >
-                Reset Table Filters
-              </button>
-            </div>
-  
-            <div className="flex flex-1 p-2 px-4 bg-white h-[650px]">
-              <div className="w-1/4 bg-gray-50 gap-4 mb-4 rounded-lg shadow-md mr-4">
-                <Slider {...sliderSettings}>
-                  {dataContainers.map((container, idx) => (
-                    <div key={idx} className="p-4 h-[650px]">
-                      <h2 className="text-lg text-black mb-4">{container.title}</h2>
-                      <hr className="border-gray-300 mb-1 text-xs" />
-                      <container.chart
-                        data={container.data}
-                        onSliceClick={container.onClickName}
-                      />
-                      <div className="text-xs mt-3 pb-3 overflow-y-auto" style={{ maxHeight: '450px' }}>
-                        <h3 className="font-semibold mb-3">Totals:</h3>
-                        <hr className="border-gray-300 mb-3" />
-                        {Object.entries(container.content).map(([key, val]) => (
-                          <p key={key}>{`${key}: ${val}`}</p>
-                        ))}
-                      </div>
+  const displayedSubmittals =
+    filteredSubmittals.length > 0 ||
+    Object.values(activeFilters).some((val) => val !== null)
+      ? filteredSubmittals
+      : submittals;
+  return (
+    <>
+      {loading && <LoadingOverlay />}
+      
+      {/*Header*/}
+      <ACCPlatformprojectsHeader
+        accountId={accountId}
+        projectId={projectId}
+      />
+
+      <div className="flex h-screen mt-14">
+        {/* Sidebar */}
+        <ACCSideBar />
+
+        {/* Main Content */}
+        <div className="flex-1 p-2 px-4 bg-white">
+          <h1 className="text-right text-xl text-black mt-2">
+            Submittals Report
+          </h1>
+          <hr className="my-4 border-t border-gray-300" />
+
+          {/* Botones */}
+          <div className="mb-4 text-right">
+            <button
+              onClick={resetFilters}
+              className="bg-[#2ea3e3] text-white text-xs py-2 px-4 rounded mb-4 mx-2 hover:bg-[#aedb01] text-black"
+            >
+              Reset Table Filters
+            </button>
+          </div>
+
+          {/* Layout Condicional */}
+
+          <div className="flex flex-1 p-2 px-4 bg-white h-[650px]">
+            {/* Slider (1/4) */}
+            <div className="w-1/4 bg-gray-50 gap-4 mb-4 rounded-lg shadow-md mr-4">
+              <Slider {...sliderSettings}>
+                {dataContainers.map((container, index) => (
+                  <div key={index} className="p-4 h-[650px]">
+                    <h2 className="text-lg text-black mb-4">
+                      {container.title}
+                    </h2>
+                    <hr className="border-gray-300 mb-1 text-xs" />
+
+                    <container.chart
+                      data={container.data}
+                      onSliceClick={container.onClickName}
+                    />
+
+                    <div
+                      className="text-xs mt-3 pb-3 overflow-y-auto"
+                      style={{ maxHeight: "450px" }}
+                    >
+                      <h3 className="font-semibold mb-3">Totals:</h3>
+                      <hr className="border-gray-300 mb-3" />
+                      {Object.entries(container.content).map(([key, val]) => (
+                        <p key={key}>{`${key}: ${val}`}</p>
+                      ))}
                     </div>
-                  ))}
-                </Slider>
-              </div>
-              <div className="w-3/4 bg-white gap-4 mb-4 p-4 rounded-lg shadow-md overflow-y-auto max-h-[650px]">
-                <SubmittalsTable
-                  submittals={displayedSubmittals}
-                  onViewDetails={id => handleFilterClick('status', id)}
-                />
-              </div>
+                  </div>
+                ))}
+              </Slider>
+            </div>
+
+            {/* Tabla (3/4) */}
+            <div className="w-3/4 bg-white gap-4 mb-4 p-4 rounded-lg shadow-md overflow-y-auto max-h-[650px]">
+              <SubmittalsTable
+                submittals={displayedSubmittals}
+                onViewDetails={(id) => handleFilterClick(id)()}
+              />
             </div>
           </div>
         </div>
-        <Footer />
-      </>
-    );
-  };
-  
-  export default ACCSubmittalsPage;
-  
+      </div>
+    </>
+  );
+};
+
+export default ACCSubmittalsPage;

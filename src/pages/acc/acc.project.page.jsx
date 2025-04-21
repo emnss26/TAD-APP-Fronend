@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { simpleViewer } from "../../utils/Viewers/simple.viewer";
 import { useCookies } from "react-cookie";
 
+// Slider
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -19,9 +21,10 @@ import {
   fechACCProjectIssues,
   fetchACCProjectRFI,
   fetchACCProjectSubmittals,
-} from "../services/acc.services";
+} from "../../pages/services/acc.services";
 
-import { simpleViewer } from "../../utils/Viewers/simple.viewer";
+const backendUrl =
+  import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
 
 const sliderSettings = {
   dots: true,
@@ -59,23 +62,26 @@ const sliderSettings = {
 };
 
 const ACCProjectPage = () => {
-  
-  const { projectId, accountId } = useParams();
-  const [cookies] = useCookies(["access_token"]);
-  
-
+  //Project Data
   const [projectsData, setProjectsData] = useState(null);
   const [project, setProject] = useState(null);
+  const { projectId } = useParams();
+  const { accountId } = useParams();
 
+  //Model Data
   const [urn, setUrn] = useState("");
   const [federatedModel, setFederatedModel] = useState(null);
 
+  //General
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+  const [cookies] = useCookies(["access_token"]);
+
+  //User Data
   const [users, setProjectUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
 
+  //Issues Data
   const [issues, setIssues] = useState([]);
   const [issuesTotals, setIssuesTotals] = useState({
     total: 0,
@@ -85,6 +91,7 @@ const ACCProjectPage = () => {
     closed: 0,
   });
 
+  // RFI Data
   const [rfis, setRFIs] = useState([]);
   const [rfiTotals, setRFITotals] = useState({
     total: 0,
@@ -93,6 +100,7 @@ const ACCProjectPage = () => {
     closed: 0,
   });
 
+  // Submittals Data
   const [submittals, setSubmittals] = useState([]);
   const [submittalsTotals, setSubmittalsTotals] = useState({
     total: 0,
@@ -103,84 +111,180 @@ const ACCProjectPage = () => {
     closed: 0,
   });
 
+  //ProjectsData
   useEffect(() => {
-    const loadAll = async () => {
-      setLoading(true);
-      try {
-        const [
-          projectsDataRes,
-          projectRes,
-          federatedModelRes,
-          usersRes,
-          issuesRes,
-          rfiRes,
-          submittalsRes,
-        ] = await Promise.all([
-          fetchACCProjectsData(cookies.access_token),
-          fetchACCProjectData(projectId, cookies.access_token, accountId),
-          fetchACCFederatedModel(projectId, cookies.access_token, accountId),
-          fechACCProjectUsers(projectId, cookies.access_token, accountId),
-          fechACCProjectIssues(projectId, cookies.access_token, accountId),
-          fetchACCProjectRFI(projectId, cookies.access_token, accountId),
-          fetchACCProjectSubmittals(projectId, cookies.access_token, accountId),
-        ]);
+    const getProjects = async () => {
+      const projectsData = await fetchACCProjectsData(cookies.access_token);
 
-        setProjectsData(projectsDataRes);
-        setProject(projectRes);
+      //console.log("Projects Data:", projectData.name);
 
-        setFederatedModel(federatedModelRes);
-
-        setProjectUsers(usersRes.users);
-        setTotalUsers(usersRes.users.length);
-
-        setIssues(issuesRes.issues);
-        setIssuesTotals({
-          total: issuesRes.issues.length,
-          open: issuesRes.issues.filter(i => i.status === "open").length,
-          answered: issuesRes.issues.filter(i => i.status === "answered").length,
-          completed: issuesRes.issues.filter(i => i.status === "completed").length,
-          closed: issuesRes.issues.filter(i => i.status === "closed").length,
-        });
-
-        setRFIs(rfiRes.rfis);
-        setRFITotals({
-          total: rfiRes.rfis.length,
-          open: rfiRes.rfis.filter(r => r.status === "open").length,
-          answered: rfiRes.rfis.filter(r => r.status === "answered").length,
-          closed: rfiRes.rfis.filter(r => r.status === "closed").length,
-        });
-
-        setSubmittals(submittalsRes.submittals);
-        setSubmittalsTotals({
-          total: submittalsRes.submittals.length,
-          waitingforsubmission: submittalsRes.submittals.filter(s => s.stateId === "Waiting for submission").length,
-          inreview: submittalsRes.submittals.filter(s => s.stateId === "In review").length,
-          reviewed: submittalsRes.submittals.filter(s => s.stateId === "Reviewed").length,
-          submitted: submittalsRes.submittals.filter(s => s.stateId === "Submitted").length,
-          closed: submittalsRes.submittals.filter(s => s.stateId === "Closed").length,
-        });
-      } catch (err) {
-        console.error("Error loading project page data:", err);
-        setError(err.message || "Error loading data");
-      } finally {
-        setLoading(false);
-      }
+      setProjectsData(projectsData);
     };
+    getProjects();
+  }, [cookies.access_token]);
 
-    if (projectId && cookies.access_token && accountId) {
-      loadAll();
-    }
-  }, [ projectId, cookies.access_token, accountId]);
+  //ProjectData
+  useEffect(() => {
+    const getProject = async () => {
+      const projectData = await fetchACCProjectData(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
 
+      //console.log("Project Name:", projectData.name);
+
+      setProject(projectData);
+    };
+    getProject();
+  }, [projectId, cookies.access_token, accountId]);
+
+  //Project Federated Model
+  useEffect(() => {
+    const getFederatedModel = async () => {
+      const federatedModel = await fetchACCFederatedModel(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
+
+      //console.log("Federated Model:", federatedModel);
+
+      setFederatedModel(federatedModel);
+    };
+    getFederatedModel();
+  }, [projectId, cookies.access_token, accountId]);
+
+  //Project Model Simple Viewer
   useEffect(() => {
     if (federatedModel) {
       simpleViewer(federatedModel);
+
+      //console.log("Token:", cookies.access_token);
     }
   }, [federatedModel]);
 
-  if (error) {
-    return <div className="p-4 text-red-600">Error: {error}</div>;
+  //Project Users
+  useEffect(() => {
+    const getProjectUsers = async () => {
+      const projectUsers = await fechACCProjectUsers(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
+
+      setProjectUsers(projectUsers.users);
+
+      let total = 0;
+
+      projectUsers.users.forEach((user) => {
+        total++;
+      });
+
+      setTotalUsers(total);
+    };
+    getProjectUsers();
+  }, [projectId, cookies.access_token, accountId]);
+
+  //Project Issues
+  useEffect(() => {
+    const getProjectIssues = async () => {
+      const projectIssues = await fechACCProjectIssues(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
+
+      setIssues(projectIssues.issues);
+      setIssuesTotals({
+        total: projectIssues.issues.length,
+        open: projectIssues.issues.filter((issue) => issue.status === "open")
+          .length,
+        answered: projectIssues.issues.filter(
+          (issue) => issue.status === "answered"
+        ).length,
+        closed: projectIssues.issues.filter(
+          (issue) => issue.status === "closed"
+        ).length,
+        completed: projectIssues.issues.filter(
+          (issue) => issue.status === "completed"
+        ).length,
+      });
+    };
+    getProjectIssues();
+  }, [projectId, cookies.access_token, accountId]);
+
+  //RFIs
+  useEffect(() => {
+    const getProjectRFIs = async () => {
+      const projectRfis = await fetchACCProjectRFI(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
+
+      setRFIs(projectRfis.rfis);
+      setRFITotals({
+        total: projectRfis.rfis.length,
+        open: projectRfis.rfis.filter((rfi) => rfi.status === "open").length,
+        answered: projectRfis.rfis.filter((rfi) => rfi.status === "answered")
+          .length,
+        closed: projectRfis.rfis.filter((rfi) => rfi.status === "closed")
+          .length,
+      });
+    };
+    getProjectRFIs();
+  }, [projectId, cookies.access_token, accountId]);
+
+  //Submittals
+  useEffect(() => {
+    const getProjectSubmittals = async () => {
+      const projectSubmittals = await fetchACCProjectSubmittals(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
+
+      setSubmittals(projectSubmittals.submittals);
+      setSubmittalsTotals({
+        total: projectSubmittals.submittals.length,
+        waitingforsubmission: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "Waiting for submission"
+        ).length,
+        inreview: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "In review"
+        ).length,
+        reviewed: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "Reviewed"
+        ).length,
+        submitted: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "Submitted"
+        ).length,
+        closed: projectSubmittals.submittals.filter(
+          (submittal) => submittal.stateId === "Closed"
+        ).length,
+      });
+    };
+    getProjectSubmittals();
+  }, [projectId, cookies.access_token, accountId]);
+
+  async function fetchAll(projectId, cookies, accountId) {
+    await Promise.all([
+      fetchACCProjectData(projectId, cookies.access_token, accountId),
+      fechACCProjectUsers(projectId, cookies.access_token, accountId),
+      fechACCProjectIssues(projectId, cookies.access_token, accountId),
+      fetchACCProjectRFI(projectId, cookies.access_token, accountId),
+      fetchACCProjectSubmittals(projectId, cookies.access_token, accountId),
+      fetchACCFederatedModel(projectId, cookies.access_token, accountId),
+    ]);
   }
+  
+  useEffect(() => {
+    setLoading(true);
+    fetchAll(projectId, cookies, accountId)
+      .catch(console.error)   
+      .finally(() => setLoading(false));
+  }, [projectId, cookies, accountId]);
 
   return (
     <>
@@ -197,8 +301,8 @@ const ACCProjectPage = () => {
         {/*Main Content*/}
         <div className="flex-1 p-2 px-4 bg-white w -full ">
           <h1 className="text-right text-xl  text-black mt-2">PROJECT HOME</h1>
-          <hr className="my-4 border-t border-gray-300" /> {/* Dividing line */}
           
+          <hr className="my-4 border-t border-gray-300" /> {/* Dividing line */}
           {/* Totals Overview (Slider) */}
           <div className="flex space-x-2 mt-2 items-center justify-center bg-white rounded shadow w-full">
             <div className="max-w-[1700px] h-[195px] p-2 flex flex-col">
@@ -340,7 +444,6 @@ const ACCProjectPage = () => {
               </Slider>
             </div>
           </div>
-          
           {/* Model Viewer */}
           <div className="flex space-x-4 mt-4">
             <div className="w-full h-[550px] bg-white rounded shadow p-4 flex flex-col">
@@ -362,7 +465,5 @@ const ACCProjectPage = () => {
     </>
   );
 };
-
-
 
 export default ACCProjectPage;

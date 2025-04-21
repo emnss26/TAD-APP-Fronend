@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { FaCommentDots, FaTimes } from "react-icons/fa";
 import { useCookies } from "react-cookie";
 
 import ACCPlatformprojectsHeader from "../../components/platform_page_components/acc.platform.header.projects";
@@ -8,6 +9,7 @@ import LoadingOverlay from "../../components/general_pages_components/general.lo
 import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
 
 import {
+  fetchACCProjectData,
   fechACCProjectUsers,
 } from "../../pages/services/acc.services";
 
@@ -15,104 +17,151 @@ import CompanyUsersChart from "../../components/users_page_components/company.us
 import RoleUsersChart from "../../components/users_page_components/role.users.chart";
 import UsersTable from "../../components/users_page_components/users.table";
 
-const ACCProjectUsersPage = () => {
- 
-  const { projectId, accountId } = useParams();
-  const [cookies] = useCookies(["access_token"]);
-  const token = cookies.access_token;
+const backendUrl =
+  import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
 
-  const [users, setUsers] = useState([]);
+const ACCProjectUsersPage = () => {
+  //Project Data
+  const [projectsData, setProjectsData] = useState(null);
+  const [project, setProject] = useState(null);
+  const { projectId } = useParams();
+  const { accountId } = useParams();
+
+  //User Data
+  const [users, setProjectUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [companyCounts, setCompanyCounts] = useState({});
   const [roleCounts, setRoleCounts] = useState({});
   const [notSpecifiedCompanyCount, setNotSpecifiedCompanyCount] = useState(0);
   const [notSpecifiedRoleCount, setNotSpecifiedRoleCount] = useState(0);
-  const [error, setError] = useState(null);
-  
+
+  //General
+  const [isLoading, setIsLoading] = useState(true);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
+  const [cookies] = useCookies(["access_token"]);
   const [loading, setLoading] = useState(true);
 
+  //IA
+  const [userMessage, setUserMessage] = useState("");
+  const [chatbotResponse, setChatbotResponse] = useState("");
+
+  //ProjectData
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        const [ usersRes] = await Promise.all([
-  
-          fechACCProjectUsers(projectId, token, accountId),
-        ]);
+    const getProject = async () => {
+      const projectData = await fetchACCProjectData(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
 
-        const userList = usersRes.users || [];
-        setUsers(userList);
-        setFilteredUsers(userList);
-        setTotalUsers(userList.length);
+      //console.log("Project Name:", projectData.name);
 
-        const companies = {};
-        let unspecifiedCo = 0;
-        userList.forEach(u => {
-          if (u.companyName) {
-            companies[u.companyName] = (companies[u.companyName] || 0) + 1;
-          } else {
-            unspecifiedCo++;
-          }
-        });
-        setCompanyCounts(companies);
-        setNotSpecifiedCompanyCount(unspecifiedCo);
-
-        const rolesMap = {};
-        let unspecifiedRole = 0;
-        userList.forEach(u => {
-          if (u.roles && u.roles.length) {
-            u.roles.forEach(r => {
-              rolesMap[r.name] = (rolesMap[r.name] || 0) + 1;
-            });
-          } else {
-            unspecifiedRole++;
-          }
-        });
-        
-        setRoleCounts(
-          Object.entries(rolesMap).map(([id, value]) => ({ id, value }))
-        );
-        setNotSpecifiedRoleCount(unspecifiedRole);
-      } catch (err) {
-        console.error("Error loading users page:", err);
-        setError(err.message || "Error loading data");
-      } finally {
-        setLoading(false);
-      }
+      setProject(projectData);
     };
+    getProject();
+  }, [projectId, cookies.access_token, accountId]);
 
-    if (token && projectId && accountId) {
-      loadData();
-    }
-  }, [token, projectId, accountId]);
+  //Project Users
+  useEffect(() => {
+    const getProjectUsers = async () => {
+      const projectUsers = await fechACCProjectUsers(
+        projectId,
+        cookies.access_token,
+        accountId
+      );
+
+      setProjectUsers(projectUsers.users);
+
+      const companies = {};
+      const roles = {};
+      let total = 0;
+      let notSpecifiedCompany = 0;
+      let notSpecifiedRole = 0;
+
+      projectUsers.users.forEach((user) => {
+        total++;
+
+        if (user.companyName) {
+          companies[user.companyName] = (companies[user.companyName] || 0) + 1;
+        } else {
+          notSpecifiedCompany++;
+        }
+
+        if (user.roles && user.roles.length > 0) {
+          user.roles.forEach((role) => {
+            roles[role.name] = (roles[role.name] || 0) + 1;
+          });
+        } else {
+          notSpecifiedRole++;
+        }
+      });
+
+      const roleCountsArray = Object.entries(roles).map(([name, count]) => ({
+        id: name,
+        value: count,
+      }));
+
+      setCompanyCounts(companies);
+      setRoleCounts(roleCountsArray);
+      setNotSpecifiedCompanyCount(notSpecifiedCompany);
+      setNotSpecifiedRoleCount(notSpecifiedRole);
+      setTotalUsers(total);
+    };
+    getProjectUsers();
+  }, [projectId, cookies.access_token, accountId]);
 
   useEffect(() => {
-    let list = users;
+    let filtered = users;
+
     if (selectedCompany) {
-      list = list.filter(u => u.companyName === selectedCompany);
-    }
-    if (selectedRole) {
-      list = list.filter(u =>
-        u.roles?.some(r => r.name === selectedRole)
+      filtered = filtered.filter(
+        (user) => user.companyName === selectedCompany
       );
     }
-    setFilteredUsers(list);
+
+    if (selectedRole) {
+      filtered = filtered.filter((user) =>
+        user.roles.some((role) => role.name === selectedRole)
+      );
+    }
+
+    setFilteredUsers(filtered);
   }, [users, selectedCompany, selectedRole]);
 
-  const handleCompanyClick = company => setSelectedCompany(company);
-  const handleRoleClick = role => setSelectedRole(role);
-  const resetFilters = () => {
-    setSelectedCompany(null);
-    setSelectedRole(null);
-    setFilteredUsers(users);
+  // Handle role click
+  const handleRoleClick = (role) => {
+    setSelectedRole(role);
   };
 
-  if (error) {
-    return <div className="p-4 text-red-600">Error: {error}</div>;
-  }
+  // Handle company click
+  const handleCompanyClick = (company) => {
+    setSelectedCompany(company);
+  };
+
+  // Reset filters
+  const resetFilters = () => {
+    setFilteredUsers(users);
+    setSelectedCompany(null);
+    setSelectedRole(null);
+  };
+
+  async function fetchAll(projectId, cookies, accountId) {
+      await Promise.all([
+        fetchACCProjectData(projectId, cookies.access_token, accountId),
+        fechACCProjectUsers(projectId, cookies.access_token, accountId),
+        
+      ]);
+    }
+    
+    useEffect(() => {
+      setLoading(true);
+      fetchAll(projectId, cookies, accountId)
+        .catch(console.error)   // maneja errores
+        .finally(() => setLoading(false));
+    }, [projectId, cookies, accountId]);
+  
 
   return (
     <>
@@ -120,8 +169,7 @@ const ACCProjectUsersPage = () => {
       {/* Navigation Bar */}
       <ACCPlatformprojectsHeader 
       accountId={accountId} 
-      projectId={projectId} 
-      />
+      projectId={projectId} />
 
       <div className="flex min-h-screen mt-14">
         {/* Sidebar */}

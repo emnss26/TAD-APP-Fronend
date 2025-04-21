@@ -18,6 +18,8 @@ import ACCSideBar from "../../components/platform_page_components/platform.acc.s
 import { RFIsGanttChart } from "../../components/rfis_page_components/rfi.gantt.chart";
 
 import {
+  fetchACCProjectsData,
+  fetchACCProjectData,
   fetchACCProjectRFI,
 } from "../../pages/services/acc.services";
 
@@ -25,6 +27,9 @@ const ACCRFIPage = () => {
   const { projectId, accountId } = useParams();
   const [cookies] = useCookies(["access_token"]);
 
+  // State variables
+  const [projectsData, setProjectsData] = useState(null);
+  const [project, setProject] = useState(null);
   const [rfis, setRFIs] = useState([]);
   const [rfiTotals, setRFITotals] = useState({ total: 0, open: 0, answered: 0, closed: 0 });
   const [statusCounts, setStatusCounts] = useState({ open: 0, answered: 0, closed: 0 });
@@ -40,10 +45,13 @@ const ACCRFIPage = () => {
     setError(null);
 
     Promise.all([
-      
+      fetchACCProjectsData(cookies.access_token),
+      fetchACCProjectData(projectId, cookies.access_token, accountId),
       fetchACCProjectRFI(projectId, cookies.access_token, accountId),
     ])
-      .then(([rfiResp]) => {
+      .then(([projectsResp, projectResp, rfiResp]) => {
+        setProjectsData(projectsResp);
+        setProject(projectResp);
         const list = rfiResp.rfis || [];
         setRFIs(list);
         setRFITotals({
@@ -148,7 +156,6 @@ const ACCRFIPage = () => {
   
       <div className="flex min-h-screen mt-14">
         <ACCSideBar />
-        
         <main className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl mt-2">RFI Report</h1>
           <hr className="my-4 border-t border-gray-300" />
@@ -163,7 +170,7 @@ const ACCRFIPage = () => {
             </button>
           </div>
   
-          {/* Carousel */}
+          {/* ────── Carousel (Lista de filtros) ────── */}
           <div className="flex max-h-[775px]">
             <section className="w-1/4 bg-white mr-4 rounded-lg shadow-md chart-with-dots">
               <Slider {...sliderSettings}>
@@ -184,7 +191,7 @@ const ACCRFIPage = () => {
               </Slider>
             </section>
   
-            {/* RFI Table */}
+            {/* ────── Tabla RFIs ────── */}
             <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto max-h-[775px]">
               <RFITable
                 rfis={displayedRFIs}
@@ -193,7 +200,7 @@ const ACCRFIPage = () => {
             </section>
           </div>
   
-          {/* Gantt */}
+          {/* ────── Diagrama de Gantt ────── */}
           <div className="mt-14 px-4 mb-8">
             <h2 className="text-xl font-semibold mb-2">Gantt RFIs</h2>
             <RFIsGanttChart rfis={displayedRFIs} />
