@@ -1,8 +1,9 @@
 const backendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL
 
-export const fetchACCProjectsData = async ( access_token) => {
+export const fetchACCProjectsData = async ( token) => {
     try {
         const response = await fetch (`${backendUrl}/acc/accprojects`, {
+            headers: { Authorization: `Bearer ${token}` },
             credentials : 'include',
         });
 
@@ -22,9 +23,10 @@ export const fetchACCProjectsData = async ( access_token) => {
 }
 
 
-export const fetchACCProjectData = async (projectId, access_token, accountId) => {
+export const fetchACCProjectData = async (projectId, token, accountId) => {
     try {
         const response = await fetch (`${backendUrl}/acc/accprojects/${accountId}/${projectId}`, {
+            headers: { Authorization: `Bearer ${token}` },
             credentials: 'include',
         });
 
@@ -48,9 +50,10 @@ const toBase64 = async (str) => {
     return btoa(String.fromCharCode(...bytes));
 };
 
-export const fetchACCFederatedModel = async (projectId, access_token,accountId) => {
+export const fetchACCFederatedModel = async (projectId, token,accountId) => {
     try {
         const response = await fetch (`${backendUrl}/datamanagement/items/${accountId}/${projectId}/federatedmodel`, {
+            headers: { Authorization: `Bearer ${token}` },
             credentials: 'include',
         });
 
@@ -70,10 +73,11 @@ export const fetchACCFederatedModel = async (projectId, access_token,accountId) 
     }
 }
 
-export const fechACCProjectUsers = async (projectId, access_token, accountId) => {
+export const fechACCProjectUsers = async (projectId, token, accountId) => {
     try {
         
         const response = await fetch (`${backendUrl}/acc/accprojects/${accountId}/${projectId}/users`, { 
+            headers: { Authorization: `Bearer ${token}` },
             credentials: 'include',
         });
         if (!response.ok) {
@@ -91,9 +95,10 @@ export const fechACCProjectUsers = async (projectId, access_token, accountId) =>
     }
 }
 
-export const fechACCProjectIssues = async (projectId, access_token, accountId) => {
+export const fechACCProjectIssues = async (projectId, token, accountId) => {
     try {
         const response = await fetch (`${backendUrl}/acc/accprojects/${accountId}/${projectId}/issues`, { 
+            headers: { Authorization: `Bearer ${token}` },
             credentials: 'include',
         });
         if (!response.ok) {
@@ -111,9 +116,10 @@ export const fechACCProjectIssues = async (projectId, access_token, accountId) =
     }
 }
 
-export const fetchACCProjectRFI = async (projectId, access_token, accountId) => {
+export const fetchACCProjectRFI = async (projectId, token, accountId) => {
     try {
         const response = await fetch (`${backendUrl}/acc/accprojects/${accountId}/${projectId}/rfis`, { 
+            headers: { Authorization: `Bearer ${token}` },
             credentials: 'include',
         });
         if (!response.ok) {
@@ -131,9 +137,10 @@ export const fetchACCProjectRFI = async (projectId, access_token, accountId) => 
     }
 }
 
-export const fetchACCProjectSubmittals = async (projectId, access_token, accountId) => {
+export const fetchACCProjectSubmittals = async (projectId, token, accountId) => {
     try {
         const response = await fetch (`${backendUrl}/acc/accprojects/${accountId}/${projectId}/submittals`, { 
+            headers: { Authorization: `Bearer ${token}` },
             credentials: 'include',
         });
         if (!response.ok) {
