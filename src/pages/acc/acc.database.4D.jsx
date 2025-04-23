@@ -82,10 +82,11 @@ const ACC4DDatabase = () => {
 
   const [syncViewerSelection, setSyncViewerSelection] = useState(false);
   const syncViewerSelectionRef = useRef(false);
-  const [selectedDisciplineForColor, setSelectedDisciplineForColor] = useState("");
+  const [selectedDisciplineForColor, setSelectedDisciplineForColor] =
+    useState("");
   const [selectedColor, setSelectedColor] = useState("#ff0000");
   const [isPullMenuOpen, setIsPullMenuOpen] = useState(false);
-  
+
   //AI Chatbot
   const [userMessage, setUserMessage] = useState("");
   const [chatbotResponse, setChatbotResponse] = useState("");
@@ -311,33 +312,24 @@ const ACC4DDatabase = () => {
   }, [data]);
 
   const handleViewerSelectionChanged = useCallback((dbIdArray) => {
-    console.log("handleViewerSelectionChanged() → dbIdArray:", dbIdArray);
-    console.log("data (just length):", dataRef.current.length);
+    //console.log("handleViewerSelectionChanged() → dbIdArray:", dbIdArray);
+    //console.log("data (just length):", dataRef.current.length);
 
     // Imprimir los dbId actuales en la tabla
     const currentDbIdsInTable = dataRef.current.map((row) => Number(row.dbId));
-    console.log("Current dbIds in table:", currentDbIdsInTable);
+    //console.log("Current dbIds in table:", currentDbIdsInTable);
 
     const foundDbIds = dataRef.current
       .filter((row) => {
         const rowDbIdNum = Number(row.dbId);
         const matched = dbIdArray.includes(rowDbIdNum);
 
-        console.log(
-          "Comparando rowDbId=",
-          row.dbId,
-          "-> number:",
-          rowDbIdNum,
-          " / dbIdArray:",
-          dbIdArray,
-          " => matched?",
-          matched
-        );
+        //console.log( "Comparando rowDbId=", row.dbId, "-> number:", rowDbIdNum, " / dbIdArray:", dbIdArray, " => matched?", matched );
         return matched;
       })
       .map((row) => row.dbId);
 
-    console.log("foundDbIds:", foundDbIds);
+    //console.log("foundDbIds:", foundDbIds);
 
     setSelectedRows(foundDbIds.length ? foundDbIds : []);
     setSelectionCount(dbIdArray.length);
@@ -346,16 +338,14 @@ const ACC4DDatabase = () => {
   useEffect(() => {
     if (!federatedModel || window.viewerInitialized) return;
 
-    console.log("viwer", federatedModel);
+    //console.log("viwer", federatedModel);
 
     const conditionalSelectionHandler = (dbIdArray) => {
       if (!syncViewerSelectionRef.current) {
-        console.log("Viewer selection changed pero sync está OFF → ignoramos");
+        //console.log("Viewer selection changed pero sync está OFF → ignoramos");
         return;
       }
-      console.log(
-        "Viewer selection changed → sync ON → handleViewerSelectionChanged"
-      );
+
       handleViewerSelectionChanged(dbIdArray);
     };
 
@@ -371,13 +361,11 @@ const ACC4DDatabase = () => {
   }, [federatedModel, handleViewerSelectionChanged]);
 
   useEffect(() => {
-    console.log("syncViewerSelection cambió a →", syncViewerSelection);
+    //console.log("syncViewerSelection cambió a →", syncViewerSelection);
     syncViewerSelectionRef.current = syncViewerSelection;
 
     if (syncViewerSelection && data4Dviewer) {
-      console.log(
-        "Sincronización ACTIVADA: se llama getSelection() para forzar resaltado en tabla."
-      );
+      //console.log( "Sincronización ACTIVADA: se llama getSelection() para forzar resaltado en tabla." );
       const currentDbIds = data4Dviewer.getSelection() || [];
       handleViewerSelectionChanged(currentDbIds);
     }
@@ -504,7 +492,7 @@ const ACC4DDatabase = () => {
               endDate: item.PlanedConstructionEndDate,
             }));
             window.data4Dviewer.set4DData(fourDData);
-            console.log("4D data from DB:", fourDData);
+            //console.log("4D data from DB:", fourDData);
           }
         } else {
           alert("No data was found for this project.");
@@ -794,26 +782,30 @@ const ACC4DDatabase = () => {
   return (
     <>
       {loading && <LoadingOverlay />}
-  
+
       {/* Header */}
       <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
-  
+
       {/* Contenedor principal: ocupa todo el viewport menos el header */}
       <div
         className="flex flex-col mt-14"
-        style={{ minHeight: 'calc(100vh - 3.5rem)' /* Ajusta si tu header no mide 56px */ }}
+        style={{
+          minHeight: "calc(100vh - 3.5rem)",
+        }}
       >
         {/* Sidebar + contenido desplazable */}
         <div className="flex flex-1">
           <ACCSideBar />
-  
+
           <div className="flex-1 p-4 bg-white overflow-auto">
             {/* Título */}
             <div className="mb-4">
-              <h1 className="text-right text-xl text-black">Model Database 4D</h1>
+              <h1 className="text-right text-xl text-black">
+                Model Database 4D
+              </h1>
             </div>
             <hr className="my-4 border-t border-gray-300" />
-  
+
             {/* Control Panel */}
             <ControlPanel
               viewer={window.data4Dviewer}
@@ -840,11 +832,11 @@ const ACC4DDatabase = () => {
               handleSubmitCustomTable={() => {}}
               handlePullCustomTableData={() => {}}
             />
-  
+
             <div className="h-12"></div>
-  
+
             {/* Viewer + Tabla + AI Panel */}
-            <div className="flex" style={{ height: '650px' }}>
+            <div className="flex" style={{ height: "650px" }}>
               {/* Viewer */}
               <div
                 className={`
@@ -858,7 +850,7 @@ const ACC4DDatabase = () => {
                       <h2 className="text-xl font-bold">Model Viewer</h2>
                     </div>
                     <hr className="my-4 border-t border-gray-300" />
-                    <div className="relative" style={{ height: '550px' }}>
+                    <div className="relative" style={{ height: "550px" }}>
                       <div
                         className="absolute top-0 left-0 right-0 bottom-0"
                         id="TAD4DViwer"
@@ -867,7 +859,7 @@ const ACC4DDatabase = () => {
                   </>
                 )}
               </div>
-  
+
               {/* Tabla */}
               <div
                 className={`
@@ -877,7 +869,7 @@ const ACC4DDatabase = () => {
                 `}
               >
                 <Database4DTable
-                    viewer={window.data4Dviewer}
+                  viewer={window.data4Dviewer}
                   data={data}
                   groupedData={groupedData}
                   totalsByDiscipline={totalsByDiscipline}
@@ -897,7 +889,7 @@ const ACC4DDatabase = () => {
                   setLastClickedRowNumber={setLastClickedRowNumber}
                 />
               </div>
-  
+
               {/* AI Panel */}
               <div
                 className={`
@@ -923,18 +915,20 @@ const ACC4DDatabase = () => {
                       />
                       <button
                         onClick={handleSendMessage}
-                        disabled={userMessage.trim() === ''}
+                        disabled={userMessage.trim() === ""}
                         className={`w-full py-2 px-4 rounded text-xs ${
-                          userMessage.trim() === ''
-                            ? 'bg-[#2ea3e3] text-white cursor-not-allowed'
-                            : 'bg-[#F19A3E] text-white hover:bg-[#FE7F2D]'
+                          userMessage.trim() === ""
+                            ? "bg-[#2ea3e3] text-white cursor-not-allowed"
+                            : "bg-[#F19A3E] text-white hover:bg-[#FE7F2D]"
                         }`}
                       >
                         Send
                       </button>
                     </div>
                     <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded text-xs">
-                      <p className="text-gray-700 font-medium text-xs">Answer:</p>
+                      <p className="text-gray-700 font-medium text-xs">
+                        Answer:
+                      </p>
                       <p className="mt-2 text-gray-800 text-xs">
                         {chatbotResponse}
                       </p>
@@ -959,9 +953,9 @@ const ACC4DDatabase = () => {
                 )}
               </div>
             </div>
-  
+
             <div className="h-12"></div>
-  
+
             {/* Slider 4D */}
             <div className="mt-4 bg-white shadow-lg rounded-lg p-4 mb-4">
               <h3 className="text-md mb-2">4D Sequence Control</h3>
@@ -980,7 +974,7 @@ const ACC4DDatabase = () => {
             </div>
           </div>
         </div>
-  
+
         {/* Footer siempre al final */}
         <Footer />
       </div>

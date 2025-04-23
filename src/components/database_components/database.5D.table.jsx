@@ -53,7 +53,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "../../hooks/use-toast"
+import { useToast } from "../../hooks/use-toast";
 
 // --------------------
 // CONSTANTES ÚNICAS
@@ -77,7 +77,10 @@ const disciplineColorMap = {
   "Metallic Structure": { bg: "bg-[#2ea3e3]", text: "text-white" },
   "Masonry Works": { bg: "bg-[#2ea3e3]", text: "text-white" },
   "Walls and Ceilings": { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Aluminium works windows and glazing": { bg: "bg-[#2ea3e3]", text: "text-white" },
+  "Aluminium works windows and glazing": {
+    bg: "bg-[#2ea3e3]",
+    text: "text-white",
+  },
   Blaksmithing: { bg: "bg-[#2ea3e3]", text: "text-white" },
   Finishes: { bg: "bg-[#2ea3e3]", text: "text-white" },
   Furniture: { bg: "bg-[#2ea3e3]", text: "text-white" },
@@ -90,7 +93,14 @@ const disciplineColorMap = {
 };
 
 const columnGroups = {
-  general: ["rowNumber", "dbId", "Code", "Discipline", "ElementType", "TypeName"],
+  general: [
+    "rowNumber",
+    "dbId",
+    "Code",
+    "Discipline",
+    "ElementType",
+    "TypeName",
+  ],
   dimensions: [
     "rowNumber",
     "dbId",
@@ -138,8 +148,6 @@ const numericColumns = [
   "TOTALCOST",
 ];
 
-
-
 // --------------------
 // SUBCOMPONENTES
 // --------------------
@@ -170,18 +178,34 @@ const TableControls = React.memo(function TableControls({
 }) {
   return (
     <div className="space-y-2 bg-slate-50 p-4 border-b">
-      <Tabs value={activeSection} onValueChange={handleChangeSection} className="w-full">
+      <Tabs
+        value={activeSection}
+        onValueChange={handleChangeSection}
+        className="w-full"
+      >
         <TabsList className="grid grid-cols-4 w-full bg-[#2ea3e3]">
-          <TabsTrigger value="general" className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white">
+          <TabsTrigger
+            value="general"
+            className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
+          >
             General
           </TabsTrigger>
-          <TabsTrigger value="dimensions" className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white">
+          <TabsTrigger
+            value="dimensions"
+            className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
+          >
             Dimensions
           </TabsTrigger>
-          <TabsTrigger value="description" className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white">
+          <TabsTrigger
+            value="description"
+            className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
+          >
             Description
           </TabsTrigger>
-          <TabsTrigger value="cost" className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white">
+          <TabsTrigger
+            value="cost"
+            className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
+          >
             Cost
           </TabsTrigger>
         </TabsList>
@@ -189,15 +213,30 @@ const TableControls = React.memo(function TableControls({
 
       <div className="flex flex-wrap gap-2 justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleToggleSort} className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleToggleSort}
+            className="flex items-center gap-1"
+          >
             <ArrowUpDown className="h-4 w-4" />
             {sortDisciplinesAsc ? "Restore Order" : "Sort A→Z"}
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExpandAll} className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExpandAll}
+            className="flex items-center gap-1"
+          >
             <ChevronDown className="h-4 w-4" />
             Expand All
           </Button>
-          <Button variant="outline" size="sm" onClick={handleCollapseAll} className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCollapseAll}
+            className="flex items-center gap-1"
+          >
             <ChevronRight className="h-4 w-4" />
             Collapse All
           </Button>
@@ -210,9 +249,16 @@ const TableControls = React.memo(function TableControls({
               value={searchDbId}
               onChange={(e) => setSearchDbId(e.target.value)}
               className="w-28 h-8 text-xs pr-8"
-              onKeyDown={(e) => { if (e.key === "Enter") handleDbIdSearch(); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleDbIdSearch();
+              }}
             />
-            <Button size="sm" variant="ghost" className="absolute right-0 h-8 w-8 p-0" onClick={handleDbIdSearch}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="absolute right-0 h-8 w-8 p-0"
+              onClick={handleDbIdSearch}
+            >
               <Search className="h-3 w-3" />
             </Button>
           </div>
@@ -236,7 +282,10 @@ const TableControls = React.memo(function TableControls({
             <DropdownMenuContent align="end">
               <div className="p-2">
                 <div className="text-xs font-medium mb-1">Row hover color:</div>
-                <Select value={hoverColor} onValueChange={(val) => setHoverColor(val)}>
+                <Select
+                  value={hoverColor}
+                  onValueChange={(val) => setHoverColor(val)}
+                >
                   <SelectTrigger className="h-8 text-xs">
                     <SelectValue placeholder="Hover color" />
                   </SelectTrigger>
@@ -257,27 +306,64 @@ const TableControls = React.memo(function TableControls({
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleScrollUp} title="Scroll up">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleScrollUp}
+            title="Scroll up"
+          >
             <ChevronUp className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleScrollDown} title="Scroll down">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleScrollDown}
+            title="Scroll down"
+          >
             <ChevronDown className="h-4 w-4" />
           </Button>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleFirstPage} disabled={page <= 1}>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleFirstPage}
+            disabled={page <= 1}
+          >
             <ChevronFirst className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handlePrevPage} disabled={page <= 1}>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handlePrevPage}
+            disabled={page <= 1}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-xs px-2">
-            Page <span className="font-medium">{page}</span> of <span className="font-medium">{totalPages}</span>
+            Page <span className="font-medium">{page}</span> of{" "}
+            <span className="font-medium">{totalPages}</span>
           </div>
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleNextPage} disabled={page >= totalPages}>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleNextPage}
+            disabled={page >= totalPages}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleLastPage} disabled={page >= totalPages}>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleLastPage}
+            disabled={page >= totalPages}
+          >
             <ChevronLast className="h-4 w-4" />
           </Button>
         </div>
@@ -312,9 +398,15 @@ const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
           <button
             onClick={handleToggleCollapse}
             className="mr-2 text-black hover:bg-[#2ea3e3] p-1 rounded transition-colors"
-            aria-label={isDiscCollapsed ? "Expand discipline" : "Collapse discipline"}
+            aria-label={
+              isDiscCollapsed ? "Expand discipline" : "Collapse discipline"
+            }
           >
-            {isDiscCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+            {isDiscCollapsed ? (
+              <ChevronRight size={16} />
+            ) : (
+              <ChevronDown size={16} />
+            )}
           </button>
           <span>{discipline}</span>
           <Badge variant="outline" className="ml-2 text-xs">
@@ -437,7 +529,10 @@ const ElementRow = React.memo(function ElementRow({
                 value={row[col] || ""}
                 onValueChange={(val) => handleDisciplineChange(row, val)}
               >
-                <SelectTrigger className="h-8 text-sm bg-white text-black" onMouseDown={(e) => e.stopPropagation()}>
+                <SelectTrigger
+                  className="h-8 text-sm bg-white text-black"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
                   <SelectValue placeholder="Discipline" />
                 </SelectTrigger>
                 <SelectContent>
@@ -458,11 +553,19 @@ const ElementRow = React.memo(function ElementRow({
                 value={row[col] || ""}
                 onValueChange={(val) => handleElementTypeChange(row, val)}
               >
-                <SelectTrigger className="h-8 text-sm" onMouseDown={(e) => e.stopPropagation()}>
+                <SelectTrigger
+                  className="h-8 text-sm"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
                   <SelectValue placeholder="Element Type">
                     {row[col] && (
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getElementTypeColor(row[col]) }} />
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{
+                            backgroundColor: getElementTypeColor(row[col]),
+                          }}
+                        />
                         <span>{row[col]}</span>
                       </div>
                     )}
@@ -474,7 +577,10 @@ const ElementRow = React.memo(function ElementRow({
                     return (
                       <SelectItem key={type} value={type}>
                         <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c }} />
+                          <div
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: c }}
+                          />
                           <span>{type}</span>
                         </div>
                       </SelectItem>
@@ -498,7 +604,11 @@ const ElementRow = React.memo(function ElementRow({
               <Input
                 type="text"
                 name={col}
-                value={parseFloat(row[col]) ? parseFloat(row[col]).toFixed(2) : row[col]}
+                value={
+                  parseFloat(row[col])
+                    ? parseFloat(row[col]).toFixed(2)
+                    : row[col]
+                }
                 onChange={(e) => handleInputChange(row, e)}
                 className="h-8 text-sm"
               />
@@ -556,8 +666,14 @@ const CodeHeaderRow = React.memo(function CodeHeaderRow({
 }) {
   return (
     <TableRow className="uppercase bg-slate-50 text-black transition-colors hover:bg-[#2ea3e3] hover:text-white">
-      <TableCell colSpan={visibleColumns.length} className="px-4 py-2 font-bold">
-        <button onClick={() => toggleCodes(discipline, code)} className="mr-2 text-blue-600 underline">
+      <TableCell
+        colSpan={visibleColumns.length}
+        className="px-4 py-2 font-bold"
+      >
+        <button
+          onClick={() => toggleCodes(discipline, code)}
+          className="mr-2 text-blue-600 underline"
+        >
           {collapsed ? "[ + ]" : "[ - ]"}
         </button>
         {code}
@@ -567,7 +683,14 @@ const CodeHeaderRow = React.memo(function CodeHeaderRow({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); isolateCode(); }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    isolateCode();
+                  }}
+                >
                   <Eye className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -579,7 +702,14 @@ const CodeHeaderRow = React.memo(function CodeHeaderRow({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); hideCode(); }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    hideCode();
+                  }}
+                >
                   <EyeOff className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -612,13 +742,27 @@ const CodeFooterRow = React.memo(function CodeFooterRow({
               Totals {code}:
             </TableCell>
           );
-        } else if (["Description", "Unit", "Quantity", "UnitPrice", "TotalCost"].includes(col)) {
+        } else if (
+          [
+            "Description",
+            "Unit",
+            "Quantity",
+            "UnitPrice",
+            "TotalCost",
+          ].includes(col)
+        ) {
           if (col === "Unit") {
             return (
               <TableCell key={col} className="px-4 py-2">
                 <select
-                  value={(groupExtraData[`${discipline}||${code}`]?.[col]) || ""}
-                  onChange={(e) => handleGroupExtraDataChange(`${discipline}||${code}`, col, e.target.value)}
+                  value={groupExtraData[`${discipline}||${code}`]?.[col] || ""}
+                  onChange={(e) =>
+                    handleGroupExtraDataChange(
+                      `${discipline}||${code}`,
+                      col,
+                      e.target.value
+                    )
+                  }
                   className="bg-transparent w-full border rounded text-xs"
                 >
                   <option value="">Select Unit</option>
@@ -633,10 +777,18 @@ const CodeFooterRow = React.memo(function CodeFooterRow({
             return (
               <TableCell key={col} className="px-4 py-2">
                 <input
-                  type={["Quantity", "UnitPrice"].includes(col) ? "number" : "text"}
+                  type={
+                    ["Quantity", "UnitPrice"].includes(col) ? "number" : "text"
+                  }
                   placeholder={col}
-                  value={(groupExtraData[`${discipline}||${code}`]?.[col]) || ""}
-                  onChange={(e) => handleGroupExtraDataChange(`${discipline}||${code}`, col, e.target.value)}
+                  value={groupExtraData[`${discipline}||${code}`]?.[col] || ""}
+                  onChange={(e) =>
+                    handleGroupExtraDataChange(
+                      `${discipline}||${code}`,
+                      col,
+                      e.target.value
+                    )
+                  }
                   className="bg-transparent w-full text-xs"
                 />
               </TableCell>
@@ -682,9 +834,7 @@ const PartialTotalsRow = React.memo(function PartialTotalsRow({
 
   return (
     <TableRow className="bg-gray-100 text-xs font-bold">
-      <TableCell className="px-4 py-2 text-right">
-        Partial Totals:
-      </TableCell>
+      <TableCell className="px-4 py-2 text-right">Partial Totals:</TableCell>
       {visibleColumns.slice(1).map((col) => (
         <TableCell key={col} className="px-4 py-2 text-right">
           {formatTotal(col, totalsByDiscipline?.[discipline]?.[col] ?? 0)}
@@ -723,7 +873,10 @@ const DisciplineFooterRow = React.memo(function DisciplineFooterRow({
   }, []);
   return (
     <TableRow className="bg-gray-100 text-xs font-bold">
-      <TableCell className="px-4 py-2 text-right" colSpan={visibleColumns.length}>
+      <TableCell
+        className="px-4 py-2 text-right"
+        colSpan={visibleColumns.length}
+      >
         Discipline Totals:
       </TableCell>
       {visibleColumns.slice(1).map((col) => (
@@ -803,7 +956,8 @@ const Database5DTable = ({
   calculateGroupTotal,
 }) => {
   // Estados para colapso por disciplina y código
-  const [collapsedDisciplinesState, setCollapsedDisciplinesState] = useState(collapsedDisciplines);
+  const [collapsedDisciplinesState, setCollapsedDisciplinesState] =
+    useState(collapsedDisciplines);
   const [collapsedCodes, setCollapsedCodes] = useState({});
 
   const toggleCodes = useCallback((discipline, code) => {
@@ -848,27 +1002,43 @@ const Database5DTable = ({
         acc[disc][code].push(row);
         return acc;
       }, {});
-      
+
       Object.entries(nestedData).forEach(([disc, codes]) => {
-        const totalRowsInDisc = Object.values(codes).reduce((sum, arr) => sum + arr.length, 0);
-        rows.push({ type: "disciplineHeader", discipline: disc, count: totalRowsInDisc });
-        
+        const totalRowsInDisc = Object.values(codes).reduce(
+          (sum, arr) => sum + arr.length,
+          0
+        );
+        rows.push({
+          type: "disciplineHeader",
+          discipline: disc,
+          count: totalRowsInDisc,
+        });
+
         // Only process codes if discipline isn't collapsed
         if (!collapsedDisciplinesState[disc]) {
           Object.entries(codes).forEach(([code, rowsArr]) => {
-            rows.push({ type: "codeHeader", discipline: disc, code, rows: rowsArr });
+            rows.push({
+              type: "codeHeader",
+              discipline: disc,
+              code,
+              rows: rowsArr,
+            });
             const collapseKey = `${disc}||${code}`;
             if (!collapsedCodes[collapseKey]) {
               rowsArr.forEach((row, index) =>
-                rows.push({ type: "element", row, index, discipline: disc, code })
+                rows.push({
+                  type: "element",
+                  row,
+                  index,
+                  discipline: disc,
+                  code,
+                })
               );
             }
             // Always add the code footer if the discipline isn't collapsed
             rows.push({ type: "codeFooter", discipline: disc, code });
           });
         }
-        
-        
       });
     } else {
       const grouped = data.reduce((acc, row) => {
@@ -877,22 +1047,27 @@ const Database5DTable = ({
         acc[disc].push(row);
         return acc;
       }, {});
-      
+
       Object.entries(grouped).forEach(([disc, rowsArr]) => {
         rows.push({ type: "header", disc, count: rowsArr.length });
         if (!collapsedDisciplinesState[disc]) {
-          rowsArr.forEach((row, idx) => rows.push({ type: "element", row, idx, disc }));
+          rowsArr.forEach((row, idx) =>
+            rows.push({ type: "element", row, idx, disc })
+          );
           rows.push({ type: "partialTotals", disc });
         }
       });
     }
-    
+
     return rows;
   }, [data, collapsedDisciplinesState, collapsedCodes, hasCodeGrouping]);
 
   // Paginación
   const perPage = 250;
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(displayRows.length / perPage)), [displayRows, perPage]);
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(displayRows.length / perPage)),
+    [displayRows, perPage]
+  );
   const [page, setPage] = useState(1);
   const paginatedRows = useMemo(() => {
     const startIndex = (page - 1) * perPage;
@@ -915,15 +1090,21 @@ const Database5DTable = ({
 
   const handleExpandAll = useCallback(() => {
     const newState = {};
-    Object.keys(collapsedDisciplinesState).forEach((d) => (newState[d] = false));
-    const allDisciplines = [...new Set(data.map((r) => r.Discipline || "No Discipline"))];
+    Object.keys(collapsedDisciplinesState).forEach(
+      (d) => (newState[d] = false)
+    );
+    const allDisciplines = [
+      ...new Set(data.map((r) => r.Discipline || "No Discipline")),
+    ];
     allDisciplines.forEach((d) => (newState[d] = false));
     setCollapsedDisciplinesState(newState);
   }, [collapsedDisciplinesState, data]);
 
   const handleCollapseAll = useCallback(() => {
     const newState = {};
-    const allDisciplines = [...new Set(data.map((r) => r.Discipline || "No Discipline"))];
+    const allDisciplines = [
+      ...new Set(data.map((r) => r.Discipline || "No Discipline")),
+    ];
     allDisciplines.forEach((d) => (newState[d] = true));
     setCollapsedDisciplinesState(newState);
   }, [data]);
@@ -994,7 +1175,9 @@ const Database5DTable = ({
         const minRow = Math.min(lastClickedRowNumber, row.rowNumber);
         const maxRow = Math.max(lastClickedRowNumber, row.rowNumber);
         const newSelected = data
-          .filter((item) => item.rowNumber >= minRow && item.rowNumber <= maxRow)
+          .filter(
+            (item) => item.rowNumber >= minRow && item.rowNumber <= maxRow
+          )
           .map((item) => item.dbId);
         setSelectedRows(newSelected);
       } else {
@@ -1007,17 +1190,23 @@ const Database5DTable = ({
 
   const isolateDiscipline = useCallback(
     (rows) => {
-      isolateObjectsInViewer(window.data5Dviewer, rows.map((r) => r.dbId));
+      isolateObjectsInViewer(
+        window.data5Dviewer,
+        rows.map((r) => r.dbId)
+      );
     },
     [isolateObjectsInViewer]
   );
 
   const hideDisciplineAction = useCallback(
-      (rows) => {
-        hideObjectsInViewer(window.data5Dviewer, rows.map((r) => r.dbId));
-      },
-      [hideObjectsInViewer]
-    );
+    (rows) => {
+      hideObjectsInViewer(
+        window.data5Dviewer,
+        rows.map((r) => r.dbId)
+      );
+    },
+    [hideObjectsInViewer]
+  );
 
   const isolateRow = useCallback(
     (dbId) => {
@@ -1064,13 +1253,15 @@ const Database5DTable = ({
           {filteredData.length} elements •{" "}
           {hasCodeGrouping
             ? "Grouped by Code"
-            : `${Object.keys(
-                data.reduce((acc, row) => {
-                  const disc = row.Discipline || "No Discipline";
-                  acc[disc] = true;
-                  return acc;
-                }, {})
-              ).length} disciplines`}
+            : `${
+                Object.keys(
+                  data.reduce((acc, row) => {
+                    const disc = row.Discipline || "No Discipline";
+                    acc[disc] = true;
+                    return acc;
+                  }, {})
+                ).length
+              } disciplines`}
         </div>
       </CardHeader>
 
@@ -1103,29 +1294,46 @@ const Database5DTable = ({
           <div className="flex items-center justify-center h-full">
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="text-sm text-muted-foreground">Loading data...</span>
+              <span className="text-sm text-muted-foreground">
+                Loading data...
+              </span>
             </div>
           </div>
         ) : (
-          <div ref={tableContainerRef} className="h-full w-full overflow-y-auto" style={{ maxHeight: "100%" }}>
+          <div
+            ref={tableContainerRef}
+            className="h-full w-full overflow-y-auto"
+            style={{ maxHeight: "100%" }}
+          >
             <Table>
               <TableHeader className="bg-slate-50">
                 <TableRow className="min-h-[48px]">
                   {visibleColumns.map((col) => (
-                    <TableHead key={col} className="whitespace-normal font-bold">
+                    <TableHead
+                      key={col}
+                      className="whitespace-normal font-bold"
+                    >
                       {col === "rowNumber"
                         ? "ROW #"
-                        : col.replace(/([A-Z])/g, " $1").trim().toUpperCase()}
+                        : col
+                            .replace(/([A-Z])/g, " $1")
+                            .trim()
+                            .toUpperCase()}
                     </TableHead>
                   ))}
-                  <TableHead className="text-right font-bold">ACTIONS</TableHead>
+                  <TableHead className="text-right font-bold">
+                    ACTIONS
+                  </TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
                 {paginatedRows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={visibleColumns.length + 1} className="h-24 text-center">
+                    <TableCell
+                      colSpan={visibleColumns.length + 1}
+                      className="h-24 text-center"
+                    >
                       <div className="flex flex-col items-center justify-center text-muted-foreground">
                         <p>No results found</p>
                       </div>
@@ -1140,7 +1348,10 @@ const Database5DTable = ({
                             key={`hdr-${item.discipline}`}
                             discipline={item.discipline}
                             rowsCount={item.count}
-                            isDiscCollapsed={collapsedDisciplinesState[item.discipline] || false}
+                            isDiscCollapsed={
+                              collapsedDisciplinesState[item.discipline] ||
+                              false
+                            }
                             visibleColsCount={visibleColumns.length}
                             onToggle={() =>
                               setCollapsedDisciplinesState((prev) => ({
@@ -1150,13 +1361,24 @@ const Database5DTable = ({
                             }
                             isolateDiscipline={() => {
                               const dbIds = data
-                                .filter((row) => (row.Discipline || "No Discipline") === item.discipline)
+                                .filter(
+                                  (row) =>
+                                    (row.Discipline || "No Discipline") ===
+                                    item.discipline
+                                )
                                 .map((row) => row.dbId);
-                              isolateObjectsInViewer(window.data5Dviewer, dbIds);
+                              isolateObjectsInViewer(
+                                window.data5Dviewer,
+                                dbIds
+                              );
                             }}
                             hideDiscipline={() => {
                               const dbIds = data
-                                .filter((row) => (row.Discipline || "No Discipline") === item.discipline)
+                                .filter(
+                                  (row) =>
+                                    (row.Discipline || "No Discipline") ===
+                                    item.discipline
+                                )
                                 .map((row) => row.dbId);
                               hideObjectsInViewer(window.data5Dviewer, dbIds);
                             }}
@@ -1170,10 +1392,17 @@ const Database5DTable = ({
                             code={item.code}
                             rows={item.rows}
                             toggleCodes={toggleCodes}
-                            collapsed={collapsedCodes[`${item.discipline}||${item.code}`] || false}
+                            collapsed={
+                              collapsedCodes[
+                                `${item.discipline}||${item.code}`
+                              ] || false
+                            }
                             isolateCode={() => {
                               const dbIds = item.rows.map((row) => row.dbId);
-                              isolateObjectsInViewer(window.data5Dviewer, dbIds);
+                              isolateObjectsInViewer(
+                                window.data5Dviewer,
+                                dbIds
+                              );
                             }}
                             hideCode={() => {
                               const dbIds = item.rows.map((row) => row.dbId);
@@ -1209,7 +1438,9 @@ const Database5DTable = ({
                             code={item.code}
                             visibleColumns={visibleColumns}
                             groupExtraData={groupExtraData}
-                            handleGroupExtraDataChange={handleGroupExtraDataChange}
+                            handleGroupExtraDataChange={
+                              handleGroupExtraDataChange
+                            }
                             calculateGroupTotal={calculateGroupTotal}
                           />
                         );
@@ -1228,7 +1459,9 @@ const Database5DTable = ({
                             key={`hdr-${item.disc}`}
                             discipline={item.disc}
                             rowsCount={item.count}
-                            isDiscCollapsed={collapsedDisciplines[item.disc] || false}
+                            isDiscCollapsed={
+                              collapsedDisciplines[item.disc] || false
+                            }
                             visibleColsCount={visibleColumns.length}
                             onToggle={() =>
                               setCollapsedDisciplines((prev) => ({
@@ -1238,13 +1471,21 @@ const Database5DTable = ({
                             }
                             isolateDiscipline={() => {
                               const dbIds = data
-                                .filter((row) => (row.Discipline || "No Discipline") === item.disc)
+                                .filter(
+                                  (row) =>
+                                    (row.Discipline || "No Discipline") ===
+                                    item.disc
+                                )
                                 .map((row) => row.dbId);
                               isolateDiscipline(window.data5Dviewer, dbIds);
                             }}
                             hideDiscipline={() => {
                               const dbIds = data
-                                .filter((row) => (row.Discipline || "No Discipline") === item.disc)
+                                .filter(
+                                  (row) =>
+                                    (row.Discipline || "No Discipline") ===
+                                    item.disc
+                                )
                                 .map((row) => row.dbId);
                               hideObjectsInViewer(window.data5Dviewer, dbIds);
                             }}

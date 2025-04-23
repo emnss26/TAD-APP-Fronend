@@ -65,7 +65,7 @@ const ACCProjectPage = () => {
   //Project Data
   const [projectsData, setProjectsData] = useState(null);
   const [project, setProject] = useState(null);
-  const { projectId, accountId} = useParams();
+  const { projectId, accountId } = useParams();
 
   //Model Data
   const [urn, setUrn] = useState("");
@@ -168,7 +168,7 @@ const ACCProjectPage = () => {
           });
           setSubmittals(projectSubmittalsResp.submittals);
           setSubmittalsTotals({
-            total: projectSubmittalsResp.submittals.length, 
+            total: projectSubmittalsResp.submittals.length,
             waitingforsubmission: projectSubmittalsResp.submittals.filter(
               (submittal) => submittal.stateId === "Waiting for submission"
             ).length,
@@ -192,10 +192,7 @@ const ACCProjectPage = () => {
         setError(err);
       })
       .finally(() => setLoading(false));
-  }, [
-    projectId, accountId, cookies.access_token]);
-
-  
+  }, [projectId, accountId, cookies.access_token]);
 
   //Project Model Simple Viewer
   useEffect(() => {
@@ -208,12 +205,9 @@ const ACCProjectPage = () => {
 
   return (
     <>
-    {loading && <LoadingOverlay />}
+      {loading && <LoadingOverlay />}
       {/*Header*/}
-      <ACCPlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
+      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
 
       <div className="flex h-screen mt-14">
         <ACCSideBar />
@@ -221,7 +215,6 @@ const ACCProjectPage = () => {
         {/*Main Content*/}
         <div className="flex-1 p-2 px-4 bg-white w -full ">
           <h1 className="text-right text-xl  text-black mt-2">PROJECT HOME</h1>
-          
           <hr className="my-4 border-t border-gray-300" /> {/* Dividing line */}
           {/* Totals Overview (Slider) */}
           <div className="flex space-x-2 mt-2 items-center justify-center bg-white rounded shadow w-full">

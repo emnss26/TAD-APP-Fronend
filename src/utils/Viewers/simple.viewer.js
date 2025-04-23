@@ -3,19 +3,17 @@
 const backendUrl =
   import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
 
-
 export const simpleViewer = async (urn) => {
-  
-    const response = await fetch (`${backendUrl}/auth/token`)
-    const {data} = await response.json()
-    
-    console.log("Simple Viewer URN:", urn)
-    console.log ("token viewer:", data.access_token)
+  const response = await fetch(`${backendUrl}/auth/token`);
+  const { data } = await response.json();
+
+  console.log("Simple Viewer URN:", urn);
+  console.log("token viewer:", data.access_token);
 
   const options = {
     env: "AutodeskProduction",
     api: "modelDerivativeV2",
-    accessToken: data.access_token
+    accessToken: data.access_token,
   };
 
   const container = document.getElementById("TADSimpleViwer");
@@ -32,11 +30,11 @@ export const simpleViewer = async (urn) => {
     }
     Autodesk.Viewing.Document.load(
       `urn:${urn}`,
-      doc => {
+      (doc) => {
         const geom = doc.getRoot().getDefaultGeometry();
         viewer.loadDocumentNode(doc, geom);
       },
       (code, msg) => console.error("Error loading doc:", code, msg)
     );
   });
-}
+};

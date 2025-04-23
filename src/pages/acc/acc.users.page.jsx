@@ -148,28 +148,24 @@ const ACCProjectUsersPage = () => {
   };
 
   async function fetchAll(projectId, cookies, accountId) {
-      await Promise.all([
-        fetchACCProjectData(projectId, cookies.access_token, accountId),
-        fechACCProjectUsers(projectId, cookies.access_token, accountId),
-        
-      ]);
-    }
-    
-    useEffect(() => {
-      setLoading(true);
-      fetchAll(projectId, cookies, accountId)
-        .catch(console.error)   // maneja errores
-        .finally(() => setLoading(false));
-    }, [projectId, cookies, accountId]);
-  
+    await Promise.all([
+      fetchACCProjectData(projectId, cookies.access_token, accountId),
+      fechACCProjectUsers(projectId, cookies.access_token, accountId),
+    ]);
+  }
+
+  useEffect(() => {
+    setLoading(true);
+    fetchAll(projectId, cookies, accountId)
+      .catch(console.error) // maneja errores
+      .finally(() => setLoading(false));
+  }, [projectId, cookies, accountId]);
 
   return (
     <>
-    {loading && <LoadingOverlay />}
+      {loading && <LoadingOverlay />}
       {/* Navigation Bar */}
-      <ACCPlatformprojectsHeader 
-      accountId={accountId} 
-      projectId={projectId} />
+      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
 
       <div className="flex min-h-screen mt-14">
         {/* Sidebar */}

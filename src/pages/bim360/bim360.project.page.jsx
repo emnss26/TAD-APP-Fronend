@@ -99,7 +99,7 @@ const BIM360ProjectPage = () => {
     closed: 0,
   });
 
-// Combined data fetch
+  // Combined data fetch
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -153,7 +153,6 @@ const BIM360ProjectPage = () => {
               (rfi) => rfi.status === "closed"
             ).length,
           });
-          
         }
       )
       .catch((err) => {
@@ -161,8 +160,7 @@ const BIM360ProjectPage = () => {
         setError(err);
       })
       .finally(() => setLoading(false));
-  }, [
-    projectId, accountId, cookies.access_token]);
+  }, [projectId, accountId, cookies.access_token]);
 
   //Project Model Simple Viewer
   useEffect(() => {
@@ -173,7 +171,7 @@ const BIM360ProjectPage = () => {
 
   return (
     <>
-    {loading && <LoadingOverlay />}
+      {loading && <LoadingOverlay />}
       {/*Header*/}
       <BIM360PlatformprojectsHeader
         accountId={accountId}

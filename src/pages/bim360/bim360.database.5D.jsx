@@ -1,20 +1,20 @@
 import React, {
-    useEffect,
-    useRef,
-    useState,
-    useMemo,
-    useCallback,
-  } from "react";
-  
-  import { useParams } from "react-router-dom";
-  import { useCookies } from "react-cookie";
-  
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
+
+import { useParams } from "react-router-dom";
+import { useCookies } from "react-cookie";
+
 import BIM360PlatformprojectsHeader from "../../components/platform_page_components/bim360.platform.header.projects";
 import { Footer } from "../../components/general_pages_components/general.pages.footer";
 import BIM360SideBar from "../../components/platform_page_components/platform.bim360.sidebar";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
 
-import { data5Dviewer } from "../../utils/Viewers/5D.viewer"; 
+import { data5Dviewer } from "../../utils/Viewers/5D.viewer";
 
 import {
   disciplineOptions,
@@ -86,10 +86,11 @@ const BIM3605DDatabase = () => {
 
   const [syncViewerSelection, setSyncViewerSelection] = useState(false);
   const syncViewerSelectionRef = useRef(false);
-  const [selectedDisciplineForColor, setSelectedDisciplineForColor] = useState("");
+  const [selectedDisciplineForColor, setSelectedDisciplineForColor] =
+    useState("");
   const [selectedColor, setSelectedColor] = useState("#ff0000");
   const [isPullMenuOpen, setIsPullMenuOpen] = useState(false);
-  
+
   //AI Chatbot
   const [userMessage, setUserMessage] = useState("");
   const [chatbotResponse, setChatbotResponse] = useState("");
@@ -124,15 +125,16 @@ const BIM3605DDatabase = () => {
       });
   }, [projectId, accountId, cookies.access_token]);
 
-
   useEffect(() => {
     const handleDataExtracted = (event) => {
       const { dbId, properties } = event.detail;
       if (typeof properties !== "object" || properties === null) return;
-      const propertiesArray = Object.entries(properties).map(([key, value]) => ({
-        displayName: key,
-        displayValue: value || "",
-      }));
+      const propertiesArray = Object.entries(properties).map(
+        ([key, value]) => ({
+          displayName: key,
+          displayValue: value || "",
+        })
+      );
       const mappedProperties = propertiesArray.reduce((acc, prop) => {
         const mappedKey = propertyMapping[prop.displayName];
         let value = prop.displayValue;
@@ -143,7 +145,10 @@ const BIM3605DDatabase = () => {
             const parts = value.split("/");
             if (parts.length === 3) {
               const [day, month, year] = parts;
-              value = `20${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+              value = `20${year}-${month.padStart(2, "0")}-${day.padStart(
+                2,
+                "0"
+              )}`;
             }
           }
         }
@@ -153,13 +158,29 @@ const BIM3605DDatabase = () => {
         return acc;
       }, {});
       // Aseguramos que existan campos necesarios
-      ["Description", "Length", "Width", "Height", "Perimeter", "Area", "Thickness", "Volume", "Level", "Material"].forEach((field) => {
+      [
+        "Description",
+        "Length",
+        "Width",
+        "Height",
+        "Perimeter",
+        "Area",
+        "Thickness",
+        "Volume",
+        "Level",
+        "Material",
+      ].forEach((field) => {
         if (!mappedProperties[field]) {
           mappedProperties[field] = "";
         }
       });
       const elementType = mapCategoryToElementType(properties.Category) || "";
-      const newRow = { ...defaultRow, dbId, ElementType: elementType, ...mappedProperties };
+      const newRow = {
+        ...defaultRow,
+        dbId,
+        ElementType: elementType,
+        ...mappedProperties,
+      };
       setData((prevData) => {
         if (prevData.some((row) => row.dbId === dbId)) {
           alert("This element is already in the table");
@@ -171,10 +192,9 @@ const BIM3605DDatabase = () => {
     };
 
     window.addEventListener("dbIdDataExtracted", handleDataExtracted);
-    return () => window.removeEventListener("dbIdDataExtracted", handleDataExtracted);
+    return () =>
+      window.removeEventListener("dbIdDataExtracted", handleDataExtracted);
   }, [defaultRow, propertyMapping, mapCategoryToElementType]);
-
-  
 
   const calculateTotals = (rows) => {
     const totals = {
@@ -192,8 +212,6 @@ const BIM3605DDatabase = () => {
     });
     return totals;
   };
-
-  
 
   const grandTotals = useMemo(() => calculateTotals(data), [data]);
 
@@ -266,32 +284,25 @@ const BIM3605DDatabase = () => {
   }, [data]);
 
   const handleViewerSelectionChanged = useCallback((dbIdArray) => {
-    console.log("handleViewerSelectionChanged() → dbIdArray:", dbIdArray);
-    console.log("data (just length):", dataRef.current.length);
-  
+    //console.log("handleViewerSelectionChanged() → dbIdArray:", dbIdArray);
+    //console.log("data (just length):", dataRef.current.length);
+
     // Imprimir los dbId actuales en la tabla
     const currentDbIdsInTable = dataRef.current.map((row) => Number(row.dbId));
-    console.log("Current dbIds in table:", currentDbIdsInTable);
-  
-    const foundDbIds = dataRef.current.filter((row) => {
-      const rowDbIdNum = Number(row.dbId);
-      const matched = dbIdArray.includes(rowDbIdNum);
-  
-      console.log(
-        "Comparando rowDbId=",
-        row.dbId,
-        "-> number:",
-        rowDbIdNum,
-        " / dbIdArray:",
-        dbIdArray,
-        " => matched?",
-        matched
-      );
-      return matched;
-    }).map((row) => row.dbId);
-  
-    console.log("foundDbIds:", foundDbIds);
-  
+    //console.log("Current dbIds in table:", currentDbIdsInTable);
+
+    const foundDbIds = dataRef.current
+      .filter((row) => {
+        const rowDbIdNum = Number(row.dbId);
+        const matched = dbIdArray.includes(rowDbIdNum);
+        //console.log("comparing rowDbId=", row.dbId, "-> number:", rowDbIdNum, " / dbIdArray:", dbIdArray, " => matched?", matched);
+
+        return matched;
+      })
+      .map((row) => row.dbId);
+
+    //console.log("foundDbIds:", foundDbIds);
+
     setSelectedRows(foundDbIds.length ? foundDbIds : []);
     setSelectionCount(dbIdArray.length);
   }, []);
@@ -299,16 +310,14 @@ const BIM3605DDatabase = () => {
   useEffect(() => {
     if (!federatedModel || window.viewerInitialized) return;
 
-    console.log("viwer", federatedModel);
+    //console.log("viwer", federatedModel);
 
     const conditionalSelectionHandler = (dbIdArray) => {
       if (!syncViewerSelectionRef.current) {
-        console.log("Viewer selection changed pero sync está OFF → ignoramos");
+        //console.log("Viewer selection changed pero sync está OFF → ignoramos");
         return;
       }
-      console.log(
-        "Viewer selection changed → sync ON → handleViewerSelectionChanged"
-      );
+      //console.log("Viewer selection changed → sync ON → handleViewerSelectionChanged" );
       handleViewerSelectionChanged(dbIdArray);
     };
 
@@ -324,19 +333,15 @@ const BIM3605DDatabase = () => {
   }, [federatedModel, handleViewerSelectionChanged]);
 
   useEffect(() => {
-    console.log("syncViewerSelection cambió a →", syncViewerSelection);
+    //console.log("syncViewerSelection cambió a →", syncViewerSelection);
     syncViewerSelectionRef.current = syncViewerSelection;
 
     if (syncViewerSelection && window.data5Dviewer) {
-      console.log(
-        "Sincronización ACTIVADA: se llama getSelection() para forzar resaltado en tabla."
-      );
+      //console.log( "Sincronización ACTIVADA: se llama getSelection() para forzar resaltado en tabla." );
       const currentDbIds = window.data5Dviewer.getSelection() || [];
       handleViewerSelectionChanged(currentDbIds);
     }
   }, [syncViewerSelection, handleViewerSelectionChanged]);
-
-
 
   const handleSubmit = async () => {
     try {
@@ -350,11 +355,10 @@ const BIM3605DDatabase = () => {
               value.toLowerCase() === "no especificado" ||
               value.trim() === ""
             ) {
-              cleanedRow[field] = null; 
+              cleanedRow[field] = null;
             } else {
-              
               const parsedValue = parseFloat(value);
-             
+
               cleanedRow[field] = isNaN(parsedValue) ? null : parsedValue;
             }
           }
@@ -444,7 +448,7 @@ const BIM3605DDatabase = () => {
               endDate: item.PlanedConstructionEndDate,
             }));
             window.planningViewer.setFourDData(fourDData);
-            console.log("4D data from DB:", fourDData);
+            //console.log("4D data from DB:", fourDData);
           }
         } else {
           alert("No se encontraron datos para este proyecto.");
@@ -459,7 +463,6 @@ const BIM3605DDatabase = () => {
       alert(`Error en la solicitud: ${error.message}`);
     }
   };
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -737,7 +740,8 @@ const BIM3605DDatabase = () => {
       if (unit) {
         const [discipline, code] = groupKey.split("||");
         const rows =
-          (nestedGroupData[discipline] && nestedGroupData[discipline][code]) || [];
+          (nestedGroupData[discipline] && nestedGroupData[discipline][code]) ||
+          [];
         let total = 0;
         if (unit === "m" || unit === "kg/m") {
           total = rows.reduce((sum, r) => sum + (parseFloat(r.Length) || 0), 0);
@@ -768,7 +772,6 @@ const BIM3605DDatabase = () => {
       return acc;
     }, {});
   }, [data]);
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -817,26 +820,34 @@ const BIM3605DDatabase = () => {
   return (
     <>
       {loading && <LoadingOverlay />}
-  
+
       {/* Header */}
-      <BIM360PlatformprojectsHeader accountId={accountId} projectId={projectId} />
-  
+      <BIM360PlatformprojectsHeader
+        accountId={accountId}
+        projectId={projectId}
+      />
+
       {/* Contenedor principal: ocupa todo el viewport menos el header */}
       <div
         className="flex flex-col mt-14"
-        style={{ minHeight: 'calc(100vh - 3.5rem)' /* Ajusta si tu header no mide 56px */ }}
+        style={{
+          minHeight:
+            "calc(100vh - 3.5rem)" /* Ajusta si tu header no mide 56px */,
+        }}
       >
         {/* Sidebar + contenido desplazable */}
         <div className="flex flex-1">
           <BIM360SideBar />
-  
+
           <div className="flex-1 p-4 bg-white overflow-auto">
             {/* Título */}
             <div className="mb-4">
-              <h1 className="text-right text-xl text-black">Model Database 4D</h1>
+              <h1 className="text-right text-xl text-black">
+                Model Database 4D
+              </h1>
             </div>
             <hr className="my-4 border-t border-gray-300" />
-  
+
             {/* Control Panel */}
             <ControlPanel
               viewer={window.data5Dviewer}
@@ -863,11 +874,11 @@ const BIM3605DDatabase = () => {
               handleSubmitCustomTable={() => {}}
               handlePullCustomTableData={() => {}}
             />
-  
+
             <div className="h-12"></div>
-  
+
             {/* Viewer + Tabla + AI Panel */}
-            <div className="flex" style={{ height: '650px' }}>
+            <div className="flex" style={{ height: "650px" }}>
               {/* Viewer */}
               <div
                 className={`
@@ -881,7 +892,7 @@ const BIM3605DDatabase = () => {
                       <h2 className="text-xl font-bold">Model Viewer</h2>
                     </div>
                     <hr className="my-4 border-t border-gray-300" />
-                    <div className="relative" style={{ height: '550px' }}>
+                    <div className="relative" style={{ height: "550px" }}>
                       <div
                         className="absolute top-0 left-0 right-0 bottom-0"
                         id="TAD5DViwer"
@@ -890,7 +901,7 @@ const BIM3605DDatabase = () => {
                   </>
                 )}
               </div>
-  
+
               {/* Tabla */}
               <div
                 className={`
@@ -900,10 +911,10 @@ const BIM3605DDatabase = () => {
                 `}
               >
                 <Database5DTable
-                    viewer={window.data5Dviewer}
+                  viewer={window.data5Dviewer}
                   data={data}
                   totalsByDiscipline={totalsByDiscipline}
-                  grandTotals={grandTotals} 
+                  grandTotals={grandTotals}
                   handleInputChange={handleInputChange}
                   handleDisciplineChange={handleDisciplineChange}
                   handleElementTypeChange={handleElementTypeChange}
@@ -917,13 +928,12 @@ const BIM3605DDatabase = () => {
                   setSelectedRows={setSelectedRows}
                   lastClickedRowNumber={lastClickedRowNumber}
                   setLastClickedRowNumber={setLastClickedRowNumber}
-                  
                   groupExtraData={groupExtraData}
                   handleGroupExtraDataChange={handleGroupExtraDataChange}
                   calculateGroupTotal={calculateGroupTotal}
                 />
               </div>
-  
+
               {/* AI Panel */}
               <div
                 className={`
@@ -949,18 +959,20 @@ const BIM3605DDatabase = () => {
                       />
                       <button
                         onClick={handleSendMessage}
-                        disabled={userMessage.trim() === ''}
+                        disabled={userMessage.trim() === ""}
                         className={`w-full py-2 px-4 rounded text-xs ${
-                          userMessage.trim() === ''
-                            ? 'bg-[#2ea3e3] text-white cursor-not-allowed'
-                            : 'bg-[#F19A3E] text-white hover:bg-[#FE7F2D]'
+                          userMessage.trim() === ""
+                            ? "bg-[#2ea3e3] text-white cursor-not-allowed"
+                            : "bg-[#F19A3E] text-white hover:bg-[#FE7F2D]"
                         }`}
                       >
                         Send
                       </button>
                     </div>
                     <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded text-xs">
-                      <p className="text-gray-700 font-medium text-xs">Answer:</p>
+                      <p className="text-gray-700 font-medium text-xs">
+                        Answer:
+                      </p>
                       <p className="mt-2 text-gray-800 text-xs">
                         {chatbotResponse}
                       </p>
@@ -985,12 +997,11 @@ const BIM3605DDatabase = () => {
                 )}
               </div>
             </div>
-  
-            <div className="h-12"></div>
 
+            <div className="h-12"></div>
           </div>
         </div>
-  
+
         {/* Footer siempre al final */}
         <Footer />
       </div>
@@ -999,4 +1010,3 @@ const BIM3605DDatabase = () => {
 };
 
 export default BIM3605DDatabase;
-

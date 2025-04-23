@@ -51,7 +51,7 @@ import { Separator } from "@/components/ui/separator";
 import EnhancedColorPicker from "./color.selector";
 
 export default function ControlPanel({
-    viewer,
+  viewer,
   showViewer,
   setShowViewer,
   showAIpanel,
@@ -66,7 +66,6 @@ export default function ControlPanel({
   handleRemoveRow,
   handleSubmit,
   handlePullData,
- 
 
   // Props para el control de color por disciplina
   disciplineOptions,
@@ -132,7 +131,11 @@ export default function ControlPanel({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               {/* Tabs Superior */}
               <div className="px-4 pt-3">
                 <TabsList className="grid grid-cols-3 w-full">
@@ -179,8 +182,14 @@ export default function ControlPanel({
                         onClick={() => setShowViewer(!showViewer)}
                         className="flex items-center gap-2 bg-[#3D464A] hover:bg-[#2ea3e3] hover:text-white text-white rounded"
                       >
-                        {showViewer ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        <span>{showViewer ? "Hide Viewer" : "Show Viewer"}</span>
+                        {showViewer ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                        <span>
+                          {showViewer ? "Hide Viewer" : "Show Viewer"}
+                        </span>
                       </Button>
                       <Button
                         variant="default"
@@ -205,12 +214,20 @@ export default function ControlPanel({
                       <div className="col-span-1">
                         <Button
                           variant="default"
-                          onClick={() => setSyncViewerSelection((prev) => !prev)}
+                          onClick={() =>
+                            setSyncViewerSelection((prev) => !prev)
+                          }
                           className="w-full flex items-center justify-center gap-2 bg-[#2ea3e3]"
                         >
-                          {syncViewerSelection ? <Link className="h-4 w-4" /> : <Link2Off className="h-4 w-4" />}
+                          {syncViewerSelection ? (
+                            <Link className="h-4 w-4" />
+                          ) : (
+                            <Link2Off className="h-4 w-4" />
+                          )}
                           <span>
-                            {syncViewerSelection ? "No Real Time Selection" : "Real Time Selection"}
+                            {syncViewerSelection
+                              ? "No Real Time Selection"
+                              : "Real Time Selection"}
                           </span>
                         </Button>
                       </div>
@@ -290,7 +307,10 @@ export default function ControlPanel({
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" className="w-full flex items-center justify-between">
+                          <Button
+                            variant="outline"
+                            className="w-full flex items-center justify-between"
+                          >
                             <div className="flex items-center gap-2">
                               <Database className="h-4 w-4" />
                               <span>Pull Data</span>

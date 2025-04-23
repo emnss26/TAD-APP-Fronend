@@ -1,7 +1,10 @@
 import { ResponsivePie } from "@nivo/pie";
 
 export default function DonutChartGeneric({ counts = {}, onSliceClick }) {
-  const chartData = Object.entries(counts).map(([k, v]) => ({ id: k, value: v }));
+  const chartData = Object.entries(counts).map(([k, v]) => ({
+    id: k,
+    value: v,
+  }));
 
   return (
     <div style={{ height: 500, width: 400, margin: "1px auto" }}>

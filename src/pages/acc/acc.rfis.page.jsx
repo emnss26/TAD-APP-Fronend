@@ -31,11 +31,28 @@ const ACCRFIPage = () => {
   const [projectsData, setProjectsData] = useState(null);
   const [project, setProject] = useState(null);
   const [rfis, setRFIs] = useState([]);
-  const [rfiTotals, setRFITotals] = useState({ total: 0, open: 0, answered: 0, closed: 0 });
-  const [statusCounts, setStatusCounts] = useState({ open: 0, answered: 0, closed: 0 });
-  const [priorityCounts, setPriorityCounts] = useState({ high: 0, normal: 0, low: 0 });
+  const [rfiTotals, setRFITotals] = useState({
+    total: 0,
+    open: 0,
+    answered: 0,
+    closed: 0,
+  });
+  const [statusCounts, setStatusCounts] = useState({
+    open: 0,
+    answered: 0,
+    closed: 0,
+  });
+  const [priorityCounts, setPriorityCounts] = useState({
+    high: 0,
+    normal: 0,
+    low: 0,
+  });
   const [disciplineCounts, setDisciplineCounts] = useState({});
-  const [activeFilters, setActiveFilters] = useState({ status: null, priority: null, discipline: null });
+  const [activeFilters, setActiveFilters] = useState({
+    status: null,
+    priority: null,
+    discipline: null,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -56,12 +73,12 @@ const ACCRFIPage = () => {
         setRFIs(list);
         setRFITotals({
           total: list.length,
-          open: list.filter(r => r.status === 'open').length,
-          answered: list.filter(r => r.status === 'answered').length,
-          closed: list.filter(r => r.status === 'closed').length,
+          open: list.filter((r) => r.status === "open").length,
+          answered: list.filter((r) => r.status === "answered").length,
+          closed: list.filter((r) => r.status === "closed").length,
         });
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         setError(err);
       })
@@ -74,15 +91,15 @@ const ACCRFIPage = () => {
     const newPriority = { high: 0, normal: 0, low: 0 };
     const newDiscipline = {};
 
-    rfis.forEach(r => {
-      if (r.status === 'open') newStatus.open++;
-      if (r.status === 'answered') newStatus.answered++;
-      if (r.status === 'closed') newStatus.closed++;
+    rfis.forEach((r) => {
+      if (r.status === "open") newStatus.open++;
+      if (r.status === "answered") newStatus.answered++;
+      if (r.status === "closed") newStatus.closed++;
 
       const p = r.priority?.toLowerCase();
-      if (p === 'high') newPriority.high++;
-      if (p === 'normal') newPriority.normal++;
-      if (p === 'low') newPriority.low++;
+      if (p === "high") newPriority.high++;
+      if (p === "normal") newPriority.normal++;
+      if (p === "low") newPriority.low++;
 
       if (r.discipline) {
         newDiscipline[r.discipline] = (newDiscipline[r.discipline] || 0) + 1;
@@ -96,12 +113,19 @@ const ACCRFIPage = () => {
 
   // Filtered RFIs
   const displayedRFIs = rfis
-    .filter(r => !activeFilters.status || r.status === activeFilters.status)
-    .filter(r => !activeFilters.priority || r.priority?.toLowerCase() === activeFilters.priority)
-    .filter(r => !activeFilters.discipline || r.discipline === activeFilters.discipline);
+    .filter((r) => !activeFilters.status || r.status === activeFilters.status)
+    .filter(
+      (r) =>
+        !activeFilters.priority ||
+        r.priority?.toLowerCase() === activeFilters.priority
+    )
+    .filter(
+      (r) =>
+        !activeFilters.discipline || r.discipline === activeFilters.discipline
+    );
 
   const handleFilterClick = (type, val) => {
-    setActiveFilters(prev => ({
+    setActiveFilters((prev) => ({
       ...prev,
       [type]: prev[type] === val ? null : val,
     }));
@@ -123,43 +147,41 @@ const ACCRFIPage = () => {
 
   const dataContainers = [
     {
-      title: 'RFI Status Chart',
+      title: "RFI Status Chart",
       chart: RFIsStatusChart,
       content: statusCounts,
       data: statusCounts,
-      onClickName: status => handleFilterClick('status', status.toLowerCase()),
+      onClickName: (status) =>
+        handleFilterClick("status", status.toLowerCase()),
     },
     {
-      title: 'RFI Priority Chart',
+      title: "RFI Priority Chart",
       chart: RFIsPriorityChart,
       content: priorityCounts,
       data: priorityCounts,
-      onClickName: pr => handleFilterClick('priority', pr),
+      onClickName: (pr) => handleFilterClick("priority", pr),
     },
     {
-      title: 'RFI Discipline Chart',
+      title: "RFI Discipline Chart",
       chart: RFIsDisciplineChart,
       content: disciplineCounts,
       data: disciplineCounts,
-      onClickName: d => handleFilterClick('discipline', d),
+      onClickName: (d) => handleFilterClick("discipline", d),
     },
   ];
 
   return (
     <>
       {loading && <LoadingOverlay />}
-  
-      <ACCPlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
-  
+
+      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
+
       <div className="flex min-h-screen mt-14">
         <ACCSideBar />
         <main className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl mt-2">RFI Report</h1>
           <hr className="my-4 border-t border-gray-300" />
-  
+
           {/* Reset filters */}
           <div className="mb-4 text-right">
             <button
@@ -169,7 +191,7 @@ const ACCRFIPage = () => {
               Reset Table Filters
             </button>
           </div>
-  
+
           {/* ────── Carousel (Lista de filtros) ────── */}
           <div className="flex max-h-[775px]">
             <section className="w-1/4 bg-white mr-4 rounded-lg shadow-md chart-with-dots">
@@ -190,16 +212,13 @@ const ACCRFIPage = () => {
                 ))}
               </Slider>
             </section>
-  
+
             {/* ────── Tabla RFIs ────── */}
             <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto max-h-[775px]">
-              <RFITable
-                rfis={displayedRFIs}
-                onViewDetails={() => {}}
-              />
+              <RFITable rfis={displayedRFIs} onViewDetails={() => {}} />
             </section>
           </div>
-  
+
           {/* ────── Diagrama de Gantt ────── */}
           <div className="mt-14 px-4 mb-8">
             <h2 className="text-xl font-semibold mb-2">Gantt RFIs</h2>
@@ -207,9 +226,9 @@ const ACCRFIPage = () => {
           </div>
         </main>
       </div>
-  
+
       <Footer />
     </>
   );
-}
+};
 export default ACCRFIPage;

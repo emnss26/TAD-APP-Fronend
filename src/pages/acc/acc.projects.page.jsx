@@ -28,7 +28,7 @@ const ACCProjectsPage = () => {
         (project) => project.attributes.extension.data.projectType === "ACC"
       );
 
-      console.log("ACC Projects:", accProjects);
+      //console.log("ACC Projects:", accProjects);
 
       setProjects(accProjects);
     };

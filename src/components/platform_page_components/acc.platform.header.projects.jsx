@@ -13,7 +13,7 @@ import { ProjectsDropdownMenu } from "./drop.down.menu";
 const backendUrl =
   import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
 
-const ACCPlatformprojectsHeader = ({  accountId, projectId }) => {
+const ACCPlatformprojectsHeader = ({ accountId, projectId }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [error, setError] = useState(null);
 
@@ -35,7 +35,6 @@ const ACCPlatformprojectsHeader = ({  accountId, projectId }) => {
 
   //console.log("Project ID Header:", projectId);
   //console.log("Account ID Header:", accountId);
-  
 
   //ProjectsData
   useEffect(() => {
@@ -132,17 +131,17 @@ const ACCPlatformprojectsHeader = ({  accountId, projectId }) => {
 
         {/* Drop Down projects */}
         {projectsData?.projects?.length > 0 && (
-            <ProjectsDropdownMenu
-                label={project?.name || "Select a project"}
-                options={projectsData.projects.map((proj) => ({
-                label: proj.attributes.name,
-                value: proj.id,
-                }))}
-                onSelect={(option) => {
-                navigate(`/accprojects/${accountId}/${option.value}`);
-                }}
-            />
-            )}
+          <ProjectsDropdownMenu
+            label={project?.name || "Select a project"}
+            options={projectsData.projects.map((proj) => ({
+              label: proj.attributes.name,
+              value: proj.id,
+            }))}
+            onSelect={(option) => {
+              navigate(`/accprojects/${accountId}/${option.value}`);
+            }}
+          />
+        )}
       </div>
 
       {/* Contenedor derecho: nav + user profile */}

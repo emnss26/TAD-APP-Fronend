@@ -28,7 +28,7 @@ const BIM360ProjectsPage = () => {
         (project) => project.attributes.extension.data.projectType === "BIM360"
       );
 
-      console.log("BIM360 Projects:", accProjects);
+      //console.log("BIM360 Projects:", accProjects);
 
       setProjects(accProjects);
     };

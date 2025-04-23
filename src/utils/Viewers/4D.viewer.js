@@ -9,7 +9,6 @@ import "../Viewers.extensions/show.dbId.data";
 import "../Viewers.extensions/visible.elements.selection";
 import "../Viewers.extensions/type.name.filter.selection";
 
-
 let data4Dglobal = [];
 let lastSliderDate = null;
 let instanceTree = null;
@@ -108,63 +107,65 @@ function handleSliderChange(event, viewer) {
   }
 }
 
-function set4DData (newData) {
-    data4Dglobal = newData;
-    console.log("Updated 4D data:", data4Dglobal);
+function set4DData(newData) {
+  data4Dglobal = newData;
+  console.log("Updated 4D data:", data4Dglobal);
 }
 
-function resetViewerState (viewer) {
-    viewer.showAll();
-    viewer.clearThemingColors();
-    const slider = document.getElementById("4D-slider");
-    if (slider) {
-        slider.value = 0;
-    }
-    const dateDisplay = document.getElementById("currentDate-display");
-    if (dateDisplay) {
-        dateDisplay.textContent = "Current date: N/A";
-    }
-    lastSliderDate = null;
-    data4Dglobal = [];
-    console.log("Reset 4D data:", data4Dglobal);
-    if (viewer) {
-        viewer.setThemingColor(null, null, viewer);
-        viewer.hideAll();
-    }
-    console.log("Viewer reset complete.");
+function resetViewerState(viewer) {
+  viewer.showAll();
+  viewer.clearThemingColors();
+  const slider = document.getElementById("4D-slider");
+  if (slider) {
+    slider.value = 0;
+  }
+  const dateDisplay = document.getElementById("currentDate-display");
+  if (dateDisplay) {
+    dateDisplay.textContent = "Current date: N/A";
+  }
+  lastSliderDate = null;
+  data4Dglobal = [];
+  console.log("Reset 4D data:", data4Dglobal);
+  if (viewer) {
+    viewer.setThemingColor(null, null, viewer);
+    viewer.hideAll();
+  }
+  console.log("Viewer reset complete.");
 }
 
 function countDbIdsInNode(nodeId) {
-    let count = 0;
-    instanceTree.enumNodeChildren(nodeId, (childNodeId) => {
-      count += countDbIdsInNode(childNodeId);
-    });
-    // Check if leaf
-    const isLeafNode = instanceTree.getChildCount(nodeId) === 0;
-    if (isLeafNode) {
-      count++;
-    }
-    return count;
+  let count = 0;
+  instanceTree.enumNodeChildren(nodeId, (childNodeId) => {
+    count += countDbIdsInNode(childNodeId);
+  });
+  // Check if leaf
+  const isLeafNode = instanceTree.getChildCount(nodeId) === 0;
+  if (isLeafNode) {
+    count++;
   }
+  return count;
+}
 
-export async function data4Dviewer ({ federatedModel,
-    
-    setSelectionCount,
-    setSelection,
-    setIsLoadingTree,
-    setCategoryData,}) {
-    console.log("token viewer 4D :", federatedModel)
+export async function data4Dviewer({
+  federatedModel,
 
-    const response = await fetch (`${backendUrl}/auth/token`)
-    const {data} = await response.json()
-    
-    console.log("4D Viewer URN:", federatedModel)
-    console.log ("token viewer:", data.access_token)
+  setSelectionCount,
+  setSelection,
+  setIsLoadingTree,
+  setCategoryData,
+}) {
+  console.log("token viewer 4D :", federatedModel);
+
+  const response = await fetch(`${backendUrl}/auth/token`);
+  const { data } = await response.json();
+
+  console.log("4D Viewer URN:", federatedModel);
+  console.log("token viewer:", data.access_token);
 
   const options = {
     env: "AutodeskProduction",
     api: "modelDerivativeV2",
-    accessToken: data.access_token
+    accessToken: data.access_token,
   };
 
   const config = {
@@ -193,7 +194,7 @@ export async function data4Dviewer ({ federatedModel,
       return;
     }
 
-    window.data4Dviewer = viewer; 
+    window.data4Dviewer = viewer;
     window.data4Dviewer.set4DData = set4DData;
     window.data4Dviewer.resetViewerState = () => resetViewerState(viewer);
     viewer.setSelectionMode(Autodesk.Viewing.SelectionMode.MULTIPLE);
@@ -205,9 +206,11 @@ export async function data4Dviewer ({ federatedModel,
         const defaultModel = viewerDocument.getRoot().getDefaultGeometry();
         viewer.loadDocumentNode(viewerDocument, defaultModel);
 
-        viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, () => {
+        viewer.addEventListener(
+          Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT,
+          () => {
             if (setIsLoadingTree) setIsLoadingTree(false);
-  
+
             if (setCategoryData) {
               const instanceTree = viewer.model.getData().instanceTree;
               const rootNodeId = instanceTree.getRootId();
@@ -222,39 +225,48 @@ export async function data4Dviewer ({ federatedModel,
                 const c = countDbIdsInNode(nodeId);
                 categoryCount[categoryName] += c;
               });
-  
+
               setCategoryData(categoryCount);
             }
-          });
+          }
+        );
 
-          viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, (event) => {
-            console.log("SELECTION_CHANGED_EVENT fired. dbIds:", event.dbIdArray);
+        viewer.addEventListener(
+          Autodesk.Viewing.SELECTION_CHANGED_EVENT,
+          (event) => {
+            console.log(
+              "SELECTION_CHANGED_EVENT fired. dbIds:",
+              event.dbIdArray
+            );
             if (setSelectionCount) {
               setSelectionCount(event.dbIdArray.length);
             }
             if (setSelection) {
               setSelection(event.dbIdArray);
             }
+          }
+        );
+
+        viewer.applyColorByDiscipline = (dbIds, colorHex) => {
+          if (!viewer.model) return;
+          const color = new THREE.Color(colorHex);
+          dbIds.forEach((id) => {
+            viewer.setThemingColor(
+              id,
+              new THREE.Vector4(color.r, color.g, color.b, 1),
+              viewer.model
+            );
           });
+        };
 
-          viewer.applyColorByDiscipline = (dbIds, colorHex) => {
-            if (!viewer.model) return;
-            const color = new THREE.Color(colorHex);
-            dbIds.forEach((id) => {
-              viewer.setThemingColor(
-                id,
-                new THREE.Vector4(color.r, color.g, color.b, 1),
-                viewer.model
-              );
-            });
-          };
+        window.data4Dviewer.set4DData = set4DData;
+        window.data4Dviewer.resetViewerState = () => resetViewerState(viewer);
 
-          window.data4Dviewer.set4DData = set4DData;
-          window.data4Dviewer.resetViewerState = () => resetViewerState(viewer);
-  
-          const slider = document.getElementById("dateSlider");
+        const slider = document.getElementById("dateSlider");
         if (slider) {
-          slider.addEventListener("input", (evt) => handleSliderChange(evt, viewer));
+          slider.addEventListener("input", (evt) =>
+            handleSliderChange(evt, viewer)
+          );
         }
       },
       (error) => {
@@ -263,5 +275,3 @@ export async function data4Dviewer ({ federatedModel,
     );
   });
 }
-  
-    

@@ -312,33 +312,24 @@ const BIM3604DDatabase = () => {
   }, [data]);
 
   const handleViewerSelectionChanged = useCallback((dbIdArray) => {
-    console.log("handleViewerSelectionChanged() → dbIdArray:", dbIdArray);
-    console.log("data (just length):", dataRef.current.length);
+    //console.log("handleViewerSelectionChanged() → dbIdArray:", dbIdArray);
+    //console.log("data (just length):", dataRef.current.length);
 
     // Imprimir los dbId actuales en la tabla
     const currentDbIdsInTable = dataRef.current.map((row) => Number(row.dbId));
-    console.log("Current dbIds in table:", currentDbIdsInTable);
+    //console.log("Current dbIds in table:", currentDbIdsInTable);
 
     const foundDbIds = dataRef.current
       .filter((row) => {
         const rowDbIdNum = Number(row.dbId);
         const matched = dbIdArray.includes(rowDbIdNum);
 
-        console.log(
-          "Comparando rowDbId=",
-          row.dbId,
-          "-> number:",
-          rowDbIdNum,
-          " / dbIdArray:",
-          dbIdArray,
-          " => matched?",
-          matched
-        );
+        //console.log("Comparando rowDbId=", row.dbId, "-> number:", rowDbIdNum, " / dbIdArray:", dbIdArray, " => matched?", matched );
         return matched;
       })
       .map((row) => row.dbId);
 
-    console.log("foundDbIds:", foundDbIds);
+    //console.log("foundDbIds:", foundDbIds);
 
     setSelectedRows(foundDbIds.length ? foundDbIds : []);
     setSelectionCount(dbIdArray.length);
@@ -347,16 +338,14 @@ const BIM3604DDatabase = () => {
   useEffect(() => {
     if (!federatedModel || window.viewerInitialized) return;
 
-    console.log("viwer", federatedModel);
+    //console.log("viwer", federatedModel);
 
     const conditionalSelectionHandler = (dbIdArray) => {
       if (!syncViewerSelectionRef.current) {
-        console.log("Viewer selection changed pero sync está OFF → ignoramos");
+        //console.log("Viewer selection changed pero sync está OFF → ignoramos");
         return;
       }
-      console.log(
-        "Viewer selection changed → sync ON → handleViewerSelectionChanged"
-      );
+      //console.log( "Viewer selection changed → sync ON → handleViewerSelectionChanged");
       handleViewerSelectionChanged(dbIdArray);
     };
 
@@ -372,13 +361,11 @@ const BIM3604DDatabase = () => {
   }, [federatedModel, handleViewerSelectionChanged]);
 
   useEffect(() => {
-    console.log("syncViewerSelection cambió a →", syncViewerSelection);
+    //console.log("syncViewerSelection cambió a →", syncViewerSelection);
     syncViewerSelectionRef.current = syncViewerSelection;
 
     if (syncViewerSelection && data4Dviewer) {
-      console.log(
-        "Sincronización ACTIVADA: se llama getSelection() para forzar resaltado en tabla."
-      );
+      //console.log("Sincronización ACTIVADA: se llama getSelection() para forzar resaltado en tabla." );
       const currentDbIds = data4Dviewer.getSelection() || [];
       handleViewerSelectionChanged(currentDbIds);
     }
@@ -505,7 +492,7 @@ const BIM3604DDatabase = () => {
               endDate: item.PlanedConstructionEndDate,
             }));
             window.data4Dviewer.set4DData(fourDData);
-            console.log("4D data from DB:", fourDData);
+            //console.log("4D data from DB:", fourDData);
           }
         } else {
           alert("No data was found for this project.");
@@ -797,7 +784,10 @@ const BIM3604DDatabase = () => {
       {loading && <LoadingOverlay />}
 
       {/* Header */}
-      <BIM360PlatformprojectsHeader accountId={accountId} projectId={projectId} />
+      <BIM360PlatformprojectsHeader
+        accountId={accountId}
+        projectId={projectId}
+      />
 
       {/* Contenedor principal: ocupa todo el viewport menos el header */}
       <div
@@ -883,7 +873,7 @@ const BIM3604DDatabase = () => {
                                 `}
               >
                 <Database4DTable
-                viewer={window.data4Dviewer}
+                  viewer={window.data4Dviewer}
                   data={data}
                   groupedData={groupedData}
                   totalsByDiscipline={totalsByDiscipline}

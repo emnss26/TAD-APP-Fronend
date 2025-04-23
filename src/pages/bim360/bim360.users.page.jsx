@@ -148,22 +148,22 @@ const BIM360ProjectUsersPage = () => {
   };
 
   async function fetchAll(projectId, cookies, accountId) {
-        await Promise.all([
-          fetchBIM360ProjectData(projectId, cookies.access_token, accountId),
-          fechBIM360ProjectUsers(projectId, cookies.access_token, accountId),
-        ]);
-      }
-      
-      useEffect(() => {
-        setLoading(true);
-        fetchAll(projectId, cookies, accountId)
-          .catch(console.error)   // maneja errores
-          .finally(() => setLoading(false));
-      }, [projectId, cookies, accountId]);
+    await Promise.all([
+      fetchBIM360ProjectData(projectId, cookies.access_token, accountId),
+      fechBIM360ProjectUsers(projectId, cookies.access_token, accountId),
+    ]);
+  }
+
+  useEffect(() => {
+    setLoading(true);
+    fetchAll(projectId, cookies, accountId)
+      .catch(console.error) // maneja errores
+      .finally(() => setLoading(false));
+  }, [projectId, cookies, accountId]);
 
   return (
     <>
-    {loading && <LoadingOverlay />}
+      {loading && <LoadingOverlay />}
       {/* Navigation Bar */}
       <BIM360PlatformprojectsHeader
         accountId={accountId}

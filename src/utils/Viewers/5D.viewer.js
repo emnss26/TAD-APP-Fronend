@@ -96,15 +96,15 @@ export async function data5Dviewer({
               let count = 0;
 
               instanceTree.enumNodeChildren(nodeId, (childNodeId) => {
-                count += countDbIdsInNode(childNodeId); 
+                count += countDbIdsInNode(childNodeId);
               });
 
               const isLeafNode = instanceTree.getChildCount
                 ? instanceTree.getChildCount(nodeId) === 0
-                : true; 
+                : true;
 
               if (isLeafNode) {
-                count += 1; 
+                count += 1;
               }
 
               return count;
@@ -112,7 +112,7 @@ export async function data5Dviewer({
 
             instanceTree.enumNodeChildren(rootNodeId, (nodeId) => {
               const nodeName = instanceTree.getNodeName(nodeId);
-              const categoryName = nodeName.replace(/\s*\[.*?\]\s*/g, ""); 
+              const categoryName = nodeName.replace(/\s*\[.*?\]\s*/g, "");
 
               if (!categoryCount[categoryName]) {
                 categoryCount[categoryName] = 0;

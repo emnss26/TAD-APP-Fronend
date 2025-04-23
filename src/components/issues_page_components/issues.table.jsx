@@ -1,22 +1,36 @@
 import { useState, useMemo } from "react";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Pagination, PaginationContent, PaginationItem, PaginationLink,
-  PaginationNext, PaginationPrevious,
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card, CardContent, CardHeader, CardTitle,
-} from "@/components/ui/card";
-import {
-  ChevronDown, ChevronUp, Search, SlidersHorizontal, Eye,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  SlidersHorizontal,
+  Eye,
 } from "lucide-react";
 
 /* ------------ helpers ------------ */
@@ -27,8 +41,8 @@ const getCustom = (issue, title) =>
 const statusColors = {
   open: "bg-yellow-100 text-yellow-800",
   answered: "bg-blue-100 text-blue-800",
-  "in_review": "bg-blue-100 text-blue-800",
-  "in_progress": "bg-blue-100 text-blue-800",
+  in_review: "bg-blue-100 text-blue-800",
+  in_progress: "bg-blue-100 text-blue-800",
   closed: "bg-gray-100 text-gray-800",
   urgent: "bg-red-100 text-red-800",
   unknown: "bg-gray-100 text-gray-800",
@@ -38,7 +52,9 @@ const renderStatusBadge = (status = "unknown") => {
   const key = status.toLowerCase?.() || "unknown";
   return (
     <Badge
-      className={`${statusColors[key] || statusColors.unknown} flex items-center hover:bg-[#164aa2] hover:text-white transition-colors`}
+      className={`${
+        statusColors[key] || statusColors.unknown
+      } flex items-center hover:bg-[#164aa2] hover:text-white transition-colors`}
     >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </Badge>
@@ -57,7 +73,9 @@ const renderPriorityBadge = (priority = "unknown") => {
   const key = priority.toLowerCase?.() || "unknown";
   return (
     <Badge
-      className={`${priorityColors[key] || priorityColors.unknown} px-2 py-1 rounded-full font-medium hover:bg-[#164aa2] hover:text-white transition-colors`}
+      className={`${
+        priorityColors[key] || priorityColors.unknown
+      } px-2 py-1 rounded-full font-medium hover:bg-[#164aa2] hover:text-white transition-colors`}
     >
       {priority.charAt(0).toUpperCase() + priority.slice(1)}
     </Badge>
@@ -68,11 +86,11 @@ const renderPriorityBadge = (priority = "unknown") => {
 export default function IssuesTable({
   issues = [],
   onViewDetails,
-  customColumns = [],      // nombres de atributos personalizados
+  customColumns = [], // nombres de atributos personalizados
 }) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm]   = useState("");
-  const [sortField, setSortField]     = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
   const itemsPerPage = 10;
 
@@ -82,12 +100,13 @@ export default function IssuesTable({
 
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
-      res = res.filter((i) =>
-        (i.title ?? "").toLowerCase().includes(q) ||
-        (i.description ?? "").toLowerCase().includes(q) ||
-        String(i.displayId).includes(q) ||
-        (i.status ?? "").toLowerCase().includes(q) ||
-        (i.assignedTo ?? "").toLowerCase().includes(q)
+      res = res.filter(
+        (i) =>
+          (i.title ?? "").toLowerCase().includes(q) ||
+          (i.description ?? "").toLowerCase().includes(q) ||
+          String(i.displayId).includes(q) ||
+          (i.status ?? "").toLowerCase().includes(q) ||
+          (i.assignedTo ?? "").toLowerCase().includes(q)
       );
     }
 
@@ -95,7 +114,9 @@ export default function IssuesTable({
       res.sort((a, b) => {
         const av = (a[sortField] ?? "").toString();
         const bv = (b[sortField] ?? "").toString();
-        return sortDirection === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
+        return sortDirection === "asc"
+          ? av.localeCompare(bv)
+          : bv.localeCompare(av);
       });
     }
 
@@ -112,9 +133,11 @@ export default function IssuesTable({
 
   const sortIndicator = (f) =>
     sortField === f ? (
-      sortDirection === "asc"
-        ? <ChevronUp className="inline h-4 w-4 ml-1" />
-        : <ChevronDown className="inline h-4 w-4 ml-1" />
+      sortDirection === "asc" ? (
+        <ChevronUp className="inline h-4 w-4 ml-1" />
+      ) : (
+        <ChevronDown className="inline h-4 w-4 ml-1" />
+      )
     ) : null;
 
   return (
@@ -131,11 +154,22 @@ export default function IssuesTable({
                 placeholder="Search issues…"
                 className="pl-8"
                 value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
               />
             </div>
             {/* reset button */}
-            <Button className="bg-[#2ea3e3] text-white" onClick={() => { setSearchTerm(""); setSortField(null); }}>Reset</Button>
+            <Button
+              className="bg-[#2ea3e3] text-white"
+              onClick={() => {
+                setSearchTerm("");
+                setSortField(null);
+              }}
+            >
+              Reset
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -146,29 +180,60 @@ export default function IssuesTable({
           <Table>
             <TableHeader className="bg-[#f6f6f6]">
               <TableRow>
-                <TableHead className="p-2 cursor-pointer text-black" onClick={() => {
-                  setSortField("displayId");
-                  setSortDirection(sortField === "displayId" && sortDirection === "asc" ? "desc" : "asc");
-                }}>
+                <TableHead
+                  className="p-2 cursor-pointer text-black"
+                  onClick={() => {
+                    setSortField("displayId");
+                    setSortDirection(
+                      sortField === "displayId" && sortDirection === "asc"
+                        ? "desc"
+                        : "asc"
+                    );
+                  }}
+                >
                   ID {sortIndicator("displayId")}
                 </TableHead>
-                <TableHead className="p-2 cursor-pointer text-black" onClick={() => {
-                  setSortField("title");
-                  setSortDirection(sortField === "title" && sortDirection === "asc" ? "desc" : "asc");
-                }}>
+                <TableHead
+                  className="p-2 cursor-pointer text-black"
+                  onClick={() => {
+                    setSortField("title");
+                    setSortDirection(
+                      sortField === "title" && sortDirection === "asc"
+                        ? "desc"
+                        : "asc"
+                    );
+                  }}
+                >
                   Title {sortIndicator("title")}
                 </TableHead>
-                <TableHead className="p-2 text-black hidden md:table-cell">Description</TableHead>
+                <TableHead className="p-2 text-black hidden md:table-cell">
+                  Description
+                </TableHead>
                 <TableHead className="p-2 text-black">Status</TableHead>
-                <TableHead className="p-2 text-black hidden md:table-cell">Created At</TableHead>
-                <TableHead className="p-2 text-black hidden md:table-cell">Due Date</TableHead>
-                <TableHead className="p-2 text-black hidden lg:table-cell">Updated</TableHead>
-                <TableHead className="p-2 text-black hidden md:table-cell">Assigned To</TableHead>
+                <TableHead className="p-2 text-black hidden md:table-cell">
+                  Created At
+                </TableHead>
+                <TableHead className="p-2 text-black hidden md:table-cell">
+                  Due Date
+                </TableHead>
+                <TableHead className="p-2 text-black hidden lg:table-cell">
+                  Updated
+                </TableHead>
+                <TableHead className="p-2 text-black hidden md:table-cell">
+                  Assigned To
+                </TableHead>
                 <TableHead className="p-2 text-black">Priority</TableHead>
                 {customColumns.map((c) => (
-                  <TableHead key={c} className="p-2 text-black hidden lg:table-cell">{c}</TableHead>
+                  <TableHead
+                    key={c}
+                    className="p-2 text-black hidden lg:table-cell"
+                  >
+                    {c}
+                  </TableHead>
                 ))}
-                <TableHead className="p-2 text-black text-right">Actions</TableHead>
+                <TableHead className="p-2 text-black text-right">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -178,20 +243,37 @@ export default function IssuesTable({
                   return (
                     <TableRow key={issue.id} className="hover:bg-gray-50">
                       <TableCell className="p-2">{issue.displayId}</TableCell>
-                      <TableCell className="p-2 max-w-[200px] truncate">{issue.title}</TableCell>
-                      <TableCell className="p-2 hidden md:table-cell max-w-[200px] truncate">{issue.description}</TableCell>
-                      <TableCell className="p-2">{renderStatusBadge(issue.status)}</TableCell>
-                      <TableCell className="p-2 hidden md:table-cell">
-                      {issue.createdAt ? issue.createdAt.split("T")[0] : "-"}
+                      <TableCell className="p-2 max-w-[200px] truncate">
+                        {issue.title}
                       </TableCell>
-                      <TableCell className="p-2 hidden md:table-cell">{issue.dueDate || "-"}</TableCell>
+                      <TableCell className="p-2 hidden md:table-cell max-w-[200px] truncate">
+                        {issue.description}
+                      </TableCell>
+                      <TableCell className="p-2">
+                        {renderStatusBadge(issue.status)}
+                      </TableCell>
+                      <TableCell className="p-2 hidden md:table-cell">
+                        {issue.createdAt ? issue.createdAt.split("T")[0] : "-"}
+                      </TableCell>
+                      <TableCell className="p-2 hidden md:table-cell">
+                        {issue.dueDate || "-"}
+                      </TableCell>
                       <TableCell className="p-2 hidden lg:table-cell">
                         {issue.updatedAt ? issue.updatedAt.split("T")[0] : "-"}
                       </TableCell>
-                      <TableCell className="p-2 hidden md:table-cell">{issue.assignedTo || "-"}</TableCell>
-                      <TableCell className="p-2">{renderPriorityBadge(prio)}</TableCell>
+                      <TableCell className="p-2 hidden md:table-cell">
+                        {issue.assignedTo || "-"}
+                      </TableCell>
+                      <TableCell className="p-2">
+                        {renderPriorityBadge(prio)}
+                      </TableCell>
                       {customColumns.map((c) => (
-                        <TableCell key={c} className="p-2 text-black hidden lg:table-cell">{getCustom(issue, c)}</TableCell>
+                        <TableCell
+                          key={c}
+                          className="p-2 text-black hidden lg:table-cell"
+                        >
+                          {getCustom(issue, c)}
+                        </TableCell>
                       ))}
                       <TableCell className="p-2 text-right">
                         <Button
@@ -207,7 +289,10 @@ export default function IssuesTable({
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={customColumns.length + 9} className="p-8 text-center text-gray-500">
+                  <TableCell
+                    colSpan={customColumns.length + 9}
+                    className="p-8 text-center text-gray-500"
+                  >
                     No issues found matching your search criteria.
                   </TableCell>
                 </TableRow>
@@ -227,7 +312,9 @@ export default function IssuesTable({
                 <PaginationItem>
                   <PaginationPrevious
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    className={currentPage === 1 ? "opacity-50 pointer-events-none" : ""}
+                    className={
+                      currentPage === 1 ? "opacity-50 pointer-events-none" : ""
+                    }
                   />
                 </PaginationItem>
                 {Array.from({ length: totalPages }, (_, i) => (
@@ -242,8 +329,14 @@ export default function IssuesTable({
                 ))}
                 <PaginationItem>
                   <PaginationNext
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    className={currentPage === totalPages ? "opacity-50 pointer-events-none" : ""}
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
+                    className={
+                      currentPage === totalPages
+                        ? "opacity-50 pointer-events-none"
+                        : ""
+                    }
                   />
                 </PaginationItem>
               </PaginationContent>

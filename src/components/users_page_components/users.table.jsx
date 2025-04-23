@@ -23,12 +23,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ChevronDown,
@@ -50,7 +45,9 @@ const renderStateBadge = (state = "unknown") => {
   const key = state.toLowerCase() || "unknown";
   return (
     <Badge
-      className={`${stateColors[key] || stateColors.unknown} flex items-center hover:bg-[#164aa2] hover:text-white transition-colors`}
+      className={`${
+        stateColors[key] || stateColors.unknown
+      } flex items-center hover:bg-[#164aa2] hover:text-white transition-colors`}
     >
       {state.charAt(0).toUpperCase() + state.slice(1)}
     </Badge>
@@ -141,16 +138,14 @@ export default function UsersTable({ users = [] }) {
     currentPage * itemsPerPage
   );
 
-  const uniqueStatuses = Array.from(
-    new Set(users.map((u) => u.status))
-  ).filter(Boolean);
+  const uniqueStatuses = Array.from(new Set(users.map((u) => u.status))).filter(
+    Boolean
+  );
   const uniqueCompanies = Array.from(
     new Set(users.map((u) => u.companyName))
   ).filter(Boolean);
   const uniqueRoles = Array.from(
-    new Set(
-      users.flatMap((u) => (u.roles ? u.roles.map((r) => r.name) : []))
-    )
+    new Set(users.flatMap((u) => (u.roles ? u.roles.map((r) => r.name) : [])))
   ).filter(Boolean);
 
   return (
@@ -331,9 +326,7 @@ export default function UsersTable({ users = [] }) {
                             src={u.imageUrl || "/placeholder.svg"}
                             alt={u.name}
                           />
-                          <AvatarFallback>
-                            {getInitials(u.name)}
-                          </AvatarFallback>
+                          <AvatarFallback>{getInitials(u.name)}</AvatarFallback>
                         </Avatar>
                         {u.name}
                       </div>
@@ -344,10 +337,7 @@ export default function UsersTable({ users = [] }) {
                     </TableCell>
                     <TableCell className="p-2 hidden md:table-cell">
                       <div className="flex items-center">
-                        <span
-                          className="w-3 h-3 rounded-full mr-2"
-                          
-                        />
+                        <span className="w-3 h-3 rounded-full mr-2" />
                         {u.companyName}
                       </div>
                     </TableCell>
@@ -379,13 +369,9 @@ export default function UsersTable({ users = [] }) {
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={() =>
-                      setCurrentPage((p) => Math.max(1, p - 1))
-                    }
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     className={
-                      currentPage === 1
-                        ? "opacity-50 pointer-events-none"
-                        : ""
+                      currentPage === 1 ? "opacity-50 pointer-events-none" : ""
                     }
                   />
                 </PaginationItem>

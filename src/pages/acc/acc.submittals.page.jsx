@@ -15,9 +15,7 @@ import submittalsSpecChart from "../../components/submittlas_page_components/sub
 import submittalsStatusChart from "../../components/submittlas_page_components/submttals.status.chart";
 import SubmittalsTable from "../../components/submittlas_page_components/submittals.table";
 
-import {
-  fetchACCProjectSubmittals,
-} from "../../pages/services/acc.services";
+import { fetchACCProjectSubmittals } from "../../pages/services/acc.services";
 
 const backendUrl =
   import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
@@ -51,7 +49,6 @@ const ACCSubmittalsPage = () => {
     spec: null,
   });
 
-  
   //Submittals
   useEffect(() => {
     const getProjectSubmittals = async () => {
@@ -90,18 +87,18 @@ const ACCSubmittalsPage = () => {
       setSpecCounts({});
       return;
     }
-  
+
     // 1) Conteos por estado
     const status = submittals.reduce((acc, sub) => {
-      const key = sub.stateId || 'Unknown';
+      const key = sub.stateId || "Unknown";
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
     setStatusCounts(status);
-  
+
     // 2) Conteos por Spec
     const specs = submittals.reduce((acc, sub) => {
-      const title = sub.specDetails?.title || 'Not Specified';
+      const title = sub.specDetails?.title || "Not Specified";
       acc[title] = (acc[title] || 0) + 1;
       return acc;
     }, {});
@@ -117,10 +114,9 @@ const ACCSubmittalsPage = () => {
   useEffect(() => {
     setLoading(true);
     fetchAll(projectId, cookies, accountId)
-      .catch(console.error)   // maneja errores
+      .catch(console.error) // maneja errores
       .finally(() => setLoading(false));
   }, [projectId, cookies, accountId]);
-
 
   useEffect(() => {
     if (submittals.length === 0) {
@@ -192,16 +188,13 @@ const ACCSubmittalsPage = () => {
     Object.values(activeFilters).some((val) => val !== null)
       ? filteredSubmittals
       : submittals;
-      
+
   return (
     <>
       {loading && <LoadingOverlay />}
-      
+
       {/*Header*/}
-      <ACCPlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
+      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
 
       <div className="flex h-screen mt-14">
         {/* Sidebar */}
