@@ -38,8 +38,7 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/services" element={<ServicesPage />} />
 
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
+          
           <Route path="/platform" element={<PlatformPage />} />
           
           {/* ACC Pages */}
@@ -61,7 +60,7 @@ function App() {
           <Route path="/bim360projects/:accountId/:projectId/bim3604ddata" element={<BIM3604DDatabase />} />
           
           {/* 404 Not Found */}
-          </Route>
+          
         </Routes>
       </Router>
     </CookiesProvider>
