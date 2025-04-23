@@ -16,9 +16,6 @@ import submittalsStatusChart from "../../components/submittlas_page_components/s
 import SubmittalsTable from "../../components/submittlas_page_components/submittals.table";
 
 import {
-  fetchACCProjectsData,
-  fetchACCProjectData,
-  fechACCProjectUsers,
   fetchACCProjectSubmittals,
 } from "../../pages/services/acc.services";
 
@@ -54,34 +51,7 @@ const ACCSubmittalsPage = () => {
     spec: null,
   });
 
-  //ProjectsData
-  useEffect(() => {
-    const getProjects = async () => {
-      const projectsData = await fetchACCProjectsData(cookies.access_token);
-
-      //console.log("Projects Data:", projectData.name);
-
-      setProjectsData(projectsData);
-    };
-    getProjects();
-  }, [cookies.access_token]);
-
-  //ProjectData
-  useEffect(() => {
-    const getProject = async () => {
-      const projectData = await fetchACCProjectData(
-        projectId,
-        cookies.access_token,
-        accountId
-      );
-
-      //console.log("Project Name:", projectData.name);
-
-      setProject(projectData);
-    };
-    getProject();
-  }, [projectId, cookies.access_token, accountId]);
-
+  
   //Submittals
   useEffect(() => {
     const getProjectSubmittals = async () => {
@@ -140,8 +110,6 @@ const ACCSubmittalsPage = () => {
 
   async function fetchAll(projectId, cookies, accountId) {
     await Promise.all([
-      fetchACCProjectData(projectId, cookies.access_token, accountId),
-      fechACCProjectUsers(projectId, cookies.access_token, accountId),
       fetchACCProjectSubmittals(projectId, cookies.access_token, accountId),
     ]);
   }
@@ -224,6 +192,7 @@ const ACCSubmittalsPage = () => {
     Object.values(activeFilters).some((val) => val !== null)
       ? filteredSubmittals
       : submittals;
+      
   return (
     <>
       {loading && <LoadingOverlay />}

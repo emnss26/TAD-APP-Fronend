@@ -99,42 +99,70 @@ const BIM360ProjectPage = () => {
     closed: 0,
   });
 
-  //ProjectsData
+// Combined data fetch
   useEffect(() => {
-    const getProjects = async () => {
-      const projectsData = await fetchBIM360ProjectsData(cookies.access_token);
-
-      setProjectsData(projectsData);
-    };
-    getProjects();
-  }, [cookies.access_token]);
-
-  //ProjectData
-  useEffect(() => {
-    const getProject = async () => {
-      const projectData = await fetchBIM360ProjectData(
-        projectId,
-        cookies.access_token,
-        accountId
-      );
-      setProject(projectData);
-    };
-    getProject();
-  }, [projectId, cookies.access_token, accountId]);
-
-  //Project Federated Model
-  useEffect(() => {
-    const getFederatedModel = async () => {
-      const federatedModel = await fetchBIM360FederatedModel(
-        projectId,
-        cookies.access_token,
-        accountId
-      );
-
-      setFederatedModel(federatedModel);
-    };
-    getFederatedModel();
-  }, [projectId, cookies.access_token, accountId]);
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      fetchBIM360ProjectsData(cookies.access_token),
+      fetchBIM360ProjectData(projectId, cookies.access_token, accountId),
+      fetchBIM360FederatedModel(projectId, cookies.access_token, accountId),
+      fechBIM360ProjectUsers(projectId, cookies.access_token, accountId),
+      fechBIM360ProjectIssues(projectId, cookies.access_token, accountId),
+      fetchBIM360ProjectRFI(projectId, cookies.access_token, accountId),
+    ])
+      .then(
+        ([
+          projectsResp,
+          projectResp,
+          federatedModelResp,
+          projectUsersResp,
+          projectIssuesResp,
+          projectRfisResp,
+        ]) => {
+          setProjectsData(projectsResp);
+          setProject(projectResp);
+          setFederatedModel(federatedModelResp);
+          setProjectUsers(projectUsersResp.users);
+          setTotalUsers(projectUsersResp.users.length);
+          setIssues(projectIssuesResp.issues);
+          setIssuesTotals({
+            total: projectIssuesResp.issues.length,
+            open: projectIssuesResp.issues.filter(
+              (issue) => issue.status === "open"
+            ).length,
+            answered: projectIssuesResp.issues.filter(
+              (issue) => issue.status === "answered"
+            ).length,
+            closed: projectIssuesResp.issues.filter(
+              (issue) => issue.status === "closed"
+            ).length,
+            completed: projectIssuesResp.issues.filter(
+              (issue) => issue.status === "completed"
+            ).length,
+          });
+          setRFIs(projectRfisResp.rfis);
+          setRFITotals({
+            total: projectRfisResp.rfis.length,
+            open: projectRfisResp.rfis.filter((rfi) => rfi.status === "open")
+              .length,
+            answered: projectRfisResp.rfis.filter(
+              (rfi) => rfi.status === "answered"
+            ).length,
+            closed: projectRfisResp.rfis.filter(
+              (rfi) => rfi.status === "closed"
+            ).length,
+          });
+          
+        }
+      )
+      .catch((err) => {
+        console.error(err);
+        setError(err);
+      })
+      .finally(() => setLoading(false));
+  }, [
+    projectId, accountId, cookies.access_token]);
 
   //Project Model Simple Viewer
   useEffect(() => {
@@ -142,94 +170,6 @@ const BIM360ProjectPage = () => {
       simpleViewer(federatedModel, cookies.access_token);
     }
   }, [federatedModel, cookies.access_token]);
-
-  //Project Users
-  useEffect(() => {
-    const getProjectUsers = async () => {
-      const projectUsers = await fechBIM360ProjectUsers(
-        projectId,
-        cookies.access_token,
-        accountId
-      );
-      setProjectUsers(projectUsers.users);
-
-      let total = 0;
-
-      projectUsers.users.forEach((user) => {
-        total++;
-      });
-
-      setTotalUsers(total);
-    };
-    getProjectUsers();
-  }, [projectId, cookies.access_token, accountId]);
-
-  //Project Issues
-  useEffect(() => {
-    const getProjectIssues = async () => {
-      const projectIssues = await fechBIM360ProjectIssues(
-        projectId,
-        cookies.access_token,
-        accountId
-      );
-      
-      setIssues(projectIssues.issues);
-      setIssuesTotals({
-        total: projectIssues.issues.length,
-        open: projectIssues.issues.filter((issue) => issue.status === "open")
-          .length,
-        answered: projectIssues.issues.filter(
-          (issue) => issue.status === "answered"
-        ).length,
-        closed: projectIssues.issues.filter(
-          (issue) => issue.status === "closed"
-        ).length,
-        completed: projectIssues.issues.filter(
-          (issue) => issue.status === "completed"
-        ).length,
-      });
-    };
-    getProjectIssues();
-  }, [projectId, cookies.access_token, accountId]);
-
-  //RFIs
-  useEffect(() => {
-    const getProjectRFIs = async () => {
-      const projectRfis = await fetchBIM360ProjectRFI(
-        projectId,
-        cookies.access_token,
-        accountId
-      );
-
-      setRFIs(projectRfis.rfis);
-      setRFITotals({
-        total: projectRfis.rfis.length,
-        open: projectRfis.rfis.filter((rfi) => rfi.status === "open").length,
-        answered: projectRfis.rfis.filter((rfi) => rfi.status === "answered")
-          .length,
-        closed: projectRfis.rfis.filter((rfi) => rfi.status === "closed")
-          .length,
-      });
-    };
-    getProjectRFIs();
-  }, [projectId, cookies.access_token, accountId]);
-
-  async function fetchAll(projectId, cookies, accountId) {
-      await Promise.all([
-        fetchBIM360ProjectData(projectId, cookies.access_token, accountId),
-        fechBIM360ProjectUsers(projectId, cookies.access_token, accountId),
-        fechBIM360ProjectIssues(projectId, cookies.access_token, accountId),
-        fetchBIM360ProjectRFI(projectId, cookies.access_token, accountId),
-        fetchBIM360FederatedModel(projectId, cookies.access_token, accountId),
-      ]);
-    }
-    
-    useEffect(() => {
-      setLoading(true);
-      fetchAll(projectId, cookies, accountId)
-        .catch(console.error)   // maneja errores
-        .finally(() => setLoading(false));
-    }, [projectId, cookies, accountId]);
 
   return (
     <>

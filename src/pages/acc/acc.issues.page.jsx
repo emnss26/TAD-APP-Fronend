@@ -15,13 +15,7 @@ import IssuesTable from "../../components/issues_page_components/issues.table";
 import { IssuesGanttChart } from "../../components/issues_page_components/issues.gantt.chart";
 import DonutChartGeneric from "../../components/issues_page_components/issues.generic.chart";
 
-import {
-  fetchACCProjectData,
-  fetchACCFederatedModel,
-  fechACCProjectIssues,
-} from "../../pages/services/acc.services";
-
-import { simpleViewer } from "../../utils/Viewers/simple.viewer";
+import { fechACCProjectIssues } from "../../pages/services/acc.services";
 
 const ACCIssuesPage = () => {
   /* ---------- Router / Auth ---------- */
@@ -30,17 +24,15 @@ const ACCIssuesPage = () => {
 
   /* ---------- UI State ---------- */
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   /* ---------- Data State ---------- */
-  const [project, setProject] = useState(null);
-  const [federatedModel, setFederatedModel] = useState(null);
   const [issues, setIssues] = useState([]);
 
   /* ---------- Filter State ---------- */
   const [activeFilters, setActiveFilters] = useState({
     status: null,
     issueTypeName: null,
-    // atributos personalizados llegarán dinámicamente
   });
 
   /* ---------- Helper ---------- */
@@ -54,35 +46,20 @@ const ACCIssuesPage = () => {
     return out;
   };
 
-  /* ---------- Load Project + Model ---------- */
   useEffect(() => {
-    (async () => {
-      const [proj, model] = await Promise.all([
-        fetchACCProjectData(projectId, cookies.access_token, accountId),
-        fetchACCFederatedModel(projectId, cookies.access_token, accountId),
-      ]);
-      setProject(proj);
-      setFederatedModel(model);
-    })();
-  }, [projectId, accountId, cookies.access_token]);
-
-  /* ---------- Init Viewer once model ready ---------- */
-  useEffect(() => {
-    if (federatedModel) simpleViewer(federatedModel, cookies.access_token);
-  }, [federatedModel, cookies.access_token]);
-
-  /* ---------- Load Issues ---------- */
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const { issues: raw } = await fechACCProjectIssues(
-        projectId,
-        cookies.access_token,
-        accountId
-      );
-      setIssues(raw);
-      setLoading(false);
-    })();
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      fechACCProjectIssues(projectId, cookies.access_token, accountId),
+    ])
+      .then(([issuesResp]) => {
+        setIssues(issuesResp.issues || []);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err);
+      })
+      .finally(() => setLoading(false));
   }, [projectId, accountId, cookies.access_token]);
 
   /* ---------- Derive counts & charts data ---------- */
@@ -192,7 +169,10 @@ const ACCIssuesPage = () => {
             <section className="w-1/4 bg-white mr-4 rounded-lg shadow-md chart-with-dots">
               <Slider {...slider}>
                 {dataContainers.map((c) => (
-                  <div key={`${c.title} Chart`}  className="text-xl font-bold mt-4 p-6">
+                  <div
+                    key={`${c.title} Chart`}
+                    className="text-xl font-bold mt-4 p-6"
+                  >
                     <h2 className="text-lg mb-2">{c.title}</h2>
                     <DonutChartGeneric
                       counts={c.data}

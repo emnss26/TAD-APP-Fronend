@@ -62,7 +62,7 @@ export const fetchACCFederatedModel = async (projectId, token,accountId) => {
         }
         const { data } = await response.json();
         
-        //console.log("ACC Federated Model:", data.federatedmodel);
+        console.log("ACC Federated Model:", data.federatedmodel);
 
         return data.federatedmodel? await toBase64(data.federatedmodel) : null;
         

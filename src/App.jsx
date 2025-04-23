@@ -14,6 +14,8 @@ import ACCProjectUsers from './pages/acc/acc.users.page.jsx';
 import ACCIssuesPage from './pages/acc/acc.issues.page.jsx'
 import ACCRFIsPage from './pages/acc/acc.rfis.page.jsx'
 import ACCSubmittalsPage from './pages/acc/acc.submittals.page'
+import ACC4DDatabase from './pages/acc/acc.database.4D';
+import ACC5DDatabase from './pages/acc/acc.database.5D';
 
 //BIM360 Pages
 import BIM360ProjectsPage from './pages/bim360/bim360.projects.page.jsx'
@@ -21,6 +23,7 @@ import BIM360ProjectPage from './pages/bim360/bim360.project.page.jsx'
 import BIM360ProjectUsers from './pages/bim360/bim360.users.page.jsx';
 import BIM360IssuesPage from './pages/bim360/bim360.issues.page.jsx';
 import BIM360RFIsPage from './pages/bim360/bim360.rfis.page.jsx'
+import BIM3604DDatabase from './pages/bim360/bim360.database.4D';
 
 //Protected Route
 import ProtectedRoute from './components/general_pages_components/protected.route'
@@ -32,12 +35,13 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/platform" element={<PlatformPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/services" element={<ServicesPage />} />
 
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+          <Route path="/platform" element={<PlatformPage />} />
           
-
           {/* ACC Pages */}
           <Route path="/accprojects" element={<ACCProjectsPage />} />
           <Route path="/accprojects/:accountId/:projectId" element={<ACCProjectPage />} />
@@ -45,6 +49,8 @@ function App() {
           <Route path="/accprojects/:accountId/:projectId/accissues" element={<ACCIssuesPage />} />
           <Route path="/accprojects/:accountId/:projectId/accrfis" element={<ACCRFIsPage />} />
           <Route path="/accprojects/:accountId/:projectId/accsubmittals" element={<ACCSubmittalsPage />} />
+          <Route path="/accprojects/:accountId/:projectId/acc4ddata" element={<ACC4DDatabase />} />
+          <Route path="/accprojects/:accountId/:projectId/acc5ddata" element={<ACC5DDatabase />} />
 
           {/* BIM360 Pages */}
           <Route path="/bim360projects" element={<BIM360ProjectsPage />} />
@@ -52,9 +58,10 @@ function App() {
           <Route path="/bim360projects/:accountId/:projectId/bim360users" element={<BIM360ProjectUsers />} />
           <Route path="/bim360projects/:accountId/:projectId/bim360issues" element={<BIM360IssuesPage />} />
           <Route path="/bim360projects/:accountId/:projectId/bim360rfis" element={<BIM360RFIsPage />} />
+          <Route path="/bim360projects/:accountId/:projectId/bim3604ddata" element={<BIM3604DDatabase />} />
           
           {/* 404 Not Found */}
-
+          </Route>
         </Routes>
       </Router>
     </CookiesProvider>

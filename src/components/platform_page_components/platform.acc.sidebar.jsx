@@ -96,6 +96,23 @@ const ACCSideBar = () => {
         {!isCollapsed && <span className="ml-2 text-xs">Submittals Report</span>}
       </Link>
 
+      {/* Database 4D Integration */}
+      <Link
+        to={`/accprojects/${accountId}/${projectId}/acc4ddata`}
+        className="mb-4 flex items-center text-[#6b7474] bg-transparent hover:text-[#2ea3e3] hover:bg-gray-50 p-2 rounded"
+      >
+        <FaLayerGroup size={10} />
+        {!isCollapsed && <span className="ml-2 text-xs">ACC 4D Data</span>}
+      </Link>
+
+      {/* Database 5D Integration */}
+      <Link
+        to={`/accprojects/${accountId}/${projectId}/acc5ddata`}
+        className="mb-4 flex items-center text-[#6b7474] bg-transparent hover:text-[#2ea3e3] hover:bg-gray-50 p-2 rounded"
+      >
+        <FaMoneyCheckAlt size={10} />
+        {!isCollapsed && <span className="ml-2 text-xs">ACC 5D Data</span>}
+      </Link>
     </div>
   );
 };

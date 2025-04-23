@@ -88,4 +88,83 @@
     }
 }
 
-  
+.extractDataIcon .adsk-button-icon {
+  background-color: #f7005f; 
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%; 
+  font-size: 12px;
+}
+.extractDataIcon .adsk-button-icon::after {
+  content: "ED";  
+}
+
+.selectCategoryIcon .adsk-button-icon {
+  background-color: #f7a000; 
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 10px;
+}
+.selectCategoryIcon .adsk-button-icon::after {
+  content: "CS";  
+}
+
+
+.selectVisibleIcon .adsk-button-icon {
+  background-color: #f7a000; 
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 10px;
+}
+.selectVisibleIcon .adsk-button-icon::after {
+  content: "SV";  
+}
+
+.showDbIdExtensionIcon .adsk-button-icon {
+  background-color: #f7a000; 
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 10px;
+}
+.showDbIdExtensionIcon .adsk-button-icon::after {
+  content: "SD";  
+}
+
+.selectTypeCategoryIcon .adsk-button-icon {
+  background-color: #f7a000;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 10px;
+}
+.selectTypeCategoryIcon .adsk-button-icon::after {
+  content: "T";  
+}
