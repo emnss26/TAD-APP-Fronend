@@ -426,7 +426,7 @@ const BIM3604DDatabase = () => {
       });
 
       const response = await fetch(
-        `${backendUrl}/dataroute/${projectId}/data`,
+        `${backendUrl}/modeldata/${accountId}/${projectId}/data`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -450,7 +450,7 @@ const BIM3604DDatabase = () => {
 
   const handlePullData = async (discipline = null) => {
     try {
-      let url = `${backendUrl}/dataroute/${projectId}/data`;
+      let url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
       if (discipline) {
         url += `?discipline=${encodeURIComponent(discipline)}`;
       }
@@ -537,7 +537,7 @@ const BIM3604DDatabase = () => {
     if (!selectedDisciplineForColor || !selectedColor) return;
 
     try {
-      const url = `${backendUrl}/dataroute/${projectId}/data?discipline=${encodeURIComponent(
+      const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data?discipline=${encodeURIComponent(
         selectedDisciplineForColor
       )}`;
       const response = await fetch(url, {
@@ -574,7 +574,7 @@ const BIM3604DDatabase = () => {
     );
   }, [conversationHistory]);
 
-  const fetchAllData = async (projId) => {
+  const fetchAllData = async (projectId) => {
     let allData = [];
     let page = 1;
     let limit = 50;
@@ -583,7 +583,7 @@ const BIM3604DDatabase = () => {
     try {
       while (hasMoreData) {
         const response = await fetch(
-          `${backendUrl}/dataroute/${projId}/data?page=${page}&limit=${limit}`,
+          `${backendUrl}/modeldata/${accountId}/${projectId}/data?page=${page}&limit=${limit}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },

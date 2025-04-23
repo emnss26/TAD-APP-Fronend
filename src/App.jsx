@@ -24,6 +24,7 @@ import BIM360ProjectUsers from './pages/bim360/bim360.users.page.jsx';
 import BIM360IssuesPage from './pages/bim360/bim360.issues.page.jsx';
 import BIM360RFIsPage from './pages/bim360/bim360.rfis.page.jsx'
 import BIM3604DDatabase from './pages/bim360/bim360.database.4D';
+import BIM3605DDatabase from './pages/bim360/bim360.database.5D';
 
 //Protected Route
 import ProtectedRoute from './components/general_pages_components/protected.route'
@@ -58,6 +59,7 @@ function App() {
           <Route path="/bim360projects/:accountId/:projectId/bim360issues" element={<BIM360IssuesPage />} />
           <Route path="/bim360projects/:accountId/:projectId/bim360rfis" element={<BIM360RFIsPage />} />
           <Route path="/bim360projects/:accountId/:projectId/bim3604ddata" element={<BIM3604DDatabase />} />
+          <Route path="/bim360projects/:accountId/:projectId/bim3605ddata" element={<BIM3605DDatabase />} />
           
           {/* 404 Not Found */}
           

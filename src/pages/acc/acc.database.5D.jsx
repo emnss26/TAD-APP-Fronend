@@ -23,7 +23,7 @@ import {
   numericFields,
 } from "../../lib/data.bases.constants";
 
-import { defaultRow as defaultRow4D } from "../../lib/default.row.5D";
+import { defaultRow as defaultRow5D } from "../../lib/default.row.5D";
 
 import {
   isolateObjectsInViewer,
@@ -60,7 +60,7 @@ const sampleQuestions = [
 ];
 
 const ACC5DDatabase = () => {
-  const defaultRow = useMemo(() => defaultRow4D, []);
+  const defaultRow = useMemo(() => defaultRow5D, []);
   const propertyMapping = useMemo(() => propertyMappings["4D"], []);
   const [federatedModel, setFederatedModel] = useState(null);
   const [error, setError] = useState(null);
@@ -364,7 +364,7 @@ const ACC5DDatabase = () => {
       });
 
       const response = await fetch(
-        `${backendUrl}/dataroute/${projectId}/data`,
+        `${backendUrl}/modeldata/${accountId}/${projectId}/data`,
         {
           method: "POST",
           headers: {
@@ -390,7 +390,7 @@ const ACC5DDatabase = () => {
 
   const handlePullData = async (discipline = null) => {
     try {
-      let url = `${backendUrl}/dataroute/${projectId}/data`;
+      let url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
       if (discipline && discipline.toLowerCase() !== "all disciplines") {
         url += `?discipline=${encodeURIComponent(discipline)}`;
       }
@@ -477,7 +477,7 @@ const ACC5DDatabase = () => {
     if (!selectedDisciplineForColor || !selectedColor) return;
 
     try {
-      const url = `${backendUrl}/dataroute/${projectId}/data?discipline=${encodeURIComponent(
+      const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data?discipline=${encodeURIComponent(
         selectedDisciplineForColor
       )}`;
       const response = await fetch(url, {
@@ -523,7 +523,7 @@ const ACC5DDatabase = () => {
     try {
       while (hasMoreData) {
         const response = await fetch(
-          `${BACKEND_BASE_URL}/dataroute/${projectId}/data?page=${page}&limit=${limit}`,
+          `${backendUrl}/modeldata/${accountId}/${projectId}/data?page=${page}&limit=${limit}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },

@@ -425,7 +425,7 @@ const ACC4DDatabase = () => {
       });
 
       const response = await fetch(
-        `${backendUrl}/dataroute/${projectId}/data`,
+        `${backendUrl}/modeldata/${accountId}/${projectId}/data`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -449,7 +449,7 @@ const ACC4DDatabase = () => {
 
   const handlePullData = async (discipline = null) => {
     try {
-      let url = `${backendUrl}/dataroute/${projectId}/data`;
+      let url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
       if (discipline) {
         url += `?discipline=${encodeURIComponent(discipline)}`;
       }
@@ -536,7 +536,7 @@ const ACC4DDatabase = () => {
     if (!selectedDisciplineForColor || !selectedColor) return;
 
     try {
-      const url = `${backendUrl}/dataroute/${projectId}/data?discipline=${encodeURIComponent(
+      const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data?discipline=${encodeURIComponent(
         selectedDisciplineForColor
       )}`;
       const response = await fetch(url, {
@@ -582,7 +582,7 @@ const ACC4DDatabase = () => {
     try {
       while (hasMoreData) {
         const response = await fetch(
-          `${backendUrl}/dataroute/${projId}/data?page=${page}&limit=${limit}`,
+          `${backendUrl}/modeldata/${projId}/data?page=${page}&limit=${limit}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
