@@ -33,7 +33,7 @@ import {
   resetViewerView,
 } from "../../lib/viewer.actions";
 
-import { fetchBIM360FederatedModel } from "../../pages/services/acc.services";
+import { fetchBIM360FederatedModel } from "../../pages/services/bim360.services";
 
 import {
   mapCategoryToElementType,
