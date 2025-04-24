@@ -453,31 +453,31 @@ const ACC4DDatabase = () => {
         if (result.data) {
           let tempRows = result.data.map((item) => ({
             dbId: item.dbId || "",
-            Discipline: item.Discipline || "",
-            ElementType: item.ElementType || "",
-            TypeName: item.TypeName || "",
-            Description: item.Description || "",
-            TypeMark: item.TypeMark || "",
-            Length: item.Length || "",
-            Width: item.Width || "",
-            Height: item.Height || "",
-            Perimeter: item.Perimeter || "",
-            Area: item.Area || "",
-            Thickness: item.Thickness || "",
-            Volume: item.Volume || "",
-            Level: item.Level || "",
-            Material: item.Material || "",
-            PlanedConstructionStartDate: item.PlanedConstructionStartDate
-              ? item.PlanedConstructionStartDate.substring(0, 10)
+            discipline: item.discipline || "",
+            elementType: item.elementType || "",
+            typeName: item.typeName || "",
+            description: item.description || "",
+            typeMark: item.typeMark || "",
+            length: item.length || "",
+            width: item.width || "",
+            height: item.height || "",
+            perimeter: item.perimeter || "",
+            area: item.area || "",
+            thickness: item.thickness || "",
+            volume: item.volume || "",
+            level: item.level || "",
+            material: item.material || "",
+            planedConstructionStartDate: item.plannedConstructionStartDate
+              ? item.plannedConstructionStartDate.substring(0, 10)
               : "",
-            PlanedConstructionEndDate: item.PlanedConstructionEndDate
-              ? item.PlanedConstructionEndDate.substring(0, 10)
+            planedConstructionEndDate: item.plannedConstructionEndDate
+              ? item.plannedConstructionEndDate.substring(0, 10)
               : "",
-            RealConstructionStartDate: item.RealConstructionStartDate
-              ? item.RealConstructionStartDate.substring(0, 10)
+            realConstructionStartDate: item.realConstructionStartDate
+              ? item.realConstructionStartDate.substring(0, 10)
               : "",
-            RealConstructionEndDate: item.RealConstructionEndDate
-              ? item.RealConstructionEndDate.substring(0, 10)
+            realConstructionEndDate: item.realConstructionEndDate
+              ? item.realConstructionEndDate.substring(0, 10)
               : "",
           }));
 
@@ -488,8 +488,8 @@ const ACC4DDatabase = () => {
           if (data4Dviewer && typeof data4Dviewer.set4DData === "function") {
             const fourDData = tempRows.map((item) => ({
               dbId: parseInt(item.dbId, 10),
-              startDate: item.PlanedConstructionStartDate,
-              endDate: item.PlanedConstructionEndDate,
+              startDate: item.planedConstructionStartDate,
+              endDate: item.planedConstructionEndDate,
             }));
             window.data4Dviewer.set4DData(fourDData);
             //console.log("4D data from DB:", fourDData);

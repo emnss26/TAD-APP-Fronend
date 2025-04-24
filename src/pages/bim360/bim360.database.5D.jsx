@@ -412,25 +412,25 @@ const BIM3605DDatabase = () => {
         if (result.data) {
           let tempRows = result.data.map((item) => ({
             dbId: item.dbId || "",
-            Code: item.Code || "",
-            Discipline: item.Discipline || "",
-            ElementType: item.ElementType || "",
-            TypeName: item.TypeName || "",
-            Description: item.Description || "",
-            TypeMark: item.TypeMark || "",
-            Length: item.Length || "",
-            Width: item.Width || "",
-            Height: item.Height || "",
-            Perimeter: item.Perimeter || "",
-            Area: item.Area || "",
-            Thickness: item.Thickness || "",
-            Volume: item.Volume || "",
-            level: item.Level || "",
-            Material: item.Material || "",
-            Unit: item.Unit || "",
-            Quantity: item.Quantity || "",
-            UnitPrice: item.UnitPrice || "",
-            TotalCost: item.TotalCost || "",
+            code: item.code || "",
+            discipline: item.discipline || "",
+            elementType: item.elementType || "",
+            typeName: item.typeName || "",
+            description: item.description || "",
+            typeMark: item.typeMark || "",
+            length: item.length || "",
+            width: item.width || "",
+            height: item.height || "",
+            perimeter: item.perimeter || "",
+            area: item.area || "",
+            thickness: item.thickness || "",
+            volume: item.volume || "",
+            level: item.level || "",
+            material: item.material || "",
+            unit: item.unit || "",
+            quantity: item.quantity || "",
+            unitPrice: item.unitPrice || "",
+            totalCost: item.totalCost || "",
           }));
 
           tempRows = reorderRowsByDisciplineAndGroup(tempRows);
@@ -444,8 +444,8 @@ const BIM3605DDatabase = () => {
           ) {
             const fourDData = tempRows.map((item) => ({
               dbId: parseInt(item.dbId), // o Number(item.dbId)
-              startDate: item.PlanedConstructionStartDate,
-              endDate: item.PlanedConstructionEndDate,
+              startDate: item.planedConstructionStartDate,
+              endDate: item.planedConstructionEndDate,
             }));
             window.planningViewer.setFourDData(fourDData);
             //console.log("4D data from DB:", fourDData);
