@@ -561,7 +561,7 @@ const ACC4DDatabase = () => {
     );
   }, [conversationHistory]);
 
-  const fetchAllData = async (projId) => {
+  const fetchAllData = async (projectId) => {
     let allData = [];
     let page = 1;
     let limit = 50;
@@ -570,7 +570,7 @@ const ACC4DDatabase = () => {
     try {
       while (hasMoreData) {
         const response = await fetch(
-          `${backendUrl}/modeldata/${projId}/data?page=${page}&limit=${limit}`,
+          `${backendUrl}/modeldata/${accountId}/${projectId}/data?page=${page}&limit=${limit}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
