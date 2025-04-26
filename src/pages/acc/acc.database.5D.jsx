@@ -61,7 +61,7 @@ const sampleQuestions = [
 
 const ACC5DDatabase = () => {
   const defaultRow = useMemo(() => defaultRow5D, []);
-  const propertyMapping = useMemo(() => propertyMappings["4D"], []);
+  const propertyMapping = useMemo(() => propertyMappings["5D"], []);
   const [federatedModel, setFederatedModel] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -125,19 +125,39 @@ const ACC5DDatabase = () => {
       });
   }, [projectId, accountId, cookies.access_token]);
 
+    const fieldsToCheck = useMemo(
+      () => [
+        "Description",
+        "Length",
+        "Width",
+        "Height",
+        "Perimeter",
+        "Area",
+        "Thickness",
+        "Volume",
+        "Level",
+        "Material",
+      ],
+      []
+    );
+
   useEffect(() => {
     const handleDataExtracted = (event) => {
       const { dbId, properties } = event.detail;
-      if (typeof properties !== "object" || properties === null) return;
-      const propertiesArray = Object.entries(properties).map(
-        ([key, value]) => ({
-          displayName: key,
-          displayValue: value || "",
-        })
-      );
+      if (!properties || typeof properties !== "object") {
+        console.error("Invalid properties data:", properties);
+        return;
+      }
+      
+      const propertiesArray = Object.entries(properties).map(([k, v]) => ({
+        displayName: k,
+        displayValue: v || "",
+      }));
+
       const mappedProperties = propertiesArray.reduce((acc, prop) => {
         const mappedKey = propertyMapping[prop.displayName];
         let value = prop.displayValue;
+
         if (mappedKey && mappedKey.toLowerCase().includes("date")) {
           if (value.toLowerCase() === "no especificado") {
             value = "";
@@ -158,22 +178,10 @@ const ACC5DDatabase = () => {
         return acc;
       }, {});
       // Aseguramos que existan campos necesarios
-      [
-        "Description",
-        "Length",
-        "Width",
-        "Height",
-        "Perimeter",
-        "Area",
-        "Thickness",
-        "Volume",
-        "Level",
-        "Material",
-      ].forEach((field) => {
-        if (!mappedProperties[field]) {
-          mappedProperties[field] = "";
-        }
+      fieldsToCheck.forEach((field) => {
+        if (!mappedProperties[field]) mappedProperties[field] = "";
       });
+
       const elementType = mapCategoryToElementType(properties.Category) || "";
       const newRow = {
         ...defaultRow,
@@ -181,6 +189,7 @@ const ACC5DDatabase = () => {
         ElementType: elementType,
         ...mappedProperties,
       };
+
       setData((prevData) => {
         if (prevData.some((row) => row.dbId === dbId)) {
           alert("This element is already in the table");
@@ -194,7 +203,7 @@ const ACC5DDatabase = () => {
     window.addEventListener("dbIdDataExtracted", handleDataExtracted);
     return () =>
       window.removeEventListener("dbIdDataExtracted", handleDataExtracted);
-  }, [defaultRow, propertyMapping, mapCategoryToElementType]);
+  }, [defaultRow, propertyMapping, mapCategoryToElementType, fieldsToCheck]);
 
   const calculateTotals = (rows) => {
     const totals = {
@@ -213,6 +222,22 @@ const ACC5DDatabase = () => {
     return totals;
   };
 
+  const groupedData = useMemo(() => {
+    return data.reduce((acc, row) => {
+      const discipline = row.Discipline || "No Discipline";
+      if (!acc[discipline]) acc[discipline] = [];
+      acc[discipline].push(row);
+      return acc;
+    }, {});
+  }, [data]);
+
+  const totalsByDiscipline = useMemo(() => {
+    return Object.keys(groupedData).reduce((acc, disc) => {
+      acc[disc] = calculateTotals(groupedData[disc]);
+      return acc;
+    }, {});
+  }, [groupedData]);
+  
   const grandTotals = useMemo(() => calculateTotals(data), [data]);
 
   const handleDisciplineChange = (row, newValue) => {
@@ -284,24 +309,16 @@ const ACC5DDatabase = () => {
   }, [data]);
 
   const handleViewerSelectionChanged = useCallback((dbIdArray) => {
-    //console.log("handleViewerSelectionChanged() → dbIdArray:", dbIdArray);
-    //console.log("data (just length):", dataRef.current.length);
-
-    // Imprimir los dbId actuales en la tabla
-    const currentDbIdsInTable = dataRef.current.map((row) => Number(row.dbId));
-    //console.log("Current dbIds in table:", currentDbIdsInTable);
-
+      const currentDbIdsInTable = dataRef.current.map((row) => Number(row.dbId));
+    
     const foundDbIds = dataRef.current
       .filter((row) => {
         const rowDbIdNum = Number(row.dbId);
         const matched = dbIdArray.includes(rowDbIdNum);
 
-        //console.log("Row dbId:", rowDbIdNum, "Matched:", matched);
         return matched;
       })
       .map((row) => row.dbId);
-
-    //console.log("foundDbIds:", foundDbIds);
 
     setSelectedRows(foundDbIds.length ? foundDbIds : []);
     setSelectionCount(dbIdArray.length);
@@ -310,14 +327,10 @@ const ACC5DDatabase = () => {
   useEffect(() => {
     if (!federatedModel || window.viewerInitialized) return;
 
-    //console.log("viwer", federatedModel);
-
     const conditionalSelectionHandler = (dbIdArray) => {
       if (!syncViewerSelectionRef.current) {
-        //console.log("Viewer selection changed pero sync está OFF → ignoramos");
         return;
       }
-      //console.log( "Viewer selection changed → sync ON → handleViewerSelectionChanged" );
       handleViewerSelectionChanged(dbIdArray);
     };
 
@@ -333,11 +346,9 @@ const ACC5DDatabase = () => {
   }, [federatedModel, handleViewerSelectionChanged]);
 
   useEffect(() => {
-    //console.log("syncViewerSelection cambió a →", syncViewerSelection);
     syncViewerSelectionRef.current = syncViewerSelection;
 
     if (syncViewerSelection && window.data5Dviewer) {
-      //console.log( "Sincronización ACTIVADA: se llama getSelection() para forzar resaltado en tabla." );
       const currentDbIds = window.data5Dviewer.getSelection() || [];
       handleViewerSelectionChanged(currentDbIds);
     }
@@ -347,7 +358,6 @@ const ACC5DDatabase = () => {
     try {
       const cleanedData = data.map((row) => {
         const cleanedRow = { ...row };
-
         numericFields.forEach((field) => {
           const value = cleanedRow[field];
           if (typeof value === "string") {
@@ -358,12 +368,10 @@ const ACC5DDatabase = () => {
               cleanedRow[field] = null;
             } else {
               const parsedValue = parseFloat(value);
-
               cleanedRow[field] = isNaN(parsedValue) ? null : parsedValue;
             }
           }
         });
-
         return cleanedRow;
       });
 
@@ -371,16 +379,14 @@ const ACC5DDatabase = () => {
         `${backendUrl}/modeldata/${accountId}/${projectId}/data`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(cleanedData),
         }
       );
 
       if (response.ok) {
         alert("Data sent successfully");
-        await handlePullData();
+        //await handlePullData();
       } else {
         const errorData = await response.json();
         console.error("Error sending data:", errorData.message);
@@ -409,47 +415,37 @@ const ACC5DDatabase = () => {
 
       if (response.ok) {
         const result = await response.json();
-        if (result.data) {
-          let tempRows = result.data.map((item) => ({
-            dbId: item.dbId || "",
-            code: item.code || "",
-            discipline: item.discipline || "",
-            elementType: item.elementType || "",
-            typeName: item.typeName || "",
-            description: item.description || "",
-            typeMark: item.typeMark || "",
-            length: item.length || "",
-            width: item.width || "",
-            height: item.height || "",
-            perimeter: item.perimeter || "",
-            area: item.area || "",
-            thickness: item.thickness || "",
-            volume: item.volume || "",
-            level: item.level || "",
-            material: item.material || "",
-            unit: item.unit || "",
-            quantity: item.quantity || "",
-            unitPrice: item.unitPrice || "",
-            totalCost: item.totalCost || "",
-          }));
+        if (result.data && Array.isArray(result.data)) {
+          let tempRows = result.data.map((item) => {
+            const value = item.value || {};
+            return {
+            dbId: value.dbId || "",
+            Code: value.Code || "",
+            Discipline: value.Discipline || "",
+            ElementType: value.ElementType || "",
+            TypeName: value.TypeName || "",
+            Description: value.Description || "",
+            TypeMark: value.TypeMark || "",
+            Length: value.Length || "",
+            Width: value.Width || "",
+            Height: value.Height || "",
+            Perimeter: value.Perimeter || "",
+            Area: value.Area || "",
+            Thickness: value.Thickness || "",
+            Volume: value.Volume || "",
+            Level: value.Level || "",
+            Material: value.Material || "",
+            Unit: value.Unit || "",
+            Quantity: value.Quantity || "",
+            UnitPrice: value.UnitPrice || "",
+            TotalCost: value.TotalCost || "",
+          };
+        });
 
           tempRows = reorderRowsByDisciplineAndGroup(tempRows);
           setData(tempRows);
           alert("Datos cargados exitosamente");
 
-          // Actualizar el visor 4D si es necesario
-          if (
-            window.planningViewer &&
-            typeof window.planningViewer.setFourDData === "function"
-          ) {
-            const fourDData = tempRows.map((item) => ({
-              dbId: parseInt(item.dbId), // o Number(item.dbId)
-              startDate: item.planedConstructionStartDate,
-              endDate: item.planedConstructionEndDate,
-            }));
-            window.planningViewer.setFourDData(fourDData);
-            //console.log("4D data from DB:", fourDData);
-          }
         } else {
           alert("No se encontraron datos para este proyecto.");
         }
@@ -535,7 +531,7 @@ const ACC5DDatabase = () => {
 
         if (!response.ok) {
           console.error(
-            `Error en la solicitud GET a la API: ${response.status} ${response.statusText}`
+            `Error GET: ${response.status} ${response.statusText}`
           );
           throw new Error("Error fetching data");
         }
@@ -544,16 +540,15 @@ const ACC5DDatabase = () => {
         const { data } = result;
 
         if (!Array.isArray(data)) {
-          console.error("Respuesta inesperada del servidor:", result);
-          throw new Error("Formato de datos incorrecto");
+          console.error("Unexpected data format:", result);
+          throw new Error("Wrong data format");
         }
 
         allData = [...allData, ...data];
-
         if (data.length < limit) {
-          hasMoreData = false; // Si hay menos datos que el límite, terminamos la paginación
+          hasMoreData = false;
         } else {
-          page++; // Continuar a la siguiente página
+          page++;
         }
       }
 
@@ -710,8 +705,7 @@ const ACC5DDatabase = () => {
         [field]: value,
       },
     }));
-    // Llamada a la actualización del visor
-    updateViewerWithNewCodeDebounced();
+    
   };
 
   const calculateGroupTotal = (group) => {
@@ -764,15 +758,6 @@ const ACC5DDatabase = () => {
     });
   }, [groupExtraData, nestedGroupData]);
 
-  const groupedData = useMemo(() => {
-    return data.reduce((acc, row) => {
-      const discipline = row.Discipline || "No Discipline";
-      if (!acc[discipline]) acc[discipline] = [];
-      acc[discipline].push(row);
-      return acc;
-    }, {});
-  }, [data]);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".relative")) {
@@ -810,13 +795,6 @@ const ACC5DDatabase = () => {
     return showAIpanel ? "w-1/5" : "w-0";
   }, [showAIpanel]);
 
-  const totalsByDiscipline = useMemo(() => {
-    return Object.keys(groupedData).reduce((acc, disc) => {
-      acc[disc] = calculateTotals(groupedData[disc]);
-      return acc;
-    }, {});
-  }, [groupedData]);
-
   return (
     <>
       {loading && <LoadingOverlay />}
@@ -840,7 +818,7 @@ const ACC5DDatabase = () => {
             {/* Título */}
             <div className="mb-4">
               <h1 className="text-right text-xl text-black">
-                Model Database 4D
+                Model Database 5D
               </h1>
             </div>
             <hr className="my-4 border-t border-gray-300" />

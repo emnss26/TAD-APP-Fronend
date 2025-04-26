@@ -1,10 +1,6 @@
-import React, {
-  useState,
-  useRef,
-  useMemo,
-  useCallback,
-  useEffect,
-} from "react";
+"use client";
+
+import React, { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -39,17 +35,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "../../hooks/use-toast";
 
@@ -61,10 +48,7 @@ const disciplineColorMap = {
   "Metallic Structure": { bg: "bg-[#2ea3e3]", text: "text-white" },
   "Masonry Works": { bg: "bg-[#2ea3e3]", text: "text-white" },
   "Walls and Ceilings": { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Aluminium works windows and glazing": {
-    bg: "bg-[#2ea3e3]",
-    text: "text-white",
-  },
+  "Aluminium works windows and glazing": { bg: "bg-[#2ea3e3]", text: "text-white" },
   Blaksmithing: { bg: "bg-[#2ea3e3]", text: "text-white" },
   Finishes: { bg: "bg-[#2ea3e3]", text: "text-white" },
   Furniture: { bg: "bg-[#2ea3e3]", text: "text-white" },
@@ -105,24 +89,18 @@ const columnGroups = {
     "Thickness",
     "Volume",
   ],
-  description: [
+  description: ["rowNumber", "dbId", "ElementType", "TypeName", "Description", "Level", "Material"],
+  sustainability: [
     "rowNumber",
     "dbId",
     "ElementType",
     "TypeName",
-    "Description",
-    "Level",
-    "Material",
-  ],
-  schedule: [
-    "rowNumber",
-    "dbId",
-    "ElementType",
-    "TypeName",
-    "PlanedConstructionStartDate",
-    "PlanedConstructionEndDate",
-    "RealConstructionStartDate",
-    "RealConstructionEndDate",
+    "EnergyConsumption",
+    "CarbonFootprint",
+    "WaterConsumption",
+    "LifeCycleStage",
+    "LEEDCategory",
+    "LEEDCredit",
   ],
 };
 
@@ -134,12 +112,14 @@ const numericColumns = [
   "AREA",
   "THICKNESS",
   "VOLUME",
+  "ENERGYCONSUMPTION",
+  "CARBONFOOTPRINT",
+  "WATERCONSUMPTION",
 ];
 
 /** =============== SUBCOMPONENTES =============== */
 
 /** 1) DisciplineHeaderRow */
-/* Se mantiene el estilo para los encabezados de grupo, sin bold en el texto */
 const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
   discipline,
   rowsCount,
@@ -156,15 +136,9 @@ const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
           <button
             onClick={onToggle}
             className="mr-2 text-black hover:bg-[#2ea3e3] p-1 rounded transition-colors"
-            aria-label={
-              isDiscCollapsed ? "Expand discipline" : "Collapse discipline"
-            }
+            aria-label={isDiscCollapsed ? "Expand discipline" : "Collapse discipline"}
           >
-            {isDiscCollapsed ? (
-              <ChevronRight size={16} />
-            ) : (
-              <ChevronDown size={16} />
-            )}
+            {isDiscCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
           </button>
           <span>{discipline}</span>
           <Badge variant="outline" className="ml-2 text-xs">
@@ -219,7 +193,6 @@ const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
 });
 
 /** 2) ElementRow */
-/* Se reemplaza onClick por onMouseDown en controles internos para permitir el foco y edición */
 const ElementRow = React.memo(function ElementRow({
   row,
   visibleColumns,
@@ -235,10 +208,8 @@ const ElementRow = React.memo(function ElementRow({
   isDimensionsView,
   hoverColor,
 }) {
-  const getElementTypeColor = (type) =>
-    elementTypeColorMap[type] || fallbackTypeColor;
-  const displayedRowNumber =
-    row.rowNumber !== undefined ? row.rowNumber : index + 1;
+  const getElementTypeColor = (type) => elementTypeColorMap[type] || fallbackTypeColor;
+  const displayedRowNumber = row.rowNumber !== undefined ? row.rowNumber : index + 1;
   const rowClass = isSelected
     ? `bg-blue-100 hover:bg-blue-100`
     : `hover:${hoverColor}`;
@@ -298,11 +269,7 @@ const ElementRow = React.memo(function ElementRow({
                 </SelectTrigger>
                 <SelectContent className="bg-white text-black">
                   {disciplineOptions.map((opt) => (
-                    <SelectItem
-                      key={opt}
-                      value={opt}
-                      className="bg-white text-black"
-                    >
+                    <SelectItem key={opt} value={opt} className="bg-white text-black">
                       {opt}
                     </SelectItem>
                   ))}
@@ -318,18 +285,13 @@ const ElementRow = React.memo(function ElementRow({
                 value={row[col] || ""}
                 onValueChange={(val) => handleElementTypeChange(row, val)}
               >
-                <SelectTrigger
-                  className="h-8 text-sm"
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
+                <SelectTrigger className="h-8 text-sm" onMouseDown={(e) => e.stopPropagation()}>
                   <SelectValue placeholder="Element Type">
                     {row[col] && (
                       <div className="flex items-center gap-2">
                         <div
                           className="w-3 h-3 rounded-full"
-                          style={{
-                            backgroundColor: getElementTypeColor(row[col]),
-                          }}
+                          style={{ backgroundColor: getElementTypeColor(row[col]) }}
                         />
                         <span>{row[col]}</span>
                       </div>
@@ -342,10 +304,7 @@ const ElementRow = React.memo(function ElementRow({
                     return (
                       <SelectItem key={type} value={type}>
                         <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: c }}
-                          />
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c }} />
                           <span>{type}</span>
                         </div>
                       </SelectItem>
@@ -417,7 +376,6 @@ const ElementRow = React.memo(function ElementRow({
 });
 
 /** 3) PartialTotalsRow */
-/* Se agrega hover para resaltar con el mismo color de tab activo */
 const PartialTotalsRow = React.memo(function PartialTotalsRow({
   discipline,
   visibleColumns,
@@ -439,12 +397,18 @@ const PartialTotalsRow = React.memo(function PartialTotalsRow({
         return `${num} m²`;
       case "VOLUME":
         return `${num} m³`;
+      case "ENERGYCONSUMPTION":
+        return `${num} kWh`;
+      case "CARBONFOOTPRINT":
+        return `${num} kg`;
+      case "WATERCONSUMPTION":
+        return `${num} m³`;
       default:
         return num;
     }
   }, []);
   return (
-    <TableRow className={"text-black bg-slate-50"}>
+    <TableRow className="text-black bg-slate-50">
       {visibleColumns.map((col, idx) => {
         if (idx === 0) {
           return (
@@ -481,6 +445,12 @@ const GrandTotalsRow = React.memo(function GrandTotalsRow({
         return `${num} m²`;
       case "VOLUME":
         return `${num} m³`;
+      case "ENERGYCONSUMPTION":
+        return `${num} kWh`;
+      case "CARBONFOOTPRINT":
+        return `${num} kg`;
+      case "WATERCONSUMPTION":
+        return `${num} m³`;
       default:
         return num;
     }
@@ -488,8 +458,7 @@ const GrandTotalsRow = React.memo(function GrandTotalsRow({
   return (
     <TableRow className="bg-slate-200 font-bold">
       {visibleColumns.map((col, idx) => {
-        if (idx === 0)
-          return <TableCell key="grand-label">Grand Totals</TableCell>;
+        if (idx === 0) return <TableCell key="grand-label">Grand Totals</TableCell>;
         const val = grandTotals?.[col] ?? 0;
         return <TableCell key={col}>{formatTotal(col, val)}</TableCell>;
       })}
@@ -499,7 +468,6 @@ const GrandTotalsRow = React.memo(function GrandTotalsRow({
 });
 
 /** 5) TableControls */
-/* Se mantiene el dropdown de Options con un comentario explicativo */
 const TableControls = React.memo(function TableControls({
   activeSection,
   handleChangeSection,
@@ -526,35 +494,19 @@ const TableControls = React.memo(function TableControls({
   return (
     <div className="space-y-2 bg-slate-50 p-4 border-b">
       {/* Tabs principales */}
-      <Tabs
-        value={activeSection}
-        onValueChange={handleChangeSection}
-        className="w-full"
-      >
+      <Tabs value={activeSection} onValueChange={handleChangeSection} className="w-full">
         <TabsList className="grid grid-cols-4 w-full bg-[#2ea3e3]">
-          <TabsTrigger
-            value="general"
-            className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
+          <TabsTrigger value="general" className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white">
             General
           </TabsTrigger>
-          <TabsTrigger
-            value="dimensions"
-            className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
+          <TabsTrigger value="dimensions" className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white">
             Dimensions
           </TabsTrigger>
-          <TabsTrigger
-            value="description"
-            className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
+          <TabsTrigger value="description" className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white">
             Description
           </TabsTrigger>
-          <TabsTrigger
-            value="schedule"
-            className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
-            Schedule
+          <TabsTrigger value="sustainability" className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white">
+            Sustainability
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -562,30 +514,15 @@ const TableControls = React.memo(function TableControls({
       <div className="flex flex-wrap gap-2 justify-between">
         {/* Izquierda */}
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleToggleSort}
-            className="flex items-center gap-1"
-          >
+          <Button variant="outline" size="sm" onClick={handleToggleSort} className="flex items-center gap-1">
             <ArrowUpDown className="h-4 w-4" />
             {sortDisciplinesAsc ? "Restore Order" : "Sort A→Z"}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExpandAll}
-            className="flex items-center gap-1"
-          >
+          <Button variant="outline" size="sm" onClick={handleExpandAll} className="flex items-center gap-1">
             <ChevronDown className="h-4 w-4" />
             Expand All
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCollapseAll}
-            className="flex items-center gap-1"
-          >
+          <Button variant="outline" size="sm" onClick={handleCollapseAll} className="flex items-center gap-1">
             <ChevronRight className="h-4 w-4" />
             Collapse All
           </Button>
@@ -600,16 +537,9 @@ const TableControls = React.memo(function TableControls({
               value={searchDbId}
               onChange={(e) => setSearchDbId(e.target.value)}
               className="w-28 h-8 text-xs pr-8"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleDbIdSearch();
-              }}
+              onKeyDown={(e) => { if (e.key === "Enter") handleDbIdSearch(); }}
             />
-            <Button
-              size="sm"
-              variant="ghost"
-              className="absolute right-0 h-8 w-8 p-0"
-              onClick={handleDbIdSearch}
-            >
+            <Button size="sm" variant="ghost" className="absolute right-0 h-8 w-8 p-0" onClick={handleDbIdSearch}>
               <Search className="h-3 w-3" />
             </Button>
           </div>
@@ -623,7 +553,6 @@ const TableControls = React.memo(function TableControls({
             />
             <Filter className="h-3 w-3 absolute right-2 text-muted-foreground" />
           </div>
-          {/* Dropdown Options: permite seleccionar el color de hover para las filas */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8">
@@ -634,10 +563,7 @@ const TableControls = React.memo(function TableControls({
             <DropdownMenuContent align="end">
               <div className="p-2">
                 <div className="text-xs font-medium mb-1">Row hover color:</div>
-                <Select
-                  value={hoverColor}
-                  onValueChange={(val) => setHoverColor(val)}
-                >
+                <Select value={hoverColor} onValueChange={(val) => setHoverColor(val)}>
                   <SelectTrigger className="h-8 text-xs">
                     <SelectValue placeholder="Hover color" />
                   </SelectTrigger>
@@ -659,64 +585,27 @@ const TableControls = React.memo(function TableControls({
       {/* Paginación y scroll */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleScrollUp}
-            title="Scroll up"
-          >
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleScrollUp} title="Scroll up">
             <ChevronUp className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleScrollDown}
-            title="Scroll down"
-          >
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleScrollDown} title="Scroll down">
             <ChevronDown className="h-4 w-4" />
           </Button>
         </div>
         <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleFirstPage}
-            disabled={page <= 1}
-          >
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleFirstPage} disabled={page <= 1}>
             <ChevronFirst className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handlePrevPage}
-            disabled={page <= 1}
-          >
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handlePrevPage} disabled={page <= 1}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-xs px-2">
-            Page <span className="font-medium">{page}</span> of{" "}
-            <span className="font-medium">{totalPages}</span>
+            Page <span className="font-medium">{page}</span> of <span className="font-medium">{totalPages}</span>
           </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleNextPage}
-            disabled={page >= totalPages}
-          >
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleNextPage} disabled={page >= totalPages}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleLastPage}
-            disabled={page >= totalPages}
-          >
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleLastPage} disabled={page >= totalPages}>
             <ChevronLast className="h-4 w-4" />
           </Button>
         </div>
@@ -725,7 +614,7 @@ const TableControls = React.memo(function TableControls({
   );
 });
 
-function Database4DTable({
+function Database6DTable({
   data,
   totalsByDiscipline,
   grandTotals,
@@ -742,6 +631,7 @@ function Database4DTable({
   setSelectedRows,
   lastClickedRowNumber,
   setLastClickedRowNumber,
+  hideColumns,
   onVisibleColumnsChange,
 }) {
   const [loading, setLoading] = useState(false);
@@ -763,26 +653,16 @@ function Database4DTable({
 
   const handleExpandAll = useCallback(() => {
     const newState = {};
-    Object.keys(collapsedDisciplines).forEach((d) => {
-      newState[d] = false;
-    });
-    const allDisciplines = [
-      ...new Set(data.map((r) => r.Discipline || "No Discipline")),
-    ];
-    allDisciplines.forEach((d) => {
-      newState[d] = false;
-    });
+    Object.keys(collapsedDisciplines).forEach((d) => { newState[d] = false; });
+    const allDisciplines = [...new Set(data.map((r) => r.Discipline || "No Discipline"))];
+    allDisciplines.forEach((d) => { newState[d] = false; });
     setCollapsedDisciplines(newState);
   }, [collapsedDisciplines, setCollapsedDisciplines, data]);
 
   const handleCollapseAll = useCallback(() => {
     const newState = {};
-    const allDisciplines = [
-      ...new Set(data.map((r) => r.Discipline || "No Discipline")),
-    ];
-    allDisciplines.forEach((d) => {
-      newState[d] = true;
-    });
+    const allDisciplines = [...new Set(data.map((r) => r.Discipline || "No Discipline"))];
+    allDisciplines.forEach((d) => { newState[d] = true; });
     setCollapsedDisciplines(newState);
   }, [setCollapsedDisciplines, data]);
 
@@ -806,13 +686,9 @@ function Database4DTable({
       return acc;
     }, {});
     if (sortDisciplinesAsc) {
-      const sortedEntries = Object.entries(grouped).sort((a, b) =>
-        a[0].localeCompare(b[0])
-      );
+      const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0]));
       const sortedObj = {};
-      sortedEntries.forEach(([k, v]) => {
-        sortedObj[k] = v;
-      });
+      sortedEntries.forEach(([k, v]) => { sortedObj[k] = v; });
       return sortedObj;
     }
     return grouped;
@@ -824,9 +700,7 @@ function Database4DTable({
     Object.entries(groupedData).forEach(([disc, rows]) => {
       result.push({ type: "header", disc, count: rows.length });
       if (!collapsedDisciplines[disc]) {
-        rows.forEach((row, idx) => {
-          result.push({ type: "element", row, idx, disc });
-        });
+        rows.forEach((row, idx) => { result.push({ type: "element", row, idx, disc }); });
         result.push({ type: "partialTotals", disc });
       }
     });
@@ -872,7 +746,6 @@ function Database4DTable({
     [selectedRows]
   );
 
-  // En handleRowClick se verifica si el clic proviene de un control interactivo
   const handleRowClick = useCallback(
     (row, e, indexInDiscipline) => {
       const interactiveTags = ["INPUT", "SELECT", "BUTTON", "TEXTAREA"];
@@ -907,27 +780,21 @@ function Database4DTable({
 
   const isolateDiscipline = useCallback(
     (rows) => {
-      isolateObjectsInViewer(
-        window.data4Dviewer,
-        rows.map((r) => r.dbId)
-      );
+      isolateObjectsInViewer(window.database6dViewer, rows.map((r) => r.dbId));
     },
     [isolateObjectsInViewer]
   );
 
   const hideDisciplineAction = useCallback(
     (rows) => {
-      hideObjectsInViewer(
-        window.data4Dviewer,
-        rows.map((r) => r.dbId)
-      );
+      hideObjectsInViewer(window.database6dViewer, rows.map((r) => r.dbId));
     },
     [hideObjectsInViewer]
   );
 
   const isolateRow = useCallback(
     (dbId) => {
-      isolateObjectsInViewer(window.data4Dviewer, [dbId]);
+      isolateObjectsInViewer(window.database6dViewer, [dbId]);
     },
     [isolateObjectsInViewer]
   );
@@ -985,8 +852,7 @@ function Database4DTable({
       <CardHeader className="bg-slate-50 py-3 px-4 flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-bold">Model Data Table</CardTitle>
         <div className="text-sm text-muted-foreground">
-          {filteredData.length} elements • {Object.keys(groupedData).length}{" "}
-          disciplines
+          {filteredData.length} elements • {Object.keys(groupedData).length} disciplines
         </div>
       </CardHeader>
 
@@ -1019,52 +885,33 @@ function Database4DTable({
           <div className="flex items-center justify-center h-full">
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="text-sm text-muted-foreground">
-                Loading data...
-              </span>
+              <span className="text-sm text-muted-foreground">Loading data...</span>
             </div>
           </div>
         ) : (
-          <div
-            ref={tableContainerRef}
-            className="h-full w-full overflow-y-auto"
-            style={{ maxHeight: "100%" }}
-          >
+          <div ref={tableContainerRef} className="h-full w-full overflow-y-auto" style={{ maxHeight: "100%" }}>
             <Table>
               <TableHeader className="bg-slate-50 sticky top-0 z-10">
                 <TableRow className="min-h-[48px]">
                   {visibleColumns.map((col) => (
-                    <TableHead
-                      key={col}
-                      className="whitespace-normal font-bold"
-                    >
+                    <TableHead key={col} className="whitespace-normal font-bold">
                       {col === "rowNumber"
                         ? "ROW #"
-                        : col
-                            .replace(/([A-Z])/g, " $1")
-                            .trim()
-                            .toUpperCase()}
+                        : col.replace(/([A-Z])/g, " $1").trim().toUpperCase()}
                     </TableHead>
                   ))}
-                  <TableHead className="text-right font-bold">
-                    ACTIONS
-                  </TableHead>
+                  <TableHead className="text-right font-bold">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
                 {paginatedRows.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={visibleColumns.length + 1}
-                      className="h-24 text-center"
-                    >
+                    <TableCell colSpan={visibleColumns.length + 1} className="h-24 text-center">
                       <div className="flex flex-col items-center justify-center text-muted-foreground">
                         <p>No results found</p>
                         {filterText && (
-                          <p className="text-sm mt-1">
-                            Try adjusting your search or filter criteria
-                          </p>
+                          <p className="text-sm mt-1">Try adjusting your search or filter criteria</p>
                         )}
                       </div>
                     </TableCell>
@@ -1072,10 +919,8 @@ function Database4DTable({
                 ) : (
                   paginatedRows.map((item, idx) => {
                     if (item.type === "header") {
-                      const discColors =
-                        disciplineColorMap[item.disc] || fallbackDisc;
-                      const isCollapsed =
-                        collapsedDisciplines[item.disc] || false;
+                      const discColors = disciplineColorMap[item.disc] || fallbackDisc;
+                      const isCollapsed = collapsedDisciplines[item.disc] || false;
                       return (
                         <DisciplineHeaderRow
                           key={`hdr-${item.disc}`}
@@ -1084,12 +929,8 @@ function Database4DTable({
                           isDiscCollapsed={isCollapsed}
                           visibleColsCount={visibleColumns.length}
                           onToggle={() => toggleDiscipline(item.disc)}
-                          isolateDiscipline={() =>
-                            isolateDiscipline(groupedData[item.disc])
-                          }
-                          hideDiscipline={() =>
-                            hideDisciplineAction(groupedData[item.disc])
-                          }
+                          isolateDiscipline={() => isolateDiscipline(groupedData[item.disc])}
+                          hideDiscipline={() => hideDisciplineAction(groupedData[item.disc])}
                         />
                       );
                     } else if (item.type === "element") {
@@ -1097,7 +938,7 @@ function Database4DTable({
                       const selected = isRowSelected(row.dbId);
                       return (
                         <ElementRow
-                        key={`elm-${row.rowNumber}`}
+                          key={`elm-${row.dbId || idx}`}
                           row={row}
                           index={indexInDisc}
                           isSelected={selected}
@@ -1108,9 +949,7 @@ function Database4DTable({
                           disciplineOptions={disciplineOptions}
                           elementtype={elementtype}
                           isolateRow={isolateRow}
-                          onRowClick={(e) =>
-                            handleRowClick(row, e, indexInDisc)
-                          }
+                          onRowClick={(e) => handleRowClick(row, e, indexInDisc)}
                           isDimensionsView={isDimensionsView}
                           hoverColor={hoverColor}
                         />
@@ -1131,10 +970,7 @@ function Database4DTable({
               </TableBody>
 
               <TableHeader className="bg-slate-200 sticky bottom-0 z-10">
-                <GrandTotalsRow
-                  visibleColumns={visibleColumns}
-                  grandTotals={grandTotals}
-                />
+                <GrandTotalsRow visibleColumns={visibleColumns} grandTotals={grandTotals} />
               </TableHeader>
             </Table>
           </div>
@@ -1144,4 +980,4 @@ function Database4DTable({
   );
 }
 
-export default React.memo(Database4DTable);
+export default React.memo(Database6DTable);

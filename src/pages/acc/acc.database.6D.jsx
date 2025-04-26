@@ -9,10 +9,10 @@ import React, {
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
-import BIM360PlatformprojectsHeader from "../../components/platform_page_components/bim360.platform.header.projects";
+import ACCPlatformprojectsHeader from "../../components/platform_page_components/acc.platform.header.projects";
 import { Footer } from "../../components/general_pages_components/general.pages.footer";
-import BIM360SideBar from "../../components/platform_page_components/platform.bim360.sidebar";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
+import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
 
 import { data5Dviewer } from "../../utils/Viewers/5D.viewer";
 
@@ -23,7 +23,7 @@ import {
   numericFields,
 } from "../../lib/data.bases.constants";
 
-import { defaultRow as defaultRow5D } from "../../lib/default.row.5D";
+import { defaultRow as defaultRow6D } from "../../lib/default.row.6D";
 
 import {
   isolateObjectsInViewer,
@@ -33,17 +33,16 @@ import {
   resetViewerView,
 } from "../../lib/viewer.actions";
 
-import { fetchBIM360FederatedModel } from "../../pages/services/bim360.services";
+import { fetchACCFederatedModel } from "../../pages/services/acc.services";
 
 import {
   mapCategoryToElementType,
   reorderRowsByDiscipline,
-  reorderRowsByDisciplineAndGroup,
 } from "../../lib/general.functions";
 
 import { useTableControls } from "../services/database.table";
 
-import Database5DTable from "../../components/database_components/database.5D.table";
+import Database6DTable from "../../components/database_components/database.6D.table";
 import ControlPanel from "../../components/database_components/control.panel";
 
 const backendUrl =
@@ -59,9 +58,9 @@ const sampleQuestions = [
   "Tell me the construction start and finish dates of elements in the discipline concrete structure",
 ];
 
-const BIM3605DDatabase = () => {
-  const defaultRow = useMemo(() => defaultRow5D, []);
-  const propertyMapping = useMemo(() => propertyMappings["5D"], []);
+const ACC6DDatabase = () => {
+  const defaultRow = useMemo(() => defaultRow6D, []);
+  const propertyMapping = useMemo(() => propertyMappings["6D"], []);
   const [federatedModel, setFederatedModel] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,9 +72,6 @@ const BIM3605DDatabase = () => {
   const [collapsedDisciplines, setCollapsedDisciplines] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
   const [lastClickedRowNumber, setLastClickedRowNumber] = useState(null);
-  const [collapsedCodes, setCollapsedCodes] = useState({});
-  const [groupExtraData, setGroupExtraData] = useState({});
-  const [newCode, setNewCode] = useState("");
 
   const [showViewer, setShowViewer] = useState(true);
   const [showAIpanel, setAIpanel] = useState(false);
@@ -98,6 +94,15 @@ const BIM3605DDatabase = () => {
     JSON.parse(localStorage.getItem("conversationHistory")) || []
   );
 
+  const [selection, setSelection] = useState([]);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [searchDbId, setSearchDbId] = useState("");
+  const rowRefs = useRef({});
+
+  const [selectedDiscipline, setSelectedDiscipline] = useState(null);
+
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const { handleAddRow, handleRemoveRow } = useTableControls(
     setData,
     defaultRow,
@@ -110,7 +115,7 @@ const BIM3605DDatabase = () => {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetchBIM360FederatedModel(projectId, cookies.access_token, accountId),
+      fetchACCFederatedModel(projectId, cookies.access_token, accountId),
     ])
       .then(([federatedModelResp]) => {
         setFederatedModel(federatedModelResp);
@@ -125,86 +130,104 @@ const BIM3605DDatabase = () => {
       });
   }, [projectId, accountId, cookies.access_token]);
 
-   const fieldsToCheck = useMemo(
-        () => [
-          "Description",
-          "Length",
-          "Width",
-          "Height",
-          "Perimeter",
-          "Area",
-          "Thickness",
-          "Volume",
-          "Level",
-          "Material",
-        ],
-        []
-      );
+  const fieldsToCheck = useMemo(
+    () => [
+      "Description",
+      "Length",
+      "Width",
+      "Height",
+      "Perimeter",
+      "Area",
+      "Thickness",
+      "Volume",
+      "Level",
+      "Material",
+    ],
+    []
+  );
+
+  const updateRowNumbers = (rows) => {
+    return rows.map((row, idx) => ({ ...row, rowNumber: idx + 1 }));
+  };
 
   useEffect(() => {
-      const handleDataExtracted = (event) => {
-        const { dbId, properties } = event.detail;
-        if (!properties || typeof properties !== "object") {
-          console.error("Invalid properties data:", properties);
-          return;
-        }
-        
-        const propertiesArray = Object.entries(properties).map(([k, v]) => ({
-          displayName: k,
-          displayValue: v || "",
-        }));
-  
-        const mappedProperties = propertiesArray.reduce((acc, prop) => {
-          const mappedKey = propertyMapping[prop.displayName];
-          let value = prop.displayValue;
-  
-          if (mappedKey && mappedKey.toLowerCase().includes("date")) {
-            if (value.toLowerCase() === "no especificado") {
-              value = "";
-            } else {
-              const parts = value.split("/");
-              if (parts.length === 3) {
-                const [day, month, year] = parts;
-                value = `20${year}-${month.padStart(2, "0")}-${day.padStart(
-                  2,
-                  "0"
-                )}`;
-              }
+    const handleDataExtracted = (event) => {
+      const { dbId, properties } = event.detail;
+      if (!properties || typeof properties !== "object") {
+        console.error("Invalid properties data:", properties);
+        return;
+      }
+
+      const propertiesArray = Object.entries(properties).map(([k, v]) => ({
+        displayName: k,
+        displayValue: v || "",
+      }));
+
+      const mappedProperties = propertiesArray.reduce((acc, prop) => {
+        const mappedKey = propertyMapping[prop.displayName];
+        let value = prop.displayValue;
+
+        if (mappedKey && mappedKey.toLowerCase().includes("date")) {
+          if (value.toLowerCase() === "no especificado") {
+            value = "";
+          } else {
+            const parts = value.split("/");
+            if (parts.length === 3) {
+              const [day, month, year] = parts;
+              value = `20${year}-${month.padStart(2, "0")}-${day.padStart(
+                2,
+                "0"
+              )}`;
             }
           }
-          if (mappedKey) {
-            acc[mappedKey] = value;
-          }
-          return acc;
-        }, {});
-        // Aseguramos que existan campos necesarios
-        fieldsToCheck.forEach((field) => {
-          if (!mappedProperties[field]) mappedProperties[field] = "";
-        });
-  
-        const elementType = mapCategoryToElementType(properties.Category) || "";
-        const newRow = {
-          ...defaultRow,
-          dbId,
-          ElementType: elementType,
-          ...mappedProperties,
-        };
-  
-        setData((prevData) => {
-          if (prevData.some((row) => row.dbId === dbId)) {
-            alert("This element is already in the table");
-            return prevData;
-          }
-          const updatedData = [...prevData, newRow];
-          return reorderRowsByDisciplineAndGroup(updatedData);
-        });
+        }
+
+        if (mappedKey) {
+          acc[mappedKey] = value;
+        }
+        return acc;
+      }, {});
+
+      fieldsToCheck.forEach((field) => {
+        if (!mappedProperties[field]) mappedProperties[field] = "";
+      });
+
+      const elementType = mapCategoryToElementType(properties.Category) || "";
+      const newRow = {
+        ...defaultRow,
+        dbId,
+        ElementType: elementType,
+        ...mappedProperties,
       };
-  
-      window.addEventListener("dbIdDataExtracted", handleDataExtracted);
-      return () =>
-        window.removeEventListener("dbIdDataExtracted", handleDataExtracted);
-    }, [defaultRow, propertyMapping, mapCategoryToElementType, fieldsToCheck]);
-  
+
+      setData((prevData) => {
+        const existsDbId = prevData.some(
+          (r) => String(r.dbId) === String(dbId)
+        );
+        if (existsDbId) {
+          alert("This element is already in the table");
+          return prevData;
+        }
+        const updatedData = [...prevData, newRow];
+        return updateRowNumbers(updatedData);
+      });
+    };
+
+    window.addEventListener("dbIdDataExtracted", handleDataExtracted);
+    return () => {
+      window.removeEventListener("dbIdDataExtracted", handleDataExtracted);
+    };
+  }, [defaultRow, propertyMapping, fieldsToCheck]);
+
+  const groupedData = useMemo(() => {
+    return data.reduce((acc, row) => {
+      const discipline = row.Discipline || "No Discipline";
+      if (!acc[discipline]) acc[discipline] = [];
+      acc[discipline].push(row);
+      return acc;
+    }, {});
+  }, [data]);
+
   const calculateTotals = (rows) => {
     const totals = {
       Length: 0,
@@ -222,79 +245,70 @@ const BIM3605DDatabase = () => {
     return totals;
   };
 
-   const groupedData = useMemo(() => {
-      return data.reduce((acc, row) => {
-        const discipline = row.Discipline || "No Discipline";
-        if (!acc[discipline]) acc[discipline] = [];
-        acc[discipline].push(row);
-        return acc;
-      }, {});
-    }, [data]);
-  
-    const totalsByDiscipline = useMemo(() => {
-      return Object.keys(groupedData).reduce((acc, disc) => {
-        acc[disc] = calculateTotals(groupedData[disc]);
-        return acc;
-      }, {});
-    }, [groupedData]);
+  const totalsByDiscipline = useMemo(() => {
+    return Object.keys(groupedData).reduce((acc, disc) => {
+      acc[disc] = calculateTotals(groupedData[disc]);
+      return acc;
+    }, {});
+  }, [groupedData]);
 
   const grandTotals = useMemo(() => calculateTotals(data), [data]);
 
   const handleDisciplineChange = (row, newValue) => {
     const index = data.findIndex((r) => r === row);
     if (index === -1) return;
+
     if (selectedRows.includes(row.dbId)) {
-      setData((prev) => {
-        const updatedData = prev.map((item) =>
-          selectedRows.includes(item.dbId)
-            ? { ...item, Discipline: newValue }
-            : item
-        );
-        return reorderRowsByDisciplineAndGroup(updatedData);
-      });
+      setData((prev) =>
+        prev.map((item) => {
+          if (selectedRows.includes(item.dbId)) {
+            return { ...item, Discipline: newValue };
+          }
+          return item;
+        })
+      );
     } else {
       const clone = [...data];
       clone[index] = { ...clone[index], Discipline: newValue };
-      setData(reorderRowsByDisciplineAndGroup(clone));
+      setData(clone);
     }
   };
 
   const handleElementTypeChange = (row, newValue) => {
     const index = data.findIndex((r) => r === row);
     if (index === -1) return;
+
     if (selectedRows.includes(row.dbId)) {
-      setData((prev) => {
-        const updatedData = prev.map((item) =>
-          selectedRows.includes(item.dbId)
-            ? { ...item, ElementType: newValue }
-            : item
-        );
-        return reorderRowsByDisciplineAndGroup(updatedData);
-      });
+      setData((prev) =>
+        prev.map((item) => {
+          if (selectedRows.includes(item.dbId)) {
+            return { ...item, ElementType: newValue };
+          }
+          return item;
+        })
+      );
     } else {
       const clone = [...data];
       clone[index] = { ...clone[index], ElementType: newValue };
-      setData(reorderRowsByDisciplineAndGroup(clone));
+      setData(clone);
     }
   };
 
   const handleInputChange = (row, event) => {
     const { name, value } = event.target;
     const index = data.findIndex((r) => r === row);
-
-    if (index === -1) {
-      console.error("Row not found in data.");
-      return;
-    }
+    if (index === -1) return;
 
     const currentRow = data[index];
     if (selectedRows.includes(currentRow.dbId)) {
-      setData((prev) => {
-        const updatedData = prev.map((item) =>
-          selectedRows.includes(item.dbId) ? { ...item, [name]: value } : item
-        );
-        return reorderRowsByDisciplineAndGroup(updatedData);
-      });
+      setData((prev) =>
+        prev.map((item) => {
+          if (selectedRows.includes(item.dbId)) {
+            return { ...item, [name]: value };
+          }
+          return item;
+        })
+      );
     } else {
       const newArr = [...data];
       newArr[index] = { ...currentRow, [name]: value };
@@ -309,20 +323,20 @@ const BIM3605DDatabase = () => {
   }, [data]);
 
   const handleViewerSelectionChanged = useCallback((dbIdArray) => {
-        const currentDbIdsInTable = dataRef.current.map((row) => Number(row.dbId));
-      
-      const foundDbIds = dataRef.current
-        .filter((row) => {
-          const rowDbIdNum = Number(row.dbId);
-          const matched = dbIdArray.includes(rowDbIdNum);
-  
-          return matched;
-        })
-        .map((row) => row.dbId);
-  
-      setSelectedRows(foundDbIds.length ? foundDbIds : []);
-      setSelectionCount(dbIdArray.length);
-    }, []);
+    const currentDbIdsInTable = dataRef.current.map((row) => Number(row.dbId));
+
+    const foundDbIds = dataRef.current
+      .filter((row) => {
+        const rowDbIdNum = Number(row.dbId);
+        const matched = dbIdArray.includes(rowDbIdNum);
+
+        return matched;
+      })
+      .map((row) => row.dbId);
+
+    setSelectedRows(foundDbIds.length ? foundDbIds : []);
+    setSelectionCount(dbIdArray.length);
+  }, []);
 
   useEffect(() => {
     if (!federatedModel || window.viewerInitialized) return;
@@ -331,6 +345,7 @@ const BIM3605DDatabase = () => {
       if (!syncViewerSelectionRef.current) {
         return;
       }
+
       handleViewerSelectionChanged(dbIdArray);
     };
 
@@ -355,70 +370,70 @@ const BIM3605DDatabase = () => {
   }, [syncViewerSelection, handleViewerSelectionChanged]);
 
   const handleSubmit = async () => {
-      try {
-        const cleanedData = data.map((row) => {
-          const cleanedRow = { ...row };
-          numericFields.forEach((field) => {
-            const value = cleanedRow[field];
-            if (typeof value === "string") {
-              if (
-                value.toLowerCase() === "no especificado" ||
-                value.trim() === ""
-              ) {
-                cleanedRow[field] = null;
-              } else {
-                const parsedValue = parseFloat(value);
-                cleanedRow[field] = isNaN(parsedValue) ? null : parsedValue;
-              }
+    try {
+      const cleanedData = data.map((row) => {
+        const cleanedRow = { ...row };
+        numericFields.forEach((field) => {
+          const value = cleanedRow[field];
+          if (typeof value === "string") {
+            if (
+              value.toLowerCase() === "Not specified" ||
+              value.trim() === ""
+            ) {
+              cleanedRow[field] = null;
+            } else {
+              const parsedValue = parseFloat(value);
+              cleanedRow[field] = isNaN(parsedValue) ? null : parsedValue;
             }
-          });
-          return cleanedRow;
-        });
-  
-        const response = await fetch(
-          `${backendUrl}/modeldata/${accountId}/${projectId}/data`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(cleanedData),
           }
-        );
-  
-        if (response.ok) {
-          alert("Data sent successfully");
-          //await handlePullData();
-        } else {
-          const errorData = await response.json();
-          console.error("Error sending data:", errorData.message);
-          alert(`Error sending data: ${errorData.message}`);
-        }
-      } catch (error) {
-        console.error("Request error:", error);
-        alert(`Request error: ${error.message}`);
-      }
-    };
-  
-    const handlePullData = async (discipline = null) => {
-      try {
-        let url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
-        if (discipline && discipline.toLowerCase() !== "all disciplines") {
-          url += `?discipline=${encodeURIComponent(discipline)}`;
-        }
-  
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
         });
-  
-        if (response.ok) {
-          const result = await response.json();
-          if (result.data && Array.isArray(result.data)) {
-            let tempRows = result.data.map((item) => {
-              const value = item.value || {};
-              return {
+        return cleanedRow;
+      });
+
+      const response = await fetch(
+        `${backendUrl}/modeldata/${accountId}/${projectId}/data`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(cleanedData),
+        }
+      );
+
+      if (response.ok) {
+        alert("Data sent successfully");
+        //await handlePullData();
+      } else {
+        const errorData = await response.json();
+        console.error("Error sending data:", errorData.message);
+        alert(`Error sending data: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error("Request error:", error);
+      alert(`Request error: ${error.message}`);
+    }
+  };
+
+  const handlePullData = async (discipline = null) => {
+    try {
+      let url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
+      if (discipline && discipline.toLowerCase() !== "all disciplines") {
+        url += `?discipline=${encodeURIComponent(discipline)}`;
+      }
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.data && Array.isArray(result.data)) {
+          let tempRows = result.data.map((item) => {
+            const value = item.value || {};
+            return {
               dbId: value.dbId || "",
               Code: value.Code || "",
               Discipline: value.Discipline || "",
@@ -435,30 +450,30 @@ const BIM3605DDatabase = () => {
               Volume: value.Volume || "",
               Level: value.Level || "",
               Material: value.Material || "",
-              Unit: value.Unit || "",
-              Quantity: value.Quantity || "",
-              UnitPrice: value.UnitPrice || "",
-              TotalCost: value.TotalCost || "",
+              EnergyConsumption: value.EnergyConsumption || "",
+              CarbonFootprint: value.CarbonFootprint || "",
+              LifeCycleStage: value.LifeCycleStage || "",
+              LEEDCategory: value.LEEDCategory || "",
+              LEEDCredit: value.LEEDCredit || "",
             };
           });
-  
-            tempRows = reorderRowsByDisciplineAndGroup(tempRows);
-            setData(tempRows);
-            alert("Datos cargados exitosamente");
-  
-          } else {
-            alert("No se encontraron datos para este proyecto.");
-          }
+
+          tempRows = reorderRowsByDiscipline(tempRows);
+          setData(tempRows);
+          alert("Datos cargados exitosamente");
         } else {
-          const errorData = await response.json();
-          console.error("Error al obtener datos:", errorData.message);
-          alert(`Error al obtener datos: ${errorData.message}`);
+          alert("No se encontraron datos para este proyecto.");
         }
-      } catch (error) {
-        console.error("Error en la solicitud:", error);
-        alert(`Error en la solicitud: ${error.message}`);
+      } else {
+        const errorData = await response.json();
+        console.error("Error al obtener datos:", errorData.message);
+        alert(`Error al obtener datos: ${errorData.message}`);
       }
-    };
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+      alert(`Error en la solicitud: ${error.message}`);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -506,13 +521,6 @@ const BIM3605DDatabase = () => {
 
   const cleanprojectId = projectId.substring(2);
 
-  useEffect(() => {
-    localStorage.setItem(
-      "conversationHistory",
-      JSON.stringify(conversationHistory)
-    );
-  }, [conversationHistory]);
-
   const fetchAllData = async (projectId) => {
     let allData = [];
     let page = 1;
@@ -530,9 +538,7 @@ const BIM3605DDatabase = () => {
         );
 
         if (!response.ok) {
-          console.error(
-            `Error GET: ${response.status} ${response.statusText}`
-          );
+          console.error(`Error GET: ${response.status} ${response.statusText}`);
           throw new Error("Error fetching data");
         }
 
@@ -697,67 +703,6 @@ const BIM3605DDatabase = () => {
     }
   };
 
-  const handleGroupExtraDataChange = (group, field, value) => {
-    setGroupExtraData((prev) => ({
-      ...prev,
-      [group]: {
-        ...prev[group],
-        [field]: value,
-      },
-    }));
-    
-  };
-
-  const calculateGroupTotal = (group) => {
-    const extra = groupExtraData[group] || {};
-    const quantity = parseFloat(extra.Quantity) || 0;
-    const price = parseFloat(extra.UnitPrice) || 0;
-    const total = quantity * price;
-    return total ? total.toFixed(2) : "";
-  };
-
-  const nestedGroupData = useMemo(() => {
-    const grouped = {};
-    data.forEach((row) => {
-      const discipline = row.Discipline || "No Discipline";
-      const code = row.Code || "No Code";
-      if (!grouped[discipline]) grouped[discipline] = {};
-      if (!grouped[discipline][code]) grouped[discipline][code] = [];
-      grouped[discipline][code].push(row);
-    });
-    return grouped;
-  }, [data]);
-
-  useEffect(() => {
-    Object.entries(groupExtraData).forEach(([groupKey, extra]) => {
-      const unit = extra.Unit;
-      if (unit) {
-        const [discipline, code] = groupKey.split("||");
-        const rows =
-          (nestedGroupData[discipline] && nestedGroupData[discipline][code]) ||
-          [];
-        let total = 0;
-        if (unit === "m" || unit === "kg/m") {
-          total = rows.reduce((sum, r) => sum + (parseFloat(r.Length) || 0), 0);
-        } else if (unit === "m2") {
-          total = rows.reduce((sum, r) => sum + (parseFloat(r.Area) || 0), 0);
-        } else if (unit === "m3") {
-          total = rows.reduce((sum, r) => sum + (parseFloat(r.Volume) || 0), 0);
-        }
-        const newQuantity = total.toFixed(2);
-        if (newQuantity !== extra.Quantity) {
-          setGroupExtraData((prev) => ({
-            ...prev,
-            [groupKey]: {
-              ...prev[groupKey],
-              Quantity: newQuantity,
-            },
-          }));
-        }
-      }
-    });
-  }, [groupExtraData, nestedGroupData]);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".relative")) {
@@ -800,28 +745,24 @@ const BIM3605DDatabase = () => {
       {loading && <LoadingOverlay />}
 
       {/* Header */}
-      <BIM360PlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
+      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
 
       {/* Contenedor principal: ocupa todo el viewport menos el header */}
       <div
         className="flex flex-col mt-14"
         style={{
-          minHeight:
-            "calc(100vh - 3.5rem)" /* Ajusta si tu header no mide 56px */,
+          minHeight: "calc(100vh - 3.5rem)",
         }}
       >
         {/* Sidebar + contenido desplazable */}
         <div className="flex flex-1">
-          <BIM360SideBar />
+          <ACCSideBar />
 
           <div className="flex-1 p-4 bg-white overflow-auto">
             {/* Título */}
             <div className="mb-4">
               <h1 className="text-right text-xl text-black">
-                Model Database 5D
+                Model Database 6D
               </h1>
             </div>
             <hr className="my-4 border-t border-gray-300" />
@@ -860,9 +801,9 @@ const BIM3605DDatabase = () => {
               {/* Viewer */}
               <div
                 className={`
-                  transition-all duration-300 overflow-hidden bg-white shadow-lg rounded-lg p-4 mr-2
-                  ${viewerWidthClass}
-                `}
+                                                    transition-all duration-300 overflow-hidden bg-white shadow-lg rounded-lg p-4 mr-2
+                                                    ${viewerWidthClass}
+                                                  `}
               >
                 {showViewer && (
                   <>
@@ -883,14 +824,15 @@ const BIM3605DDatabase = () => {
               {/* Tabla */}
               <div
                 className={`
-                  transition-all duration-300 bg-white shadow-lg rounded-lg p-4 mr-2
-                  flex flex-col
-                  ${tableWidthClass}
-                `}
+                                                    transition-all duration-300 bg-white shadow-lg rounded-lg p-4 mr-2
+                                                    flex flex-col
+                                                    ${tableWidthClass}
+                                                  `}
               >
-                <Database5DTable
+                <Database6DTable
                   viewer={window.data5Dviewer}
                   data={data}
+                  groupedData={groupedData}
                   totalsByDiscipline={totalsByDiscipline}
                   grandTotals={grandTotals}
                   handleInputChange={handleInputChange}
@@ -906,18 +848,15 @@ const BIM3605DDatabase = () => {
                   setSelectedRows={setSelectedRows}
                   lastClickedRowNumber={lastClickedRowNumber}
                   setLastClickedRowNumber={setLastClickedRowNumber}
-                  groupExtraData={groupExtraData}
-                  handleGroupExtraDataChange={handleGroupExtraDataChange}
-                  calculateGroupTotal={calculateGroupTotal}
                 />
               </div>
 
               {/* AI Panel */}
               <div
                 className={`
-                  transition-all duration-300 overflow-hidden bg-white shadow-lg rounded-lg p-4 mr-2
-                  ${aiWidthClass}
-                `}
+                                                    transition-all duration-300 overflow-hidden bg-white shadow-lg rounded-lg p-4 mr-2
+                                                    ${aiWidthClass}
+                                                  `}
               >
                 {showAIpanel && (
                   <>
@@ -987,4 +926,4 @@ const BIM3605DDatabase = () => {
   );
 };
 
-export default BIM3605DDatabase;
+export default ACC6DDatabase;

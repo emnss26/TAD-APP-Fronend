@@ -16,6 +16,7 @@ import ACCRFIsPage from "./pages/acc/acc.rfis.page.jsx";
 import ACCSubmittalsPage from "./pages/acc/acc.submittals.page";
 import ACC4DDatabase from "./pages/acc/acc.database.4D";
 import ACC5DDatabase from "./pages/acc/acc.database.5D";
+import ACC6DDatabase from "./pages/acc/acc.database.6D";
 
 //BIM360 Pages
 import BIM360ProjectsPage from "./pages/bim360/bim360.projects.page.jsx";
@@ -25,6 +26,7 @@ import BIM360IssuesPage from "./pages/bim360/bim360.issues.page.jsx";
 import BIM360RFIsPage from "./pages/bim360/bim360.rfis.page.jsx";
 import BIM3604DDatabase from "./pages/bim360/bim360.database.4D";
 import BIM3605DDatabase from "./pages/bim360/bim360.database.5D";
+import BIM3606DDatabase from "./pages/bim360/bim360.database.6D";
 
 //Protected Route
 import ProtectedRoute from "./components/general_pages_components/protected.route";
@@ -71,6 +73,10 @@ function App() {
             path="/accprojects/:accountId/:projectId/acc5ddata"
             element={<ACC5DDatabase />}
           />
+          <Route
+            path="/accprojects/:accountId/:projectId/acc6ddata"
+            element={<ACC6DDatabase />}
+          />
 
           {/* BIM360 Pages */}
           <Route path="/bim360projects" element={<BIM360ProjectsPage />} />
@@ -98,6 +104,11 @@ function App() {
             path="/bim360projects/:accountId/:projectId/bim3605ddata"
             element={<BIM3605DDatabase />}
           />
+          <Route
+            path="/bim360projects/:accountId/:projectId/bim3606ddata"
+            element={<BIM3606DDatabase />}
+          />
+
 
           {/* 404 Not Found */}
         </Routes>

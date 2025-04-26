@@ -1245,6 +1245,13 @@ const Database5DTable = ({
     return sum.toFixed(2);
   }, [nestedGroupData, calculateGroupTotal]);
 
+  const sumTotalCost = useMemo(() => {
+    return data.reduce(
+      (sum, row) => sum + (parseFloat(row.TotalCost) || 0),
+      0
+    ).toFixed(2);
+  }, [data]);
+
   return (
     <Card className="w-full shadow-lg border-0 h-full flex flex-col">
       <CardHeader className="bg-slate-50 py-3 px-4 flex flex-row items-center justify-between">
@@ -1510,8 +1517,8 @@ const Database5DTable = ({
               <GrandTotalsRow
                 visibleColumns={visibleColumns}
                 grandTotals={grandTotals}
-                grandTotalsValue={getGrandTotalCost}
-                grandTotalsObj={{}}
+                grandTotalsValue={sumTotalCost}
+                
               />
             </Table>
           </div>

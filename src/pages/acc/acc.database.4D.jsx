@@ -192,7 +192,9 @@ const ACC4DDatabase = () => {
       };
 
       setData((prevData) => {
-        const existsDbId = prevData.some((r) => r.dbId === dbId);
+        const existsDbId = prevData.some(
+          (r) => String(r.dbId) === String(dbId)
+        );
         if (existsDbId) {
           alert("This element is already in the table");
           return prevData;
@@ -312,24 +314,16 @@ const ACC4DDatabase = () => {
   }, [data]);
 
   const handleViewerSelectionChanged = useCallback((dbIdArray) => {
-    //console.log("handleViewerSelectionChanged() → dbIdArray:", dbIdArray);
-    //console.log("data (just length):", dataRef.current.length);
-
-    // Imprimir los dbId actuales en la tabla
     const currentDbIdsInTable = dataRef.current.map((row) => Number(row.dbId));
-    //console.log("Current dbIds in table:", currentDbIdsInTable);
 
     const foundDbIds = dataRef.current
       .filter((row) => {
         const rowDbIdNum = Number(row.dbId);
         const matched = dbIdArray.includes(rowDbIdNum);
 
-        //console.log( "Comparando rowDbId=", row.dbId, "-> number:", rowDbIdNum, " / dbIdArray:", dbIdArray, " => matched?", matched );
         return matched;
       })
       .map((row) => row.dbId);
-
-    //console.log("foundDbIds:", foundDbIds);
 
     setSelectedRows(foundDbIds.length ? foundDbIds : []);
     setSelectionCount(dbIdArray.length);
@@ -338,11 +332,8 @@ const ACC4DDatabase = () => {
   useEffect(() => {
     if (!federatedModel || window.viewerInitialized) return;
 
-    //console.log("viwer", federatedModel);
-
     const conditionalSelectionHandler = (dbIdArray) => {
       if (!syncViewerSelectionRef.current) {
-        //console.log("Viewer selection changed pero sync está OFF → ignoramos");
         return;
       }
 
@@ -361,12 +352,10 @@ const ACC4DDatabase = () => {
   }, [federatedModel, handleViewerSelectionChanged]);
 
   useEffect(() => {
-    //console.log("syncViewerSelection cambió a →", syncViewerSelection);
     syncViewerSelectionRef.current = syncViewerSelection;
 
-    if (syncViewerSelection && data4Dviewer) {
-      //console.log( "Sincronización ACTIVADA: se llama getSelection() para forzar resaltado en tabla." );
-      const currentDbIds = data4Dviewer.getSelection() || [];
+    if (syncViewerSelection && window.data4Dviewer) {
+      const currentDbIds = window.data4Dviewer.getSelection() || [];
       handleViewerSelectionChanged(currentDbIds);
     }
   }, [syncViewerSelection, handleViewerSelectionChanged]);
@@ -423,7 +412,7 @@ const ACC4DDatabase = () => {
 
       if (response.ok) {
         alert("Data sent successfully");
-        await handlePullData();
+        //await handlePullData();
       } else {
         const errorData = await response.json();
         console.error("Error sending data:", errorData.message);
@@ -450,49 +439,54 @@ const ACC4DDatabase = () => {
 
       if (response.ok) {
         const result = await response.json();
-        if (result.data) {
-          let tempRows = result.data.map((item) => ({
-            dbId: item.dbId || "",
-            discipline: item.discipline || "",
-            elementType: item.elementType || "",
-            typeName: item.typeName || "",
-            description: item.description || "",
-            typeMark: item.typeMark || "",
-            length: item.length || "",
-            width: item.width || "",
-            height: item.height || "",
-            perimeter: item.perimeter || "",
-            area: item.area || "",
-            thickness: item.thickness || "",
-            volume: item.volume || "",
-            level: item.level || "",
-            material: item.material || "",
-            planedConstructionStartDate: item.plannedConstructionStartDate
-              ? item.plannedConstructionStartDate.substring(0, 10)
-              : "",
-            planedConstructionEndDate: item.plannedConstructionEndDate
-              ? item.plannedConstructionEndDate.substring(0, 10)
-              : "",
-            realConstructionStartDate: item.realConstructionStartDate
-              ? item.realConstructionStartDate.substring(0, 10)
-              : "",
-            realConstructionEndDate: item.realConstructionEndDate
-              ? item.realConstructionEndDate.substring(0, 10)
-              : "",
-          }));
+        if (result.data && Array.isArray(result.data)) {
+          let tempRows = result.data.map((item) => {
+            const value = item.value || {};
+            return {
+              dbId: value.dbId || "",
+              Discipline: value.Discipline || "",
+              ElementType: value.ElementType || "",
+              TypeName: value.TypeName || "",
+              Description: value.Description || "",
+              TypeMark: value.TypeMark || "",
+              Length: value.Length ?? "",
+              Width: value.Width ?? "",
+              Height: value.Height ?? "",
+              Perimeter: value.Perimeter ?? "",
+              Area: value.Area ?? "",
+              Thickness: value.Thickness ?? "",
+              Volume: value.Volume ?? "",
+              Level: value.Level || "",
+              Material: value.Material || "",
+              PlanedConstructionStartDate: value.PlanedConstructionStartDate
+                ? value.PlanedConstructionStartDate.substring(0, 10)
+                : "",
+              PlanedConstructionEndDate: value.PlanedConstructionEndDate
+                ? value.PlanedConstructionEndDate.substring(0, 10)
+                : "",
+              RealConstructionStartDate: value.RealConstructionStartDate
+                ? value.RealConstructionStartDate.substring(0, 10)
+                : "",
+              RealConstructionEndDate: value.RealConstructionEndDate
+                ? value.RealConstructionEndDate.substring(0, 10)
+                : "",
+            };
+          });
 
           tempRows = reorderRowsByDiscipline(tempRows);
           setData(tempRows);
           alert("Data successfully loaded");
 
-          if (data4Dviewer && typeof data4Dviewer.set4DData === "function") {
+          if (
+            window.data4Dviewer &&
+            typeof window.data4Dviewer.set4DData === "function"
+          ) {
             const fourDData = tempRows.map((item) => ({
               dbId: parseInt(item.dbId, 10),
               startDate: item.planedConstructionStartDate,
               endDate: item.planedConstructionEndDate,
             }));
             window.data4Dviewer.set4DData(fourDData);
-            //console.log("4D data from DB:", fourDData);
           }
         } else {
           alert("No data was found for this project.");

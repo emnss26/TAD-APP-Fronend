@@ -1,7 +1,11 @@
+
 export const isolateObjectsInViewer = (viewer, dbIds) => {
+  const ids = dbIds.map(id => Number(id));
+  console.log("viewer isoalte:", viewer);
+  console.log("dbIds isolate :", ids);
   if (viewer && dbIds.length > 0) {
-    viewer.isolate(dbIds);
-    viewer.fitToView(dbIds);
+    viewer.isolate(ids );
+    viewer.fitToView(ids );
   } else {
     console.error(
       "Viewer no inicializado o no se encontraron elementos a aislar."
@@ -10,25 +14,30 @@ export const isolateObjectsInViewer = (viewer, dbIds) => {
 };
 
 export const showAllObjects = (viewer) => {
+  console.log("viewer:", viewer);
   if (viewer) {
-    viewer.isolate(); // Al no pasar dbIds, se muestra todo
+    viewer.isolate(); 
   } else {
     console.error("Viewer no inicializado.");
   }
 };
 
 export const hideObjectsInViewer = (viewer, dbIds) => {
-  if (viewer && dbIds.length > 0) {
-    viewer.hide(dbIds);
+  const ids = dbIds.map(id => Number(id));
+  console.log("viewer:", viewer);
+  console.log("dbIds:", ids);
+  if (viewer && ids.length > 0) {
+    viewer.hide(ids);
   } else {
     console.error("Viewer no inicializado o no hay elementos para ocultar.");
   }
 };
 
 export const highlightObjectsInViewer = (viewer, dbIds) => {
-  if (viewer && dbIds.length > 0) {
+  const ids = dbIds.map(id => Number(id));
+  if (viewer && ids.length > 0) {
     viewer.clearSelection();
-    viewer.select(dbIds);
+    viewer.select(ids);
   } else {
     console.error("Viewer no inicializado o no hay elementos para resaltar.");
   }
@@ -55,6 +64,8 @@ export const applyFilterToViewer = async (
       );
       return;
     }
+
+    console.log("Data de elementos filtrados:", data.dbIds);
 
     switch (filterType) {
       case "isolate":
