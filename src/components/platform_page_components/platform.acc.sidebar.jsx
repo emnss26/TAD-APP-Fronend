@@ -117,13 +117,22 @@ const ACCSideBar = () => {
       </Link>
 
       {/* Database 6D Integration */}
-            <Link
-              to={`/accprojects/${accountId}/${projectId}/acc6ddata`}
-              className="mb-4 flex items-center text-[#6b7474] bg-transparent hover:text-[#2ea3e3] hover:bg-gray-50 p-2 rounded"
-            >
-              <FaTools size={10} />
-              {!isCollapsed && <span className="ml-2 text-xs">ACC 6D Data</span>}
-            </Link>
+      <Link
+        to={`/accprojects/${accountId}/${projectId}/acc6ddata`}
+        className="mb-4 flex items-center text-[#6b7474] bg-transparent hover:text-[#2ea3e3] hover:bg-gray-50 p-2 rounded"
+      >
+        <FaTools size={10} />
+        {!isCollapsed && <span className="ml-2 text-xs">ACC 6D Data</span>}
+      </Link>
+      
+      {/* Planos */}
+      <Link
+        to={`/accprojects/${accountId}/${projectId}/plans`}
+        className="mb-4 flex items-center text-[#6b7474] bg-transparent hover:text-[#2ea3e3] hover:bg-gray-50 p-2 rounded"
+      >
+        <FaTools size={10} />
+        {!isCollapsed && <span className="ml-2 text-xs">Plans</span>}
+      </Link>
     </div>
   );
 };

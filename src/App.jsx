@@ -17,6 +17,7 @@ import ACCSubmittalsPage from "./pages/acc/acc.submittals.page";
 import ACC4DDatabase from "./pages/acc/acc.database.4D";
 import ACC5DDatabase from "./pages/acc/acc.database.5D";
 import ACC6DDatabase from "./pages/acc/acc.database.6D";
+import ACCProjectPlansPage from "./pages/acc/acc.project.plans.jsx";
 
 //BIM360 Pages
 import BIM360ProjectsPage from "./pages/bim360/bim360.projects.page.jsx";
@@ -76,6 +77,10 @@ function App() {
           <Route
             path="/accprojects/:accountId/:projectId/acc6ddata"
             element={<ACC6DDatabase />}
+          />
+          <Route
+            path="/accprojects/:accountId/:projectId/plans"
+            element={<ACCProjectPlansPage />}
           />
 
           {/* BIM360 Pages */}
