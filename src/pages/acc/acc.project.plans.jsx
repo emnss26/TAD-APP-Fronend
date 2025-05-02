@@ -20,7 +20,7 @@ import ACCSideBar from "../../components/platform_page_components/platform.acc.s
 
 import RevisionPlansPieChart from "../../components/plans_components/plans.revision.chart";
 import DisciplinePlansPieChart from "../../components/plans_components/plans.discipline.chart";
-import { utils, writeFile } from "xlsx";
+import * as XLSX from "xlsx";
 
 import PlansTable from "../../components/plans_components/plans.table";
 
@@ -74,7 +74,6 @@ const ACCProjectPlansPage = () => {
       const result = await res.json();
       if (Array.isArray(result.data)) {
         const pulledPlans = result.data.map((item, idx) => {
-          // <-- aquí extraemos item.value
           const doc = item.value || item;
           return {
             id: doc._key || doc.Id || `plan-${Date.now()}-${idx}`,
@@ -82,7 +81,9 @@ const ACCProjectPlansPage = () => {
             SheetNumber: doc.SheetNumber || "",
             Discipline: doc.Discipline || "Unassigned",
             Revision: doc.Revision || "",
-            RevisionDate: doc.RevisionDate ? doc.RevisionDate.split("T")[0] : "",
+            RevisionDate: doc.RevisionDate
+              ? doc.RevisionDate.split("T")[0]
+              : "",
           };
         });
         setPlans(pulledPlans);
@@ -97,10 +98,6 @@ const ACCProjectPlansPage = () => {
       setLoading(false);
     }
   }, [accountId, projectId]);
-
-  console.log("Plans data:", plans);
-  console.log("Discipline counts:", disciplineCounts);
-  console.log("Revision counts:", revisionCounts);
 
   /* ---------- Initial Data Load ---------- */
   useEffect(() => {
@@ -119,10 +116,10 @@ const ACCProjectPlansPage = () => {
     const revisions = {};
     plans.forEach((plan) => {
       if (!plan.isPlaceholder) {
-        const discipline = plan.Discipline || "Unassigned";
-        disciplines[discipline] = (disciplines[discipline] || 0) + 1;
-        const rev = plan.Revision || "N/A";
-        revisions[rev] = (revisions[rev] || 0) + 1;
+        const d = plan.Discipline || "Unassigned";
+        disciplines[d] = (disciplines[d] || 0) + 1;
+        const r = plan.Revision || "N/A";
+        revisions[r] = (revisions[r] || 0) + 1;
       }
     });
 
@@ -135,9 +132,7 @@ const ACCProjectPlansPage = () => {
   }, [plans]);
 
   const filteredPlansForTable = useMemo(() => {
-    if (!selectedDiscipline || !Array.isArray(plans)) {
-      return plans ?? [];
-    }
+    if (!selectedDiscipline || !Array.isArray(plans)) return plans ?? [];
     return plans.filter(
       (plan) => (plan.Discipline || "Unassigned") === selectedDiscipline
     );
@@ -168,30 +163,28 @@ const ACCProjectPlansPage = () => {
         `${backendUrl}/plans/${accountId}/${projectId}/plans`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" /* Auth */ },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         }
       );
       if (response.ok) {
         alert("Plan data sent successfully!");
-        // fetchPlansData(); // Opcional: recargar
       } else {
         const errorData = await response
           .json()
           .catch(() => ({ message: `Request failed: ${response.status}` }));
-        const errorMessage =
+        const msg =
           errorData?.message ||
           response.statusText ||
           `HTTP error ${response.status}`;
-        setError(errorMessage);
-        alert(`Error sending data: ${errorMessage}`);
+        setError(msg);
+        alert(`Error sending data: ${msg}`);
       }
-    } catch (error) {
-      console.error("Submit error:", error);
-      const errorMessage =
-        error.message || "Unexpected error during submission.";
-      setError(errorMessage);
-      alert(`Request error: ${errorMessage}`);
+    } catch (err) {
+      console.error("Submit error:", err);
+      const msg = err.message || "Unexpected error during submission.";
+      setError(msg);
+      alert(`Request error: ${msg}`);
     } finally {
       setLoading(false);
     }
@@ -201,25 +194,18 @@ const ACCProjectPlansPage = () => {
     fetchPlansData();
   };
 
-  // Usar useCallback si la función se pasa como prop y causa re-renders innecesarios
-  const handleDisciplineClick = useCallback((disciplineDatum) => {
-    const disciplineId = disciplineDatum?.id;
-    if (disciplineId) {
-      setSelectedDiscipline((prev) =>
-        prev === disciplineId ? null : disciplineId
-      );
-    }
-  }, []); // Vacío si no depende de nada más del scope exterior que cambie
+  const handleDisciplineClick = useCallback((d) => {
+    setSelectedDiscipline((prev) => (prev === d.id ? null : d.id));
+  }, []);
 
   const resetChartFilter = () => {
     setSelectedDiscipline(null);
   };
 
-  // ======> DECLARACIÓN MOVIDA AQUÍ <======
-  /* ---------- Build Chart Slides ---------- */
+  /* ---------- Chart Slides ---------- */
   const chartSlides = useMemo(() => {
     const slides = [];
-    if (Array.isArray(disciplineCounts) && disciplineCounts.length > 0) {
+    if (disciplineCounts.length) {
       slides.push({
         title: "Plans by Discipline",
         Component: DisciplinePlansPieChart,
@@ -251,7 +237,7 @@ const ACCProjectPlansPage = () => {
         },
       });
     }
-    if (Array.isArray(revisionCounts) && revisionCounts.length > 0) {
+    if (revisionCounts.length) {
       slides.push({
         title: "Plans by Revision",
         Component: RevisionPlansPieChart,
@@ -265,14 +251,11 @@ const ACCProjectPlansPage = () => {
       });
     }
     return slides;
-  }, [disciplineCounts, revisionCounts, handleDisciplineClick]); // Dependencias correctas
+  }, [disciplineCounts, revisionCounts, handleDisciplineClick]);
 
-  // ======> FIN DE LA DECLARACIÓN MOVIDA <======
-
-  /* ---------- Slick settings (Ahora puede usar chartSlides) ---------- */
   const sliderSettings = {
     dots: true,
-    infinite: chartSlides?.length > 1, // Ahora esto funciona
+    infinite: chartSlides.length > 1,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -306,16 +289,67 @@ const ACCProjectPlansPage = () => {
     setSelectedRows([]);
   };
 
+  // ——— IMPORT / EXPORT EXCEL ———
+
   const exportToExcel = (data, filename = "export.xlsx") => {
-    const ws = utils.json_to_sheet(data);
-    const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, "Plans");
-    writeFile(wb, filename);
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Plans");
+    XLSX.writeFile(wb, filename);
   };
 
   const handleExportPlans = () => {
     exportToExcel(plans, `project-${projectId}-plans.xlsx`);
   };
+
+  const handleImportPlans = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = evt.target.result;
+      const workbook = XLSX.read(data, { type: "binary" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+      const imported = rows.map((row, idx) => {
+        // 1) Revision: forzamos string para que "0" no sea falsy
+        const rev =
+          row.Revision !== null && row.Revision !== undefined
+            ? String(row.Revision)
+            : "";
+
+        // 2) Fecha: detectamos "DD/MM/YYYY" y la convertimos a "YYYY-MM-DD"
+        let revDate = row.RevisionDate;
+        if (
+          typeof revDate === "string" &&
+          /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(revDate)
+        ) {
+          const [d, m, y] = revDate.split("/");
+          revDate = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+        } else if (revDate instanceof Date) {
+          revDate = revDate.toISOString().split("T")[0];
+        } else {
+          revDate = "";
+        }
+
+        return {
+          id: String(row.id ?? row.Id ?? `import-${Date.now()}-${idx}`),
+          SheetName: row.SheetName,
+          SheetNumber: row.SheetNumber,
+          Discipline: row.Discipline,
+          Revision: rev,
+          RevisionDate: revDate,
+        };
+      });
+
+      setPlans(imported);
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = null;
+  }, []);
 
   /* ---------- Render ---------- */
   return (
@@ -351,24 +385,32 @@ const ACCProjectPlansPage = () => {
             >
               Reset Chart Filter
             </button>
-
             <button
               onClick={handleExportPlans}
               className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
             >
               Export Plans List
-              </button>
+            </button>
+            <label className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2 cursor-pointer">
+              Importar Excel
+              <input
+                type="file"
+                accept=".xlsx, .xls"
+                onChange={handleImportPlans}
+                className="hidden"
+              />
+            </label>
           </div>
 
-          {/* ────── Carousel (Lista de filtros) ────── */}
           <div className="flex h-[700px]">
             <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
               <h2 className="text-xl font-bold mt-4 p-6">Plans Data Charts</h2>
               <hr className="border-gray-300 mb-1 text-xs" />
-              <Slider 
-              key={chartSlides.length}
-              {...sliderSettings} 
-              className="h-full">
+              <Slider
+                key={chartSlides.length}
+                {...sliderSettings}
+                className="h-full"
+              >
                 {chartSlides.map((slide, index) => (
                   <div
                     key={slide.title + index}
@@ -378,15 +420,13 @@ const ACCProjectPlansPage = () => {
                       {slide.title}
                     </h3>
                     <div className="flex-1 relative">
-                      {" "}
-                      <slide.Component {...slide.props} />{" "}
+                      <slide.Component {...slide.props} />
                     </div>
                   </div>
                 ))}
               </Slider>
             </section>
 
-            {/* Tabla (3/4) */}
             <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto h-[700px]">
               <PlansTable
                 plans={plans}
