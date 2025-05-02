@@ -4,7 +4,7 @@ import Home_Image from "/Home_Image.png";
 
 const AboutPage = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-[#fbfcfb]">
+    <div className="flex flex-col min-h-screen bg-[#ffffff]">
       {/*Header*/}
       <Header />
 

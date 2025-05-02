@@ -103,8 +103,6 @@ const columnGroups = {
   ],
   dimensions: [
     "rowNumber",
-    "dbId",
-    "ElementType",
     "TypeName",
     "Length",
     "Width",
@@ -116,7 +114,6 @@ const columnGroups = {
   ],
   description: [
     "rowNumber",
-    "dbId",
     "ElementType",
     "TypeName",
     "Description",
@@ -125,7 +122,6 @@ const columnGroups = {
   ],
   cost: [
     "rowNumber",
-    "dbId",
     "ElementType",
     "TypeName",
     "Unit",
@@ -177,56 +173,24 @@ const TableControls = React.memo(function TableControls({
   handleLastPage,
 }) {
   return (
-    <div className="space-y-2 bg-slate-50 p-4 border-b">
-      <Tabs
-        value={activeSection}
-        onValueChange={handleChangeSection}
-        className="w-full"
-      >
-        <TabsList className="grid grid-cols-4 w-full bg-[#2ea3e3]">
-          <TabsTrigger
-            value="general"
-            className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
-            General
-          </TabsTrigger>
-          <TabsTrigger
-            value="dimensions"
-            className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
-            Dimensions
-          </TabsTrigger>
-          <TabsTrigger
-            value="description"
-            className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
-            Description
-          </TabsTrigger>
-          <TabsTrigger
-            value="cost"
-            className="text-black data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
-            Cost
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
+    <div className="space-y-2 bg-white p-4 border-b">
       <div className="flex flex-wrap gap-2 justify-between">
+        {/* Izquierda */}
         <div className="flex flex-wrap items-center gap-2">
-          <Button
+          {/* <Button
             variant="outline"
             size="sm"
             onClick={handleToggleSort}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 bg-gray-200 text-black shadow-sm hover:bg-[#2ea3e3] hover:text-white"
           >
             <ArrowUpDown className="h-4 w-4" />
             {sortDisciplinesAsc ? "Restore Order" : "Sort A→Z"}
-          </Button>
+          </Button> */}
           <Button
             variant="outline"
             size="sm"
             onClick={handleExpandAll}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 bg-gray-200 text-black shadow-sm hover:bg-[#2ea3e3] hover:text-white"
           >
             <ChevronDown className="h-4 w-4" />
             Expand All
@@ -235,12 +199,60 @@ const TableControls = React.memo(function TableControls({
             variant="outline"
             size="sm"
             onClick={handleCollapseAll}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 bg-gray-200 text-black shadow-sm hover:bg-[#2ea3e3] hover:text-white"
           >
             <ChevronRight className="h-4 w-4" />
             Collapse All
           </Button>
         </div>
+
+        {/* Centro */}
+        <div className="flex items-rigth justify-center gap-2">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleFirstPage}
+              disabled={page <= 1}
+            >
+              <ChevronFirst className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handlePrevPage}
+              disabled={page <= 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-xs px-2">
+              Page <span className="font-medium">{page}</span> of{" "}
+              <span className="font-medium">{totalPages}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleNextPage}
+              disabled={page >= totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleLastPage}
+              disabled={page >= totalPages}
+            >
+              <ChevronLast className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Derecha */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative flex items-center">
             <Input
@@ -272,102 +284,42 @@ const TableControls = React.memo(function TableControls({
             />
             <Filter className="h-3 w-3 absolute right-2 text-muted-foreground" />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8">
-                <SlidersHorizontal className="h-3 w-3 mr-1" />
-                <span className="text-xs">Options</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <div className="p-2">
-                <div className="text-xs font-medium mb-1">Row hover color:</div>
-                <Select
-                  value={hoverColor}
-                  onValueChange={(val) => setHoverColor(val)}
-                >
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Hover color" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bg-slate-50">Slate 50</SelectItem>
-                    <SelectItem value="bg-slate-200">Slate 200</SelectItem>
-                    <SelectItem value="bg-red-50">Red 50</SelectItem>
-                    <SelectItem value="bg-green-50">Green 50</SelectItem>
-                    <SelectItem value="bg-yellow-50">Yellow 50</SelectItem>
-                    <SelectItem value="bg-blue-50">Blue 50</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleScrollUp}
-            title="Scroll up"
+      {/* Tabs principales */}
+      <Tabs
+        value={activeSection}
+        onValueChange={handleChangeSection}
+        className="w-full"
+      >
+        <TabsList className="grid grid-cols-4 w-full bg-gray-100">
+          <TabsTrigger
+            value="general"
+            className="bg-gray-100 text-black shadow-sm data-[state=active]:bg-[#2ea3e3] data-[state=active]:text-white"
           >
-            <ChevronUp className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleScrollDown}
-            title="Scroll down"
+            General
+          </TabsTrigger>
+          <TabsTrigger
+            value="dimensions"
+            className="bg-gray-100 text-black shadow-sm data-[state=active]:bg-[#2ea3e3] data-[state=active]:text-white"
           >
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleFirstPage}
-            disabled={page <= 1}
+            Dimensions
+          </TabsTrigger>
+          <TabsTrigger
+            value="description"
+            className="bg-gray-100 text-black shadow-sm data-[state=active]:bg-[#2ea3e3] data-[state=active]:text-white"
           >
-            <ChevronFirst className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handlePrevPage}
-            disabled={page <= 1}
+            Description
+          </TabsTrigger>
+          <TabsTrigger
+            value="cost"
+            className="bg-gray-100 text-black shadow-sm data-[state=active]:bg-[#2ea3e3] data-[state=active]:text-white"
           >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <div className="text-xs px-2">
-            Page <span className="font-medium">{page}</span> of{" "}
-            <span className="font-medium">{totalPages}</span>
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleNextPage}
-            disabled={page >= totalPages}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleLastPage}
-            disabled={page >= totalPages}
-          >
-            <ChevronLast className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+            Cost
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     </div>
   );
 });
@@ -392,7 +344,7 @@ const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
   };
 
   return (
-    <TableRow className="uppercase bg-slate-50 text-black transition-colors hover:bg-[#2ea3e3] hover:text-white">
+    <TableRow className="uppercase bg-gray-100 text-black font-bold transition-colors hover:bg-[#2ea3e3] hover:text-white">
       <TableCell colSpan={visibleColsCount}>
         <div className="flex items-center">
           <button
@@ -423,7 +375,7 @@ const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
                   variant="outline"
                   size="sm"
                   onClick={isolateDiscipline}
-                  className="bg-slate-50 text-black"
+                  className="bg-gray-100 text-black"
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   <Eye className="h-4 w-4" />
@@ -441,7 +393,7 @@ const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
                   variant="outline"
                   size="sm"
                   onClick={hideDiscipline}
-                  className="bg-slate-50 text-black"
+                  className="bg-gray-100 text-black"
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   <EyeOff className="h-4 w-4" />
@@ -665,7 +617,7 @@ const CodeHeaderRow = React.memo(function CodeHeaderRow({
   visibleColumns,
 }) {
   return (
-    <TableRow className="uppercase bg-slate-50 text-black transition-colors hover:bg-[#2ea3e3] hover:text-white">
+    <TableRow className="uppercase bg-gray-100 text-black transition-colors hover:bg-[#2ea3e3] hover:text-white">
       <TableCell
         colSpan={visibleColumns.length}
         className="px-4 py-2 font-bold"
@@ -1246,16 +1198,15 @@ const Database5DTable = ({
   }, [nestedGroupData, calculateGroupTotal]);
 
   const sumTotalCost = useMemo(() => {
-    return data.reduce(
-      (sum, row) => sum + (parseFloat(row.TotalCost) || 0),
-      0
-    ).toFixed(2);
+    return data
+      .reduce((sum, row) => sum + (parseFloat(row.TotalCost) || 0), 0)
+      .toFixed(2);
   }, [data]);
 
   return (
     <Card className="w-full shadow-lg border-0 h-full flex flex-col">
-      <CardHeader className="bg-slate-50 py-3 px-4 flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-bold">5D Model Data Table</CardTitle>
+      <CardHeader className="bg-white py-3 px-4 flex flex-row items-center justify-between">
+        <CardTitle className="text-lg font-bold">Model Data Table</CardTitle>
         <div className="text-sm text-muted-foreground">
           {filteredData.length} elements •{" "}
           {hasCodeGrouping
@@ -1313,7 +1264,7 @@ const Database5DTable = ({
             style={{ maxHeight: "100%" }}
           >
             <Table>
-              <TableHeader className="bg-slate-50">
+              <TableHeader className="bg-gray-100">
                 <TableRow className="min-h-[48px]">
                   {visibleColumns.map((col) => (
                     <TableHead
@@ -1322,10 +1273,7 @@ const Database5DTable = ({
                     >
                       {col === "rowNumber"
                         ? "ROW #"
-                        : col
-                            .replace(/([A-Z])/g, " $1")
-                            .trim()
-                            .toUpperCase()}
+                        : col.replace(/([A-Z])/g, " $1").trim()}
                     </TableHead>
                   ))}
                   <TableHead className="text-right font-bold">
@@ -1518,7 +1466,6 @@ const Database5DTable = ({
                 visibleColumns={visibleColumns}
                 grandTotals={grandTotals}
                 grandTotalsValue={sumTotalCost}
-                
               />
             </Table>
           </div>

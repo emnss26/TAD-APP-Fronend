@@ -70,9 +70,9 @@ const PlatformHeader = () => {
   };
 
   return (
-    <header className="bg-[#3c3c3c] h-[65px] text-white w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md">
+    <header className="app-header h-[65px] w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md">
       {/* Branding (izquierda) */}
-      <div className="text-md">
+      <div className="nav-link text-md">
         <Link to="/">TAD | Taller de Arquitectura Digital</Link>
       </div>
 
@@ -80,13 +80,13 @@ const PlatformHeader = () => {
       <div className="flex items-center gap-6" ref={containerRef}>
         {/* Navegación */}
         <nav className="flex items-center space-x-6">
-          <Link to="/" className="hover:text-gray-300 transition">
+          <Link to="/" className="nav-link">
             Home
           </Link>
-          <Link to="/about" className="hover:text-gray-300 transition">
+          <Link to="/about" className="nav-link">
             About
           </Link>
-          <Link to="/services" className="hover:text-gray-300 transition">
+          <Link to="/services" className="nav-link">
             Services
           </Link>
         </nav>
@@ -103,11 +103,11 @@ const PlatformHeader = () => {
                 <FaUser className="h-5 w-5" />
               </button>
               {dropdownOpen && (
-                <div className="absolute top-10 right-0 mt-2 bg-black border border-gray-600 rounded-md shadow-lg w-48 z-50 text-white">
+                <div className="absolute top-10 right-0 mt-2 bg-[#f6f6f6] border border-gray-600 rounded-md shadow-lg w-48 z-50 text-black">
                   <ul className="flex flex-col">
                     <li>
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-800"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-[#2ea3e3] hover:text-white"
                         onClick={handleGoPlatform}
                       >
                         Select Platform
@@ -115,7 +115,7 @@ const PlatformHeader = () => {
                     </li>
                     <li>
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-800"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-[#2ea3e3] hover:text-white"
                         onClick={handleGoAuth}
                       >
                         Signin Page
@@ -123,7 +123,7 @@ const PlatformHeader = () => {
                     </li>
                     <li>
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-800"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-[#2ea3e3] hover:text-white"
                         onClick={handleLogout}
                       >
                         Logout

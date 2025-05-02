@@ -110,7 +110,7 @@ export default function SubmittalsTable({ submittals = [] }) {
 
   return (
     <Card className="w-full bg-white">
-      <CardHeader className="bg-slate-50 pb-2">
+      <CardHeader className="bg-gray-50 pb-2">
         <div className="flex justify-between items-center gap-4">
           <CardTitle className="text-xl font-bold">Submittals List</CardTitle>
           <div className="relative flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function SubmittalsTable({ submittals = [] }) {
               }}
             />
             <Button
-              className="bg-[#2ea3e3] text-white"
+              className="bg-[#e2e2e2] text-black hover:bg-[#2ea3e3] hover:text-white transition-colors shadow-sm"
               onClick={() => {
                 setSearchTerm("");
                 setSortField(null);
@@ -139,7 +139,7 @@ export default function SubmittalsTable({ submittals = [] }) {
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-[#f6f6f6]">
+            <TableHeader className="bg-[#ffffff]">
               <TableRow>
                 {[
                   "identifier",

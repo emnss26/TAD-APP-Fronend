@@ -150,9 +150,9 @@ export default function UsersTable({ users = [] }) {
 
   return (
     <Card className="w-full bg-white">
-      <CardHeader className="bg-slate-50 pb-2">
+      <CardHeader className="bg-gray-50 pb-2">
         <div className="flex flex-col md:flex-row justify-between gap-4">
-          <CardTitle className="text-xl font-bold">Users List</CardTitle>
+          <CardTitle className="text-xl font-bold">Users Table</CardTitle>
           <div className="flex items-center gap-2 w-full md:w-auto">
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2 top-2 h-4 w-4 text-gray-500" />
@@ -167,7 +167,7 @@ export default function UsersTable({ users = [] }) {
               />
             </div>
             <Button
-              className="bg-[#2ea3e3] text-white"
+              className="bg-[#e2e2e2] text-black hover:bg-[#2ea3e3] hover:text-white transition-colors shadow-sm"
               onClick={() => {
                 setSearchTerm("");
                 setSortField("name");
@@ -284,7 +284,7 @@ export default function UsersTable({ users = [] }) {
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-[#f6f6f6]">
+            <TableHeader className="bg-white">
               <TableRow>
                 <TableHead
                   className="p-2 cursor-pointer text-black"

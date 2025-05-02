@@ -7,7 +7,7 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#fbfcfb]">
+    <div className="flex flex-col min-h-screen bg-[#ffffff]">
       {/*Header*/}
       <Header />
 
@@ -31,7 +31,7 @@ const HomePage = () => {
             improve your projects, helped with AI and automation workflows.
           </p>
           <button
-            className="bg-[#2ea3e3] text-white font-medium px-6 py-3 rounded-md shadow hover:bg-slate-200 hover:text-black transition-colors"
+            className="btn-primary font-medium px-6 py-3 rounded-md shadow transition-colors"
             onClick={() => navigate("/login")}
           >
             Get Started

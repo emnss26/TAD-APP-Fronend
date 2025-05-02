@@ -35,31 +35,34 @@ export const ProjectsDropdownMenu = ({
   }, []);
 
   return (
-    <div className={`relative inline-block ${className}`} ref={dropdownRef}>
+    <div className={`relative inline-block ${className} w-[600px]`} ref={dropdownRef}>
       {/* Botón principal con flecha */}
       <button
         className="
-          bg-gray-700
-          text-white
+          bg-gray-100
+          text-black
           px-3
           py-2
           rounded
-          hover:bg-gray-600
+          shadow-sm
+          hover:bg-[#2ea3e3]
+          hover:text-white
           focus:outline-none
           flex
           items-center
           text-xs
+          w-[350px]
         "
         onClick={handleToggle}
       >
-        <span className="mr-1">{label}</span>
-        <FaChevronDown className="text-sm" />
+        <span className="mr-4">{label}</span>
+        <FaChevronDown className="text-sm ml-auto" />
       </button>
 
       {/* Listado de opciones */}
       {open && (
-        <div className="absolute mt-2 bg-black border border-gray-600 rounded-md shadow-lg min-w-[250px] z-50">
-          <ul className="flex flex-col text-white">
+        <div className="absolute mt-2 bg-[#ffffff] text-white border border-gray-600 rounded-md shadow-lg min-w-[200px] z-50">
+          <ul className="flex flex-col text-black">
             {options.map((option, index) => (
               <li key={index}>
                 <button
@@ -72,7 +75,8 @@ export const ProjectsDropdownMenu = ({
                     px-4
                     py-2
                     text-xs
-                    hover:bg-gray-800
+                    hover:bg-[#2ea3e3]
+                    hover:text-white
                     whitespace-normal
                     break-words
                   "

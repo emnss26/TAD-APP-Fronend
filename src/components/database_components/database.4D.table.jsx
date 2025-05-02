@@ -94,8 +94,6 @@ const columnGroups = {
   general: ["rowNumber", "dbId", "Discipline", "ElementType", "TypeName"],
   dimensions: [
     "rowNumber",
-    "dbId",
-    "ElementType",
     "TypeName",
     "Length",
     "Width",
@@ -107,7 +105,6 @@ const columnGroups = {
   ],
   description: [
     "rowNumber",
-    "dbId",
     "ElementType",
     "TypeName",
     "Description",
@@ -116,8 +113,6 @@ const columnGroups = {
   ],
   schedule: [
     "rowNumber",
-    "dbId",
-    "ElementType",
     "TypeName",
     "PlanedConstructionStartDate",
     "PlanedConstructionEndDate",
@@ -150,7 +145,7 @@ const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
   hideDiscipline,
 }) {
   return (
-    <TableRow className="uppercase bg-slate-50 text-black transition-colors hover:bg-[#2ea3e3] hover:text-white">
+    <TableRow className="uppercase bg-gray-100 text-black font-bold transition-colors hover:bg-[#2ea3e3] hover:text-white">
       <TableCell colSpan={visibleColsCount}>
         <div className="flex items-center">
           <button
@@ -182,7 +177,7 @@ const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
                   variant="outline"
                   size="sm"
                   onClick={isolateDiscipline}
-                  className="bg-slate-50 text-black"
+                  className="bg-gray-100 text-black"
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   <Eye className="h-4 w-4" />
@@ -201,7 +196,7 @@ const DisciplineHeaderRow = React.memo(function DisciplineHeaderRow({
                   variant="outline"
                   size="sm"
                   onClick={hideDiscipline}
-                  className="bg-slate-50 text-black"
+                  className="bg-gray-100 text-black"
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   <EyeOff className="h-4 w-4" />
@@ -444,7 +439,7 @@ const PartialTotalsRow = React.memo(function PartialTotalsRow({
     }
   }, []);
   return (
-    <TableRow className={"text-black bg-slate-50"}>
+    <TableRow className={"text-sm text-black font-bold bg-gray-100"}>
       {visibleColumns.map((col, idx) => {
         if (idx === 0) {
           return (
@@ -524,58 +519,24 @@ const TableControls = React.memo(function TableControls({
   handleLastPage,
 }) {
   return (
-    <div className="space-y-2 bg-slate-50 p-4 border-b">
-      {/* Tabs principales */}
-      <Tabs
-        value={activeSection}
-        onValueChange={handleChangeSection}
-        className="w-full"
-      >
-        <TabsList className="grid grid-cols-4 w-full bg-[#2ea3e3]">
-          <TabsTrigger
-            value="general"
-            className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
-            General
-          </TabsTrigger>
-          <TabsTrigger
-            value="dimensions"
-            className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
-            Dimensions
-          </TabsTrigger>
-          <TabsTrigger
-            value="description"
-            className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
-            Description
-          </TabsTrigger>
-          <TabsTrigger
-            value="schedule"
-            className="text-white data-[state=active]:bg-[#3D464A] data-[state=active]:text-white"
-          >
-            Schedule
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
+    <div className="space-y-2 bg-white p-4 border-b">
       <div className="flex flex-wrap gap-2 justify-between">
         {/* Izquierda */}
         <div className="flex flex-wrap items-center gap-2">
-          <Button
+          {/* <Button
             variant="outline"
             size="sm"
             onClick={handleToggleSort}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 bg-gray-200 text-black shadow-sm hover:bg-[#2ea3e3] hover:text-white"
           >
             <ArrowUpDown className="h-4 w-4" />
             {sortDisciplinesAsc ? "Restore Order" : "Sort A→Z"}
-          </Button>
+          </Button> */}
           <Button
             variant="outline"
             size="sm"
             onClick={handleExpandAll}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 bg-gray-200 text-black shadow-sm hover:bg-[#2ea3e3] hover:text-white"
           >
             <ChevronDown className="h-4 w-4" />
             Expand All
@@ -584,100 +545,16 @@ const TableControls = React.memo(function TableControls({
             variant="outline"
             size="sm"
             onClick={handleCollapseAll}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 bg-gray-200 text-black shadow-sm hover:bg-[#2ea3e3] hover:text-white"
           >
             <ChevronRight className="h-4 w-4" />
             Collapse All
           </Button>
         </div>
 
-        {/* Derecha */}
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative flex items-center">
-            <Input
-              type="text"
-              placeholder="Search dbId..."
-              value={searchDbId}
-              onChange={(e) => setSearchDbId(e.target.value)}
-              className="w-28 h-8 text-xs pr-8"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleDbIdSearch();
-              }}
-            />
-            <Button
-              size="sm"
-              variant="ghost"
-              className="absolute right-0 h-8 w-8 p-0"
-              onClick={handleDbIdSearch}
-            >
-              <Search className="h-3 w-3" />
-            </Button>
-          </div>
-          <div className="relative flex items-center">
-            <Input
-              type="text"
-              placeholder="Filter TypeName / Desc..."
-              value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
-              className="w-44 h-8 text-xs pr-8"
-            />
-            <Filter className="h-3 w-3 absolute right-2 text-muted-foreground" />
-          </div>
-          {/* Dropdown Options: permite seleccionar el color de hover para las filas */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8">
-                <SlidersHorizontal className="h-3 w-3 mr-1" />
-                <span className="text-xs">Options</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <div className="p-2">
-                <div className="text-xs font-medium mb-1">Row hover color:</div>
-                <Select
-                  value={hoverColor}
-                  onValueChange={(val) => setHoverColor(val)}
-                >
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Hover color" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bg-slate-50">Slate 50</SelectItem>
-                    <SelectItem value="bg-slate-200">Slate 200</SelectItem>
-                    <SelectItem value="bg-red-50">Red 50</SelectItem>
-                    <SelectItem value="bg-green-50">Green 50</SelectItem>
-                    <SelectItem value="bg-yellow-50">Yellow 50</SelectItem>
-                    <SelectItem value="bg-blue-50">Blue 50</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
-      {/* Paginación y scroll */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleScrollUp}
-            title="Scroll up"
-          >
-            <ChevronUp className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleScrollDown}
-            title="Scroll down"
-          >
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </div>
+          {/* Centro */}
+      <div className="flex items-rigth justify-center gap-2">
+        
         <div className="flex items-center gap-1">
           <Button
             variant="outline"
@@ -721,6 +598,76 @@ const TableControls = React.memo(function TableControls({
           </Button>
         </div>
       </div>
+
+        {/* Derecha */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative flex items-center">
+            <Input
+              type="text"
+              placeholder="Search dbId..."
+              value={searchDbId}
+              onChange={(e) => setSearchDbId(e.target.value)}
+              className="w-28 h-8 text-xs pr-8"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleDbIdSearch();
+              }}
+            />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="absolute right-0 h-8 w-8 p-0"
+              onClick={handleDbIdSearch}
+            >
+              <Search className="h-3 w-3" />
+            </Button>
+          </div>
+          <div className="relative flex items-center">
+            <Input
+              type="text"
+              placeholder="Filter TypeName / Desc..."
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              className="w-44 h-8 text-xs pr-8"
+            />
+            <Filter className="h-3 w-3 absolute right-2 text-muted-foreground" />
+          </div>
+          
+        </div>
+      </div>
+
+      {/* Tabs principales */}
+      <Tabs
+        value={activeSection}
+        onValueChange={handleChangeSection}
+        className="w-full"
+      >
+        <TabsList className="grid grid-cols-4 w-full bg-gray-100">
+          <TabsTrigger
+            value="general"
+            className="bg-gray-100 text-black shadow-sm data-[state=active]:bg-[#2ea3e3] data-[state=active]:text-white"
+          >
+            General
+          </TabsTrigger>
+          <TabsTrigger
+            value="dimensions"
+            className="bg-gray-100 text-black shadow-sm data-[state=active]:bg-[#2ea3e3] data-[state=active]:text-white"
+          >
+            Dimensions
+          </TabsTrigger>
+          <TabsTrigger
+            value="description"
+            className="bg-gray-100 text-black shadow-sm data-[state=active]:bg-[#2ea3e3] data-[state=active]:text-white"
+          >
+            Description
+          </TabsTrigger>
+          <TabsTrigger
+            value="schedule"
+            className="bg-gray-100 text-black shadow-sm data-[state=active]:bg-[#2ea3e3] data-[state=active]:text-white"
+          >
+            Schedule
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     </div>
   );
 });
@@ -982,7 +929,7 @@ function Database4DTable({
 
   return (
     <Card className="w-full shadow-lg border-0 h-full flex flex-col">
-      <CardHeader className="bg-slate-50 py-3 px-4 flex flex-row items-center justify-between">
+      <CardHeader className="bg-white py-3 px-4 flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-bold">Model Data Table</CardTitle>
         <div className="text-sm text-muted-foreground">
           {filteredData.length} elements • {Object.keys(groupedData).length}{" "}
@@ -1031,23 +978,23 @@ function Database4DTable({
             style={{ maxHeight: "100%" }}
           >
             <Table>
-              <TableHeader className="bg-slate-50 sticky top-0 z-10">
-                <TableRow className="min-h-[48px]">
+              <TableHeader className="text-sm bg-gray-100 sticky top-0 z-10">
+                <TableRow className="text-sm min-h-[48px]">
                   {visibleColumns.map((col) => (
                     <TableHead
                       key={col}
-                      className="whitespace-normal font-bold"
+                      className="text-sm whitespace-normal font-bold"
                     >
                       {col === "rowNumber"
-                        ? "ROW #"
+                        ? "Row #"
                         : col
                             .replace(/([A-Z])/g, " $1")
                             .trim()
-                            .toUpperCase()}
+                            }
                     </TableHead>
                   ))}
                   <TableHead className="text-right font-bold">
-                    ACTIONS
+                    Actions
                   </TableHead>
                 </TableRow>
               </TableHeader>

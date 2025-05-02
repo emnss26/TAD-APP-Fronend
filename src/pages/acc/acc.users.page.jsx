@@ -8,6 +8,8 @@ import { Footer } from "../../components/general_pages_components/general.pages.
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
 import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
 
+import { utils, writeFile } from "xlsx";
+
 import {
   fetchACCProjectData,
   fechACCProjectUsers,
@@ -161,11 +163,45 @@ const ACCProjectUsersPage = () => {
       .finally(() => setLoading(false));
   }, [projectId, cookies, accountId]);
 
+  const exportToExcel = (data, filename = "export.xlsx") => {
+    // Sólo estos campos
+    const fields = [
+      "email",
+      "name",
+      "firstName",
+      "lastName",
+      "country",
+      "jobTitle",
+      "companyName",
+      "status",
+    ];
+
+    const payload = data.map((user) => {
+      const row = {};
+      fields.forEach((f) => {
+        row[f] = user[f] ?? "";
+      });
+      return row;
+    });
+
+    const ws = utils.json_to_sheet(payload, { header: fields });
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, "Users");
+    writeFile(wb, filename);
+  };
+
+  const handleExportUsers = () => {
+    exportToExcel(filteredUsers, `project-${projectId}-users.xlsx`);
+  };
+
   return (
     <>
       {loading && <LoadingOverlay />}
       {/* Navigation Bar */}
-      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
+      <ACCPlatformprojectsHeader 
+      accountId={accountId} 
+      projectId={projectId} 
+      />
 
       <div className="flex min-h-screen mt-14">
         {/* Sidebar */}
@@ -174,7 +210,7 @@ const ACCProjectUsersPage = () => {
         {/* Main Content */}
         <div className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl text-black mt-2">
-            Project Users Report
+            PROJECT USERS REPORT
           </h1>
 
           <hr className="my-4 border-t border-gray-300" />
@@ -182,7 +218,7 @@ const ACCProjectUsersPage = () => {
           <div className="flex flex-wrap -mx-4 mt-4">
             {/* First block: total users */}
             <div className="w-full md:w-1/5 px-4 mb-4 h-[450px]">
-              <div className="h-64 w-full bg-gray-200 rounded shadow flex flex-col items-center justify-center h-[450px]">
+              <div className="h-64 w-full bg-gray-50 rounded shadow flex flex-col items-center justify-center h-[450px]">
                 <h3 className="text-lg">Total Users</h3>
                 <p className="text-7xl text-black">{totalUsers}</p>
               </div>
@@ -215,21 +251,21 @@ const ACCProjectUsersPage = () => {
 
           <div className="w-full mt-4">
             <div className="flex justify-end space-x-2">
-              {/* <button
-              onClick={exportToExcel}
-              className="bg-[#2ea3e3] text-white text-xs py-2 px-4 rounded mb-4 hover:bg-[#aedb01] text-black"
-            >
-              Export to Excel
-            </button> */}
+              <button
+                onClick={handleExportUsers}
+                className="btn-primary text-xs font-bold py-2 px-4 rounded mb-4 "
+              >
+                Export Users to Excel
+              </button>
               <button
                 onClick={resetFilters}
-                className="bg-[#2ea3e3] text-white text-xs py-2 px-4 rounded mb-4 hover:bg-[#aedb01] text-black"
+                className="btn-primary text-xs font-bold py-2 px-4 rounded mb-4 "
               >
-                Reset Filters
+                Reset Chart Filters
               </button>
             </div>
 
-            <h3 className="text-left text-lg mb-2">User Schedule</h3>
+            
             <hr className="my-2 border-t border-gray-300" />
 
             <UsersTable users={filteredUsers} />

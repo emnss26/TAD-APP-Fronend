@@ -74,7 +74,7 @@ const BIM360ProjectPlansPage = () => {
       const result = await res.json();
       if (Array.isArray(result.data)) {
         const pulledPlans = result.data.map((item, idx) => {
-          // <-- aquí extraemos item.value
+          
           const doc = item.value || item;
           return {
             id: doc._key || doc.Id || `plan-${Date.now()}-${idx}`,

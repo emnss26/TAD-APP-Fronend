@@ -11,12 +11,12 @@
 /* Ajustes para elevar los dots del slider */
 .chart-with-dots {
   position: relative;
-  padding-bottom: 3rem; /* deja espacio para los dots */
+  padding-bottom: 2rem; /* deja espacio para los dots */
 }
 
 .chart-with-dots .slick-dots {
   position: absolute;
-  bottom: 0.5rem;       /* qué tan cerca del fondo del chart */
+  bottom: 2.0rem;       /* qué tan cerca del fondo del chart */
   left: 50%;
   transform: translateX(-50%);
 }
@@ -167,4 +167,40 @@
 }
 .selectTypeCategoryIcon .adsk-button-icon::after {
   content: "T";  
+}
+
+@layer components {
+  /* Header y Sidebar homogéneos */
+  .app-header{
+    @apply bg-[#ffffff] text-black;
+  }
+
+  .app-sidebar {
+    @apply bg-[#f6f6f6] text-black;
+  }
+
+  /* Botón primario */
+  .btn-primary {
+    @apply bg-[#e2e2e2] text-black;
+  }
+  .btn-primary:hover {
+    @apply bg-[#2ea3e3] text-white font-bold;
+  }
+
+  /* Si tuvieras botones secundarios u otros, sigue el mismo patrón */
+  .btn-secondary {
+    @apply bg-[#2980b9] text-white;
+  }
+  .btn-secondary:hover {
+    @apply bg-[#e67e22];
+  }
+
+  .nav-link {
+    @apply text-black transition-colors;
+  }
+
+  .nav-link:hover {
+    @apply text-[#2ea3e3];      /* utiliza el azul #2ea3e3 */
+  }
+
 }

@@ -28,6 +28,14 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 const badgeVariants = {
   open: { variant: "default", icon: <AlertCircle className="h-3 w-3 mr-1" /> },
   "in review": {
@@ -65,6 +73,7 @@ export default function RFITable({ rfis = [], onViewDetails }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
+  const [statusFilter, setStatusFilter] = useState("all");
   const itemsPerPage = 10;
 
   const handleSort = (field) => {
@@ -88,17 +97,11 @@ export default function RFITable({ rfis = [], onViewDetails }) {
           rfi.assignedTo.toLowerCase().includes(q)
       );
     }
-    if (sortField) {
-      list.sort((a, b) => {
-        const aVal = (a[sortField] || "").toString();
-        const bVal = (b[sortField] || "").toString();
-        return sortDirection === "asc"
-          ? aVal.localeCompare(bVal)
-          : bVal.localeCompare(aVal);
-      });
+    if (statusFilter !== "all") {
+      list = list.filter((rfi) => rfi.status.toLowerCase() === statusFilter);
     }
     return list;
-  }, [rfis, searchTerm, sortField, sortDirection]);
+  }, [rfis, searchTerm, statusFilter]);
 
   const current = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -118,7 +121,8 @@ export default function RFITable({ rfis = [], onViewDetails }) {
 
   return (
     <Card className="w-full bg-white">
-      <CardHeader className="bg-slate-50 pb-2">
+      {/* header */}
+      <CardHeader className="bg-gray-50 pb-2">
         <div className="flex justify-between items-center gap-4">
           <CardTitle className="text-xl font-bold">RFI List</CardTitle>
           <div className="flex items-center gap-2">
@@ -134,8 +138,29 @@ export default function RFITable({ rfis = [], onViewDetails }) {
                 }}
               />
             </div>
+
+            {/* Nuevo dropdown de estado */}
+            <Select
+              value={statusFilter}
+              onValueChange={(v) => {
+                setStatusFilter(v);
+                setCurrentPage(1);
+              }}
+              className="w-[150px]"
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="open">Open</SelectItem>
+                <SelectItem value="answered">Answered</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Button
-              className="bg-[#2ea3e3] text-white"
+              className="bg-[#e2e2e2] text-black hover:bg-[#2ea3e3] hover:text-white transition-colors shadow-sm"
               onClick={() => {
                 setSearchTerm("");
                 setSortField(null);
@@ -146,10 +171,11 @@ export default function RFITable({ rfis = [], onViewDetails }) {
           </div>
         </div>
       </CardHeader>
+
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-[#f6f6f6]">
+            <TableHeader className="bg-[#ffffff]">
               <TableRow>
                 {[
                   "customIdentifier",

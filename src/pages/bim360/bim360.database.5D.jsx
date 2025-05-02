@@ -417,7 +417,7 @@ const BIM3605DDatabase = () => {
           const result = await response.json();
           if (result.data && Array.isArray(result.data)) {
             let tempRows = result.data.map((item) => {
-              const value = item.value || {};
+              const value = item || {};
               return {
               dbId: value.dbId || "",
               Code: value.Code || "",

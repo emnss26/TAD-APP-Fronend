@@ -128,9 +128,9 @@ export const fetchACCProjectRFI = async (projectId, token, accountId) => {
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
-    const { data } = await response.json();
+    const { data, error, message } = await response.json();
 
-    console.log("ACC Project RFI:", data.rfis);
+    console.log("ACC Project RFI:", data);
 
     return data;
   } catch (error) {

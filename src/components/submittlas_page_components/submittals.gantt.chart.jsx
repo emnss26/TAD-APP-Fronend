@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
   format,
@@ -29,7 +27,7 @@ import { Input } from "../ui/input";
 import { Search, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Acrónimos de meses en inglés
+// Meses abreviados
 const MONTH_ACRONYMS = {
   "01": "JAN",
   "02": "FEB",
@@ -45,18 +43,18 @@ const MONTH_ACRONYMS = {
   12: "DEC",
 };
 
-export function IssuesGanttChart({ issues }) {
+export function SubmittalsGanttChart({ submittals }) {
   const [today] = useState(new Date());
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [totalDays, setTotalDays] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredIssues, setFilteredIssues] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [filteredSubmittals, setFilteredSubmittals] = useState([]);
   const timelineRef = useRef(null);
   const namesColumnRef = useRef(null);
 
-  // Manejo de scroll sincronizado
+  // Scroll sincronizado
   const handleNamesScroll = (e) => {
     if (timelineRef.current) {
       timelineRef.current.scrollTop = e.currentTarget.scrollTop;
@@ -68,146 +66,111 @@ export function IssuesGanttChart({ issues }) {
     }
   };
 
-  // Filtrado de issues: sólo abiertos + búsqueda + filtro de estado (si se usa)
-  // useEffect(() => {
-  //   let result = issues.filter((i) => i.status === "open");
-
-  //   if (searchTerm) {
-  //     const term = searchTerm.toLowerCase();
-  //     result = result.filter(
-  //       (i) =>
-  //         i.title.toLowerCase().includes(term) ||
-  //         i.assignedTo.toLowerCase().includes(term)
-  //     );
-  //   }
-  //   if (statusFilter !== "all") {
-  //     result = result.filter((i) => i.status === statusFilter);
-  //   }
-  //   setFilteredIssues(result);
-  // }, [issues, searchTerm, statusFilter]);
-  
+  // Filtrado: búsqueda + estado
   useEffect(() => {
-   
-    let result = [...issues];
+    let list = [...submittals];
 
     if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(
-        (i) =>
-          i.title.toLowerCase().includes(term) ||
-          i.assignedTo.toLowerCase().includes(term)
+      const q = searchTerm.toLowerCase();
+      list = list.filter(
+        (s) =>
+          s.title.toLowerCase().includes(q) ||
+          s.specDetails?.title.toLowerCase().includes(q) ||
+          s.stateId.toLowerCase().includes(q) ||
+          s.assignedTo?.toLowerCase().includes(q)
       );
     }
-  
     if (statusFilter !== "all") {
-      result = result.filter((i) => i.status === statusFilter);
+      list = list.filter(
+        (s) => s.stateId.toLowerCase() === statusFilter
+      );
     }
-  
-    setFilteredIssues(result);
-  }, [issues, searchTerm, statusFilter]);
 
-  // Agrupar por usuario
-  const issuesByUser = useMemo(() => {
+    setFilteredSubmittals(list);
+  }, [submittals, searchTerm, statusFilter]);
+
+  // Agrupar por assignedTo
+  const subsByUser = useMemo(() => {
     const grp = {};
-    filteredIssues.forEach((i) => {
-      if (!grp[i.assignedTo]) grp[i.assignedTo] = [];
-      grp[i.assignedTo].push(i);
+    filteredSubmittals.forEach((s) => {
+      const user = s.assignedTo || "Sin asignar";
+      if (!grp[user]) grp[user] = [];
+      grp[user].push(s);
     });
     return grp;
-  }, [filteredIssues]);
+  }, [filteredSubmittals]);
 
-  // Calcular rango fechas
+  // Calcular rango de fechas
   useEffect(() => {
-    if (!filteredIssues.length) return;
-    let minDate = null,
-      maxDate = null;
+    if (!filteredSubmittals.length) return;
+    let minD = null,
+      maxD = null;
 
-    filteredIssues.forEach((i) => {
-      const created = parseISO(i.createdAt);
-      const due = i.dueDate ? parseISO(i.dueDate) : null;
-      if (!minDate || created < minDate) minDate = created;
-      if (due) {
-        if (!maxDate || due > maxDate) maxDate = due;
-        if (i.status === "open" && isAfter(today, due) && today > maxDate) {
-          maxDate = today;
-        }
+    filteredSubmittals.forEach((s) => {
+      const created = parseISO(s.createdAt);
+      const published = s.publishedAt ? parseISO(s.publishedAt) : null;
+      const end = published || today;
+
+      if (!minD || created < minD) minD = created;
+      if (!maxD || end > maxD) maxD = end;
+
+      // Si aún no publicado y se pasó de hoy
+      if (!published && isAfter(today, end)) {
+        maxD = today;
       }
     });
 
-    if (minDate && maxDate) {
-      const start = startOfMonth(minDate);
-      start.setDate(start.getDate() - 2);
-      const end = endOfMonth(maxDate);
-      end.setDate(end.getDate() + 2);
-      setStartDate(start);
-      setEndDate(end);
-      setTotalDays(differenceInDays(end, start) + 1);
+    if (minD && maxD) {
+      const s = startOfMonth(minD);
+      s.setDate(s.getDate() - 2);
+      const e = endOfMonth(maxD);
+      e.setDate(e.getDate() + 2);
+      setStartDate(s);
+      setEndDate(e);
+      setTotalDays(differenceInDays(e, s) + 1);
     }
-  }, [filteredIssues, today]);
+  }, [filteredSubmittals, today]);
 
-  // Años para encabezado
+  // Años en encabezado
   const years = useMemo(() => {
     if (!startDate || !endDate) return [];
-    const setYears = new Set(),
-      cursor = new Date(startDate);
+    const setY = new Set(), cursor = new Date(startDate);
     while (cursor <= endDate) {
-      setYears.add(format(cursor, "yyyy"));
+      setY.add(format(cursor, "yyyy"));
       cursor.setMonth(cursor.getMonth() + 1);
     }
-    return Array.from(setYears).map((year) => {
-      const y = +year;
-      const yearStart =
-        new Date(y, 0, 1) < startDate ? startDate : new Date(y, 0, 1);
-      const yearEnd =
-        new Date(y, 11, 31) > endDate ? endDate : new Date(y, 11, 31);
+    return Array.from(setY).map((y) => {
+      const num = +y;
+      const ys = new Date(num, 0, 1) < startDate ? startDate : new Date(num, 0, 1);
+      const ye = new Date(num, 11, 31) > endDate ? endDate : new Date(num, 11, 31);
       return {
-        year,
-        startDay: differenceInDays(yearStart, startDate),
-        width: differenceInDays(yearEnd, yearStart) + 1,
+        year: y,
+        startDay: differenceInDays(ys, startDate),
+        width: differenceInDays(ye, ys) + 1,
       };
     });
   }, [startDate, endDate]);
 
-  // Meses para encabezado
+  // Meses en encabezado
   const monthMarkers = useMemo(() => {
     if (!startDate || !endDate) return [];
-    return eachMonthOfInterval({ start: startDate, end: endDate }).map(
-      (date) => ({
-        month: MONTH_ACRONYMS[format(date, "MM")],
-        date,
-      })
-    );
+    return eachMonthOfInterval({ start: startDate, end: endDate }).map((d) => ({
+      month: MONTH_ACRONYMS[format(d, "MM")],
+      date: d,
+    }));
   }, [startDate, endDate]);
 
-  // Estado legible y color de badge
-  const getIssueStatus = (st) =>
-    ({
-      closed: "Closed",
-      in_review: "In review",
-      in_progress: "In progress",
-      pending: "Pending",
-    }[st] || "Open");
-  const getStatusColor = (st) =>
-    ({
-      closed: "bg-green-500",
-      in_review: "bg-purple-500",
-      in_progress: "bg-blue-500",
-      pending: "bg-yellow-500",
-    }[st] || "bg-gray-500");
-
   // Posición y ancho de barra
-  const calculateBarPosition = (issue) => {
+  const calculateBar = (s) => {
     if (!startDate) return { left: 0, width: 0, overdue: 0 };
-    const created = parseISO(issue.createdAt);
-    const due = issue.dueDate ? parseISO(issue.dueDate) : today;
-    const overdueDays =
-      issue.status === "open" && issue.dueDate && isAfter(today, due)
-        ? differenceInDays(today, due)
-        : 0;
-    const startOffset = Math.max(0, differenceInDays(created, startDate));
-    const duration = differenceInDays(due, created);
+    const created = parseISO(s.createdAt);
+    const published = s.publishedAt ? parseISO(s.publishedAt) : null;
+    const end = published || today;
+    const overdueDays = !published && isAfter(today, end) ? differenceInDays(today, end) : 0;
+    const offset = Math.max(0, differenceInDays(created, startDate));
+    const duration = differenceInDays(end, created);
     return {
-      left: (startOffset / totalDays) * 100,
+      left: (offset / totalDays) * 100,
       width: (duration / totalDays) * 100,
       overdue: (overdueDays / totalDays) * 100,
     };
@@ -216,7 +179,7 @@ export function IssuesGanttChart({ issues }) {
   if (!startDate) {
     return (
       <div className="flex justify-center items-center h-64">
-        Loading...
+        Cargando Gantt de Submittals...
       </div>
     );
   }
@@ -233,7 +196,7 @@ export function IssuesGanttChart({ issues }) {
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search Issue..."
+              placeholder="Buscar Submittals..."
               className="pl-8 w-[200px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -244,18 +207,18 @@ export function IssuesGanttChart({ issues }) {
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="open">Open</SelectItem>
-              <SelectItem value="in_progress">In progress</SelectItem>
-              <SelectItem value="in_review">In Revision</SelectItem>
-              <SelectItem value="pending">To be reviewed</SelectItem>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="waiting for submission">Waiting</SelectItem>
+              <SelectItem value="in review">In Review</SelectItem>
+              <SelectItem value="submitted">Submitted</SelectItem>
+              <SelectItem value="reviewed">Reviewed</SelectItem>
               <SelectItem value="closed">Closed</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {/* Encabezado años y meses */}
+      {/* Años / Meses */}
       <div className="flex">
         <div className="w-1/4 min-w-[250px]" />
         <div className="flex-1 min-w-[750px]">
@@ -268,9 +231,7 @@ export function IssuesGanttChart({ issues }) {
                   left: `${(y.startDay / totalDays) * 100}%`,
                   width: `${(y.width / totalDays) * 100}%`,
                 }}
-              >
-                {y.year}
-              </div>
+              >{y.year}</div>
             ))}
           </div>
           <div className="h-8 flex">
@@ -278,16 +239,15 @@ export function IssuesGanttChart({ issues }) {
               <div
                 key={i}
                 className="h-full flex-1 flex items-center justify-center text-sm font-medium text-gray-600 border-l border-gray-200 first:border-l-0"
-              >
-                {m.month}
-              </div>
+              >{m.month}</div>
             ))}
           </div>
         </div>
       </div>
 
+      {/* Gantt */}
       <div className="flex">
-        {/* Columna de nombres */}
+        {/* Nombres */}
         <div
           ref={namesColumnRef}
           onScroll={handleNamesScroll}
@@ -295,52 +255,42 @@ export function IssuesGanttChart({ issues }) {
           style={{ position: "sticky", left: 0 }}
         >
           <div className="space-y-6">
-            {Object.entries(issuesByUser).map(([user, items]) => (
+            {Object.entries(subsByUser).map(([user, list]) => (
               <div key={user} className="mb-4">
-                <div className="font-bold text-lg mb-2 text-gray-800">
-                  {user}
-                </div>
+                <div className="font-bold text-lg text-gray-800 mb-2">{user}</div>
                 <div className="space-y-4">
-                  {items.map((issue) => (
-                    <div key={issue.id} className="h-12 flex items-center">
+                  {list.map((s) => (
+                    <div key={s.id} className="h-12 flex items-center">
                       <div className="flex-1">
                         <div className="text-xs font-medium text-gray-800">
-                          {issue.title}
+                          {s.title}
                         </div>
                         <div className="flex flex-wrap gap-2 mt-1">
-                          <Badge
-                            className={cn(
-                              "text-[10px] px-1.5 py-0.5",
-                              getStatusColor(issue.status)
-                            )}
-                          >
-                            {getIssueStatus(issue.status)}
+                          <Badge className={cn("text-[10px] px-1.5 py-0.5", {
+                            "bg-yellow-500": s.stateId === "Waiting for submission",
+                            "bg-blue-500": s.stateId === "In review",
+                            "bg-green-500": s.stateId === "Submitted",
+                            "bg-purple-500": s.stateId === "Reviewed",
+                            "bg-gray-500": s.stateId === "Closed",
+                          })}>
+                            {s.stateId}
                           </Badge>
-                          {issue.customAttributes?.map((attr) => (
-                            <Badge
-                              key={attr.attributeDefinitionId}
-                              variant="outline"
-                              className="text-[10px] px-1.5 py-0.5"
-                            >
-                              {attr.readableValue}
+                          {s.specDetails?.title && (
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0.5">
+                              {s.specDetails.title}
                             </Badge>
-                          ))}
+                          )}
                         </div>
                       </div>
                     </div>
                   ))}
-                  {items.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      No issues founded.
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Línea de tiempo */}
+        {/* Cronograma */}
         <div
           ref={timelineRef}
           onScroll={handleTimelineScroll}
@@ -352,11 +302,9 @@ export function IssuesGanttChart({ issues }) {
               <div
                 className="absolute top-0 bottom-0 border-l-2 border-rose-500 z-10"
                 style={{
-                  left: `${
-                    (differenceInDays(today, startDate) / totalDays) * 100
-                  }%`,
-                  height: `${Object.entries(issuesByUser).reduce(
-                    (sum, [, arr]) => sum + arr.length * 36 + 40,
+                  left: `${(differenceInDays(today, startDate) / totalDays) * 100}%`,
+                  height: `${Object.values(subsByUser).reduce(
+                    (sum, arr) => sum + arr.length * 36 + 40,
                     0
                   )}px`,
                 }}
@@ -367,21 +315,19 @@ export function IssuesGanttChart({ issues }) {
               </div>
             </div>
 
-            {/* Barras del diagrama */}
+            {/* Barras */}
             <div className="space-y-6">
-              {Object.entries(issuesByUser).map(([user, items]) => (
+              {Object.entries(subsByUser).map(([user, list]) => (
                 <div key={user} className="mb-4">
                   <div className="h-8 mb-2" />
                   <div className="space-y-4">
-                    {items.map((issue) => {
-                      const { left, width, overdue } =
-                        calculateBarPosition(issue);
-                      const created = parseISO(issue.createdAt);
-                      const due = issue.dueDate
-                        ? parseISO(issue.dueDate)
-                        : null;
+                    {list.map((s) => {
+                      const { left, width, overdue } = calculateBar(s);
+                      const created = parseISO(s.createdAt);
+                      const published = s.publishedAt ? parseISO(s.publishedAt) : null;
+
                       return (
-                        <div key={issue.id} className="h-12 relative">
+                        <div key={s.id} className="h-12 relative">
                           <div
                             className="absolute bottom-full mb-1 text-xs text-gray-500"
                             style={{ left: `${left}%` }}
@@ -403,12 +349,9 @@ export function IssuesGanttChart({ issues }) {
                                   <div
                                     className="bg-gradient-to-r from-[#2ea3e3] to-[#1a7bb9] rounded-l-full shadow-sm"
                                     style={{
-                                      width:
-                                        overdue > 0
-                                          ? `${
-                                              (width / (width + overdue)) * 100
-                                            }%`
-                                          : "100%",
+                                      width: overdue > 0
+                                        ? `${(width / (width + overdue)) * 100}%`
+                                        : "100%",
                                       height: "8px",
                                     }}
                                   />
@@ -416,9 +359,7 @@ export function IssuesGanttChart({ issues }) {
                                     <div
                                       className="bg-gradient-to-r from-[#a90b83] to-black rounded-r-full shadow-sm"
                                       style={{
-                                        width: `${
-                                          (overdue / (width + overdue)) * 100
-                                        }%`,
+                                        width: `${(overdue / (width + overdue)) * 100}%`,
                                         height: "8px",
                                       }}
                                     />
@@ -427,33 +368,22 @@ export function IssuesGanttChart({ issues }) {
                               </TooltipTrigger>
                               <TooltipContent>
                                 <div className="text-sm">
-                                  <p>
-                                    <strong>Issue:</strong> {issue.title}
-                                  </p>
-                                  <p>
-                                    <strong>Created At:</strong>{" "}
-                                    {format(created, "dd/MM/yyyy")}
-                                  </p>
-                                  {due && (
-                                    <p>
-                                      <strong>Due Date:</strong>{" "}
-                                      {format(due, "dd/MM/yyyy")}
-                                    </p>
+                                  <p><strong>Submittal:</strong> {s.title}</p>
+                                  <p><strong>Creado:</strong> {format(created, "dd/MM/yyyy")}</p>
+                                  {published && (
+                                    <p><strong>Publicado:</strong> {format(published, "dd/MM/yyyy")}</p>
                                   )}
                                 </div>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
 
-                          {due && (
+                          {published && (
                             <div
                               className="absolute text-xs text-gray-500"
-                              style={{
-                                top: "24px",
-                                left: `${left + width}%`,
-                              }}
+                              style={{ top: "24px", left: `${left + width}%` }}
                             >
-                              {format(due, "d MMM", { locale: es })}
+                              {format(published, "d MMM", { locale: es })}
                             </div>
                           )}
                         </div>

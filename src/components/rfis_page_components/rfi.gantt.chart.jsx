@@ -20,6 +20,16 @@ import {
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 
+import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Search, Calendar } from "lucide-react";
+
 // Acrónimos de meses en inglés
 const MONTH_ACRONYMS = {
   "01": "JAN",
@@ -43,12 +53,31 @@ export function RFIsGanttChart({ rfis }) {
   const [totalDays, setTotalDays] = useState(0);
   const timelineRef = useRef(null);
   const namesColumnRef = useRef(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // Sólo RFIs abiertas
-  const filteredRFIs = useMemo(
-    () => rfis.filter((r) => r.status === "open"),
-    [rfis]
-  );
+  const filteredRFIs = useMemo(() => {
+    let list = [...rfis];
+
+    // 1) Filtrar por texto
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      list = list.filter(
+        (r) =>
+          r.title.toLowerCase().includes(q) ||
+          r.customIdentifier?.toLowerCase().includes(q) ||
+          r.assignedTo?.toLowerCase().includes(q)
+      );
+    }
+
+    // 2) Filtrar por estado
+    if (statusFilter !== "all") {
+      list = list.filter((r) => r.status.toLowerCase() === statusFilter);
+    }
+
+    return list;
+  }, [rfis, searchTerm, statusFilter]);
 
   // Scroll sincronizado
   const handleNamesScroll = (e) => {
@@ -153,6 +182,41 @@ export function RFIsGanttChart({ rfis }) {
 
   return (
     <div className="space-y-4">
+      {/* Controles */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <div className="bg-gradient-to-r from-[#2ea3e3] to-[#1a7bb9] text-white px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm">
+          <Calendar className="h-4 w-4" />
+          <span>{format(today, "d MMM yyyy", { locale: es })}</span>
+        </div>
+        <div className="flex items-center space-x-2 ml-auto">
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search RFI..."
+              className="pl-8 w-[200px]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          {/* Filtro de estado */}
+          <Select
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            className="w-[150px]"
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="open">Open</SelectItem>
+              <SelectItem value="answered">Answered</SelectItem>
+              <SelectItem value="closed">Closed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       {/* Años/Meses */}
       <div className="flex">
         <div className="w-1/4 min-w-[200px]" />

@@ -14,6 +14,7 @@ import ACCSideBar from "../../components/platform_page_components/platform.acc.s
 import submittalsSpecChart from "../../components/submittlas_page_components/submittals.spec.chart";
 import submittalsStatusChart from "../../components/submittlas_page_components/submttals.status.chart";
 import SubmittalsTable from "../../components/submittlas_page_components/submittals.table";
+import { SubmittalsGanttChart } from "../../components/submittlas_page_components/submittals.gantt.chart";
 
 import { fetchACCProjectSubmittals } from "../../pages/services/acc.services";
 
@@ -196,14 +197,14 @@ const ACCSubmittalsPage = () => {
       {/*Header*/}
       <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
 
-      <div className="flex h-screen mt-14">
+      <div className="flex min-h-screen mt-14">
         {/* Sidebar */}
         <ACCSideBar />
 
         {/* Main Content */}
         <div className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl text-black mt-2">
-            Submittals Report
+            PROJECT SUBMITTALS REPORT
           </h1>
           <hr className="my-4 border-t border-gray-300" />
 
@@ -211,7 +212,7 @@ const ACCSubmittalsPage = () => {
           <div className="mb-4 text-right">
             <button
               onClick={resetFilters}
-              className="bg-[#2ea3e3] text-white text-xs py-2 px-4 rounded mb-4 mx-2 hover:bg-[#aedb01] text-black"
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
             >
               Reset Table Filters
             </button>
@@ -219,13 +220,13 @@ const ACCSubmittalsPage = () => {
 
           {/* Layout Condicional */}
 
-          <div className="flex flex-1 p-2 px-4 bg-white h-[650px]">
+          <div className="flex max-h-[700px]">
             {/* Slider (1/4) */}
-            <div className="w-1/4 bg-gray-50 gap-4 mb-4 rounded-lg shadow-md mr-4">
+            <div className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
               <Slider {...sliderSettings}>
                 {dataContainers.map((container, index) => (
-                  <div key={index} className="p-4 h-[650px]">
-                    <h2 className="text-lg text-black mb-4">
+                  <div key={index} className="p-4 h-[600px]">
+                    <h2 className="text-xl font-bold mt-4 p-6">
                       {container.title}
                     </h2>
                     <hr className="border-gray-300 mb-1 text-xs" />
@@ -236,11 +237,11 @@ const ACCSubmittalsPage = () => {
                     />
 
                     <div
-                      className="text-xs mt-3 pb-3 overflow-y-auto"
+                      className="text-xs mt-1 h-40 overflow-y-auto"
                       style={{ maxHeight: "450px" }}
                     >
                       <h3 className="font-semibold mb-3">Totals:</h3>
-                      <hr className="border-gray-300 mb-3" />
+                      <hr className="border-gray-300 mb-1 text-xs" />
                       {Object.entries(container.content).map(([key, val]) => (
                         <p key={key}>{`${key}: ${val}`}</p>
                       ))}
@@ -251,15 +252,24 @@ const ACCSubmittalsPage = () => {
             </div>
 
             {/* Tabla (3/4) */}
-            <div className="w-3/4 bg-white gap-4 mb-4 p-4 rounded-lg shadow-md overflow-y-auto max-h-[650px]">
+            <div className="w-3/4 bg-white gap-4 mb-4 p-4 rounded-lg shadow-md overflow-y-auto h-[700px]">
               <SubmittalsTable
                 submittals={displayedSubmittals}
                 onViewDetails={(id) => handleFilterClick(id)()}
               />
             </div>
+
+            
           </div>
+
+          {/* ────── Diagrama de Gantt ────── */}
+          <div className="mt-14 px-4 mb-8">
+              <h2 className="text-xl font-semibold mb-2">Gantt Submittals</h2>
+              <SubmittalsGanttChart submittals={displayedSubmittals} />
+            </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

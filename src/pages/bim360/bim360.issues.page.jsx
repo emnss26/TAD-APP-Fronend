@@ -62,20 +62,6 @@ const BIM360IssuesPage = () => {
       .finally(() => setLoading(false));
   }, [projectId, accountId, cookies.access_token]);
 
-  /* ---------- Load Issues ---------- */
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const { issues: raw } = await fechBIM360ProjectIssues(
-        projectId,
-        cookies.access_token,
-        accountId
-      );
-      setIssues(raw);
-      setLoading(false);
-    })();
-  }, [projectId, accountId, cookies.access_token]);
-
   /* ---------- Derive counts & charts data ---------- */
   const { chartsData, customTitles } = useMemo(() => {
     if (!issues.length) return { chartsData: null, customTitles: [] };
@@ -170,13 +156,13 @@ const BIM360IssuesPage = () => {
         <BIM360SideBar />
 
         <main className="flex-1 p-2 px-4 bg-white">
-          <h1 className="text-right text-xl mt-2">Issues Report</h1>
+          <h1 className="text-right text-xl mt-2">PROJECT ISSUES REPORT</h1>
           <hr className="my-4 border-t border-gray-300" />
 
           <div className="mb-4 text-right">
             <button
               onClick={resetFilters}
-              className="bg-[#2ea3e3] text-white text-xs py-2 px-4 rounded mx-2 hover:bg-[#aedb01] text-black"
+              className="btn-primary text-xs font-bold py-2 px-4 rounded mb-4"
             >
               Reset Table Filters
             </button>
@@ -184,7 +170,7 @@ const BIM360IssuesPage = () => {
 
           {/* ────── Carousel (Lista de filtros) ────── */}
           <div className="flex max-h-[775px]">
-            <section className="w-1/4 bg-white mr-4 rounded-lg shadow-md chart-with-dots">
+            <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
               <Slider {...slider}>
                 {dataContainers.map((c) => (
                   <div
@@ -192,11 +178,14 @@ const BIM360IssuesPage = () => {
                     className="text-xl font-bold mt-4 p-6"
                   >
                     <h2 className="text-lg mb-2">{c.title}</h2>
+                    <hr className="border-gray-300 mb-1 text-xs" />
                     <DonutChartGeneric
                       counts={c.data}
                       onSliceClick={(v) => handleFilterClick(c.filterKey, v)}
                     />
                     <div className="text-xs mt-3 h-40 overflow-y-auto">
+                    <h3 className="font-semibold mb-1">Totals:</h3>
+                    <hr className="border-gray-300 mb-1 text-xs" />
                       {Object.entries(c.data).map(([k, v]) => (
                         <p key={k}>{`${k}: ${v}`}</p>
                       ))}

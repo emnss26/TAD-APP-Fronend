@@ -123,9 +123,9 @@ const ACCPlatformprojectsHeader = ({ accountId, projectId }) => {
   };
 
   return (
-    <header className="bg-[#3c3c3c] h-[65px] text-white w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md">
+    <header className="app-header h-[65px] w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md">
       {/* Branding (izquierda) */}
-      <div className="flex items-center gap-6 text-md">
+      <div className="nav-link flex items-center gap-6 text-md">
         {/* Principal Text */}
         <Link to="/">TAD | Taller de Arquitectura Digital</Link>
 
@@ -148,13 +148,13 @@ const ACCPlatformprojectsHeader = ({ accountId, projectId }) => {
       <div className="flex items-center gap-6" ref={containerRef}>
         {/* Navegación */}
         <nav className="flex items-center space-x-6">
-          <Link to="/" className="hover:text-gray-300 transition">
+          <Link to="/" className="nav-link">
             Home
           </Link>
-          <Link to="/about" className="hover:text-gray-300 transition">
+          <Link to="/about" className="nav-link">
             About
           </Link>
-          <Link to="/services" className="hover:text-gray-300 transition">
+          <Link to="/services" className="nav-link">
             Services
           </Link>
         </nav>

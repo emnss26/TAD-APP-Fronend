@@ -174,19 +174,24 @@ const ACCRFIPage = () => {
     <>
       {loading && <LoadingOverlay />}
 
-      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
-
+      <ACCPlatformprojectsHeader 
+      accountId={accountId} 
+      projectId={projectId} 
+      />
       <div className="flex min-h-screen mt-14">
         <ACCSideBar />
+
         <main className="flex-1 p-2 px-4 bg-white">
-          <h1 className="text-right text-xl mt-2">RFI Report</h1>
+          <h1 className="text-right text-xl mt-2">
+            PROJECT RFI REPORT
+          </h1>
           <hr className="my-4 border-t border-gray-300" />
 
           {/* Reset filters */}
           <div className="mb-4 text-right">
             <button
               onClick={resetFilters}
-              className="bg-[#2ea3e3] text-white text-xs py-2 px-4 rounded mx-2 hover:bg-[#aedb01] text-black"
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
             >
               Reset Table Filters
             </button>
@@ -194,16 +199,23 @@ const ACCRFIPage = () => {
 
           {/* ────── Carousel (Lista de filtros) ────── */}
           <div className="flex max-h-[775px]">
-            <section className="w-1/4 bg-white mr-4 rounded-lg shadow-md chart-with-dots">
+            <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
               <Slider {...sliderSettings}>
                 {dataContainers.map((c) => (
-                  <div key={c.title} className="p-6">
+                  <div
+                    key={`${c.title}`}
+                    className="text-xl font-bold mt-4 p-6"
+                  >
                     <h2 className="text-lg mb-2">{c.title}</h2>
+                    <hr className="border-gray-300 mb-1 text-xs" />
+
                     <c.chart
                       data={c.data}
                       onSliceClick={(v) => handleFilterClick(c.filterKey, v)}
                     />
-                    <div className="text-xs mt-3 h-40 overflow-y-auto">
+                    <div className="text-xs mt-1 h-40 overflow-y-auto">
+                      <h3 className="font-semibold mb-3">Totals:</h3>
+                      <hr className="border-gray-300 mb-1 text-xs" />
                       {Object.entries(c.data).map(([k, v]) => (
                         <p key={k}>{`${k}: ${v}`}</p>
                       ))}
@@ -224,6 +236,7 @@ const ACCRFIPage = () => {
             <h2 className="text-xl font-semibold mb-2">Gantt RFIs</h2>
             <RFIsGanttChart rfis={displayedRFIs} />
           </div>
+          
         </main>
       </div>
 

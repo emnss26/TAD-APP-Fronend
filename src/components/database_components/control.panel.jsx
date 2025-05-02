@@ -84,7 +84,7 @@ export default function ControlPanel({
   handlePullCustomTableData = () => {},
 }) {
   const [activeTab, setActiveTab] = useState("viewer");
-  const [isPanelExpanded, setIsPanelExpanded] = useState(true);
+  const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
   return (
     <motion.div
@@ -93,10 +93,9 @@ export default function ControlPanel({
       className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden w-full"
     >
       {/* Encabezado del Panel */}
-      <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
-          <Command className="h-5 w-5 text-primary" />
-          <h3 className="font-medium text-sm">Control Center</h3>
+          <h3 className="font-medium text-m">Control Center</h3>
         </div>
         <div className="flex items-center gap-2">
           <TooltipProvider>
@@ -138,24 +137,24 @@ export default function ControlPanel({
             >
               {/* Tabs Superior */}
               <div className="px-4 pt-3">
-                <TabsList className="grid grid-cols-3 w-full">
+                <TabsList className="grid grid-cols-3 w-full bg-white">
                   <TabsTrigger
                     value="viewer"
-                    className="flex items-center gap-2 bg-gray-300 text-gray-600 p-2 rounded-md transition-colors hover:bg-white hover:text-white"
+                    className="flex items-center gap-2 bg-gray-300 text-gray-600 p-2 rounded-md transition-colors hover:bg-[#2ea3e3] hover:text-white"
                   >
                     <Layers className="h-4 w-4" />
                     <span>Viewer Controls</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="table"
-                    className="flex items-center gap-2 bg-gray-300 text-gray-600 p-2 rounded-md transition-colors hover:bg-white hover:text-white"
+                    className="flex items-center gap-2 bg-gray-300 text-gray-600 p-2 rounded-md transition-colors hover:bg-[#2ea3e3] hover:text-white"
                   >
                     <Table className="h-4 w-4" />
                     <span>Table Controls</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="custom"
-                    className="flex items-center gap-2 bg-gray-300 text-gray-600 p-2 rounded-md transition-colors hover:bg-white hover:text-white"
+                    className="flex items-center gap-2 bg-gray-300 text-gray-600 p-2 rounded-md transition-colors hover:bg-[#2ea3e3] hover:text-white"
                   >
                     <FileSpreadsheet className="h-4 w-4" />
                     <span>Custom Tables</span>
@@ -172,7 +171,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={() => showAllObjects(viewer)}
-                        className="flex items-center gap-2 bg-[#3D464A] hover:bg-[#2ea3e3] hover:text-white text-white rounded"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <Eye className="h-4 w-4" />
                         <span>Show All</span>
@@ -180,7 +179,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={() => setShowViewer(!showViewer)}
-                        className="flex items-center gap-2 bg-[#3D464A] hover:bg-[#2ea3e3] hover:text-white text-white rounded"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         {showViewer ? (
                           <EyeOff className="h-4 w-4" />
@@ -194,7 +193,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={() => setAIpanel(!showAIpanel)}
-                        className="flex items-center gap-2 bg-[#3D464A] hover:bg-[#2ea3e3] hover:text-white text-white rounded"
+                        className="fflex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <Settings className="h-4 w-4" />
                         <span>{showAIpanel ? "Hide AI" : "Show AI"}</span>
@@ -202,7 +201,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={() => resetViewerView(viewer)}
-                        className="flex items-center gap-2 bg-[#3D464A] hover:bg-[#2ea3e3] hover:text-white text-white rounded"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <RefreshCw className="h-4 w-4" />
                         <span>Reset Viewer</span>
@@ -217,7 +216,7 @@ export default function ControlPanel({
                           onClick={() =>
                             setSyncViewerSelection((prev) => !prev)
                           }
-                          className="w-full flex items-center justify-center gap-2 bg-[#2ea3e3]"
+                          className="w-full flex items-center justify-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                         >
                           {syncViewerSelection ? (
                             <Link className="h-4 w-4" />
@@ -245,7 +244,7 @@ export default function ControlPanel({
                               <SelectItem
                                 key={disc}
                                 value={disc}
-                                className="data-[state=highlighted]:bg-gray-200 data-[highlighted]:bg-gray-200"
+                                className="data-[state=highlighted]:bg-gray-200 data-[highlighted]:bg-[#2ea3e3] data-[highlighted]:text-white"
                               >
                                 {disc}
                               </SelectItem>
@@ -281,7 +280,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={handleAddRow}
-                        className="flex items-center gap-2 bg-[#3D464A] hover:bg-[#2ea3e3] hover:text-white text-white rounded"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <Plus className="h-4 w-4" />
                         <span>Add Row</span>
@@ -289,7 +288,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={handleRemoveRow}
-                        className="flex items-center gap-2 bg-[#3D464A] hover:bg-[#2ea3e3] hover:text-white text-white rounded"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <Trash2 className="h-4 w-4" />
                         <span>Delete Row</span>
@@ -300,7 +299,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={handleSubmit}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <Send className="h-4 w-4" />
                         <span>Send Data</span>
@@ -311,7 +310,7 @@ export default function ControlPanel({
                             variant="outline"
                             className="w-full flex items-center justify-between"
                           >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 bg-white text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm">
                               <Database className="h-4 w-4" />
                               <span>Pull Data</span>
                             </div>
@@ -324,7 +323,7 @@ export default function ControlPanel({
                         >
                           <DropdownMenuItem
                             onClick={() => handlePullData(null)}
-                            className="data-[state=highlighted]:bg-gray-200 data-[highlighted]:bg-gray-200"
+                            className="data-[state=highlighted]:bg-[#2ea3e3] data-[highlighted]:bg-[#2ea3e3] data-[highlighted]:text-white"
                           >
                             All Disciplines
                           </DropdownMenuItem>
@@ -333,7 +332,7 @@ export default function ControlPanel({
                             <DropdownMenuItem
                               key={discipline}
                               onClick={() => handlePullData(discipline)}
-                              className="data-[state=highlighted]:bg-gray-200 data-[highlighted]:bg-gray-200"
+                              className="data-[state=highlighted]:bg-[#2ea3e3] data-[highlighted]:bg-[#2ea3e3] data-[highlighted]:text-white"
                             >
                               {discipline}
                             </DropdownMenuItem>
@@ -360,7 +359,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={handleAddCustomRow}
-                        className="flex items-center gap-2 bg-[#3D464A] hover:bg-[#2ea3e3] hover:text-white text-white rounded"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <Plus className="h-4 w-4" />
                         <span>Add Row</span>
@@ -368,7 +367,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={handleRemoveCustomRow}
-                        className="flex items-center gap-2 bg-[#3D464A] hover:bg-[#2ea3e3] hover:text-white hover:text-white text-white rounded"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <Trash2 className="h-4 w-4" />
                         <span>Delete Row</span>
@@ -378,7 +377,7 @@ export default function ControlPanel({
                       <Button
                         variant="default"
                         onClick={handleSubmitCustomTable}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <Send className="h-4 w-4" />
                         <span>Send Custom Table Data</span>
@@ -386,7 +385,7 @@ export default function ControlPanel({
                       <Button
                         variant="outline"
                         onClick={handlePullCustomTableData}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         <Database className="h-4 w-4" />
                         <span>Pull Custom Table Data</span>

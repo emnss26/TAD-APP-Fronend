@@ -18,9 +18,9 @@ import { Footer } from "../../components/general_pages_components/general.pages.
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
 import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
 
-import { Button } from "../../components/ui/button";
 import RevisionPlansPieChart from "../../components/plans_components/plans.revision.chart";
 import DisciplinePlansPieChart from "../../components/plans_components/plans.discipline.chart";
+import { utils, writeFile } from "xlsx";
 
 import PlansTable from "../../components/plans_components/plans.table";
 
@@ -82,7 +82,7 @@ const ACCProjectPlansPage = () => {
             SheetNumber: doc.SheetNumber || "",
             Discipline: doc.Discipline || "Unassigned",
             Revision: doc.Revision || "",
-            RevisionDate: doc.RevisionDate || "",
+            RevisionDate: doc.RevisionDate ? doc.RevisionDate.split("T")[0] : "",
           };
         });
         setPlans(pulledPlans);
@@ -97,6 +97,10 @@ const ACCProjectPlansPage = () => {
       setLoading(false);
     }
   }, [accountId, projectId]);
+
+  console.log("Plans data:", plans);
+  console.log("Discipline counts:", disciplineCounts);
+  console.log("Revision counts:", revisionCounts);
 
   /* ---------- Initial Data Load ---------- */
   useEffect(() => {
@@ -302,6 +306,17 @@ const ACCProjectPlansPage = () => {
     setSelectedRows([]);
   };
 
+  const exportToExcel = (data, filename = "export.xlsx") => {
+    const ws = utils.json_to_sheet(data);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, "Plans");
+    writeFile(wb, filename);
+  };
+
+  const handleExportPlans = () => {
+    exportToExcel(plans, `project-${projectId}-plans.xlsx`);
+  };
+
   /* ---------- Render ---------- */
   return (
     <>
@@ -313,104 +328,73 @@ const ACCProjectPlansPage = () => {
       <div className="flex min-h-screen mt-14">
         <ACCSideBar />
 
-        <main className="flex-1 p-4 bg-gray-100">
-          {/* Encabezado */}
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-xl font-semibold text-gray-800">
-              {" "}
-              Project Plans Management{" "}
-            </h1>
-            <div className="flex gap-2">
-              <Button
-                onClick={handlePullData}
-                variant="outline"
-                size="sm"
-                disabled={loading}
-              >
-                {" "}
-                Pull Data{" "}
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                variant="default"
-                size="sm"
-                disabled={loading}
-              >
-                {" "}
-                Send Data{" "}
-              </Button>
-            </div>
-          </div>
-          <hr className="my-4 border-t border-gray-200" />
+        <main className="flex-1 p-2 px-4 bg-white">
+          <h1 className="text-right text-xl mt-2">PROJECT PLANS MANAGEMENT</h1>
+          <hr className="my-4 border-t border-gray-300" />
 
-          {/* Reset y Error */}
           <div className="mb-4 text-right">
-            {error && (
-              <p className="text-xs text-red-600 mt-1 text-right mr-2 inline-block">
-                Error: {error}
-              </p>
-            )}
+            <button
+              onClick={handlePullData}
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+            >
+              Pull Data
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+            >
+              Send Data
+            </button>
             <button
               onClick={resetChartFilter}
-              disabled={!selectedDiscipline || loading}
-              className={`text-xs py-1 px-3 rounded ml-2 transition-colors duration-150 ease-in-out ${
-                selectedDiscipline && !loading
-                  ? "bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
             >
               Reset Chart Filter
             </button>
+
+            <button
+              onClick={handleExportPlans}
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+            >
+              Export Plans List
+              </button>
           </div>
 
-          {/* Layout Principal */}
-          <div
-            className="flex flex-col lg:flex-row gap-4"
-            style={{ height: "calc(100vh - 220px)" }}
-          >
-            {" "}
-            {/* Ajusta 220px según necesites */}
-            {/* Gráficos (1/4) */}
-            <section className="w-full lg:w-1/4 bg-white rounded-lg shadow-md overflow-hidden flex flex-col chart-with-dots">
-              <h2 className="text-base font-semibold p-3 border-b text-gray-700 flex-shrink-0">
-                {" "}
-                Data Overview{" "}
-              </h2>
-              <div className="flex-1 relative min-h-0">
-                {chartSlides.length > 0 ? (
-                  <Slider {...sliderSettings} className="h-full">
-                    {chartSlides.map((slide, index) => (
-                      <div
-                        key={slide.title + index}
-                        className="px-2 pt-2 pb-10 h-full flex flex-col outline-none focus:outline-none"
-                      >
-                        <h3 className="text-sm font-medium mb-1 text-center flex-shrink-0">
-                          {slide.title}
-                        </h3>
-                        <div className="flex-1 relative">
-                          {" "}
-                          <slide.Component {...slide.props} />{" "}
-                        </div>
-                      </div>
-                    ))}
-                  </Slider>
-                ) : (
-                  <div className="p-4 text-center text-gray-400 text-sm h-full flex items-center justify-center">
-                    {" "}
-                    {loading ? "Loading..." : "No chart data."}{" "}
+          {/* ────── Carousel (Lista de filtros) ────── */}
+          <div className="flex h-[700px]">
+            <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
+              <h2 className="text-xl font-bold mt-4 p-6">Plans Data Charts</h2>
+              <hr className="border-gray-300 mb-1 text-xs" />
+              <Slider 
+              key={chartSlides.length}
+              {...sliderSettings} 
+              className="h-full">
+                {chartSlides.map((slide, index) => (
+                  <div
+                    key={slide.title + index}
+                    className="px-2 pt-2 pb-10 h-full flex flex-col outline-none focus:outline-none"
+                  >
+                    <h3 className="text-sm font-medium mb-1 text-center flex-shrink-0">
+                      {slide.title}
+                    </h3>
+                    <div className="flex-1 relative">
+                      {" "}
+                      <slide.Component {...slide.props} />{" "}
+                    </div>
                   </div>
-                )}
-              </div>
+                ))}
+              </Slider>
             </section>
+
             {/* Tabla (3/4) */}
-            <section className="w-full lg:w-3/4 flex flex-col">
+            <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto h-[700px]">
               <PlansTable
-                 plans={plans}
-                 onInputChange={handleInputChange}
-                 onAddRow={handleAddRow}
-                 onRemoveRows={handleRemoveRows}
-                 selectedRows={selectedRows}
-                 setSelectedRows={setSelectedRows}
+                plans={plans}
+                onInputChange={handleInputChange}
+                onAddRow={handleAddRow}
+                onRemoveRows={handleRemoveRows}
+                selectedRows={selectedRows}
+                setSelectedRows={setSelectedRows}
               />
             </section>
           </div>

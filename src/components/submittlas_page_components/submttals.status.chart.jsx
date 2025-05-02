@@ -8,7 +8,7 @@ const SubmittalsStatusChart = ({ data, onSliceClick }) => {
   }));
 
   return (
-    <div style={{ height: "350px", width: "450px", margin: "0 auto" }}>
+    <div style={{ height: "350px", width: "400px", margin: "0 auto" }}>
       <ResponsivePie
         data={chartData}
         innerRadius={0.65}

@@ -17,7 +17,7 @@ const PlatformPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#fbfcfb]">
+    <div className="flex flex-col min-h-screen bg-[#ffffff]">
       {/*Header*/}
       <PlatformHeader />
 
@@ -44,13 +44,13 @@ const PlatformPage = () => {
 
           <div className="flex gap-x-4">
             <button
-              className="bg-[#2ea3e3] flex text-white font-medium px-12 py-3 rounded-md shadow hover:bg-slate-200 hover:text-black transition-colors"
+              className="btn-primary flex font-medium px-12 py-3 rounded-md shadow transition-colors"
               onClick={goToBim360}
             >
               BIM 360
             </button>
             <button
-              className="bg-[#2ea3e3] flex text-white font-medium px-12 py-3 rounded-md shadow hover:bg-slate-200 hover:text-black transition-colors"
+              className="btn-primary flex font-medium px-12 py-3 rounded-md shadow transition-colors"
               onClick={goToAcc}
             >
               ACC

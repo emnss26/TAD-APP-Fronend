@@ -37,7 +37,7 @@ const ACCProjectsPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#fbfcfb]">
+    <div className="flex flex-col min-h-screen bg-[#ffffff]">
       <PlatformHeader />
 
       <main className="flex flex-1 flex-row items-center justify-center px-8 py-8 mt-20">

@@ -441,7 +441,7 @@ const BIM3604DDatabase = () => {
         const result = await response.json();
         if (result.data && Array.isArray(result.data)) {
           let tempRows = result.data.map((item) => {
-            const value = item.value || {};
+            const value = item || {};
             return {
               dbId: value.dbId || "",
               Discipline: value.Discipline || "",
@@ -483,8 +483,8 @@ const BIM3604DDatabase = () => {
           ) {
             const fourDData = tempRows.map((item) => ({
               dbId: parseInt(item.dbId, 10),
-              startDate: item.planedConstructionStartDate,
-              endDate: item.planedConstructionEndDate,
+              startDate: item.PlanedConstructionStartDate,
+              endDate: item.PlanedConstructionEndDate,
             }));
             window.data4Dviewer.set4DData(fourDData);
           }

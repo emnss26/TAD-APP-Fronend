@@ -33,7 +33,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#fbfcfb]">
+    <div className="flex flex-col min-h-screen bg-[#ffffff]">
       {/*Header*/}
       <Header />
 
@@ -62,13 +62,13 @@ const LoginPage = () => {
           {cookies.access_token ? (
             <div className="flex flex-col gap-y-4">
               <button
-                className="bg-[#2ea3e3] text-white font-medium px-6 py-3 rounded-md shadow hover:bg-slate-200 hover:text-black transition-colors"
+                className="btn-primary font-medium px-6 py-3 rounded-md shadow transition-colors"
                 onClick={Logout}
               >
                 Logout
               </button>
               <button
-                className="bg-[#2ea3e3] text-white font-medium px-6 py-3 rounded-md shadow hover:bg-slate-200 hover:text-black transition-colors"
+                className="btn-primary font-medium px-6 py-3 rounded-md shadow transition-colors"
                 onClick={Login}
               >
                 Select Platform
@@ -76,7 +76,7 @@ const LoginPage = () => {
             </div>
           ) : (
             <button
-              className="bg-[#2ea3e3] text-white font-medium px-6 py-3 rounded-md shadow hover:bg-slate-200 hover:text-black transition-colors"
+              className="btn-primary font-medium px-6 py-3 rounded-md shadow transition-colors"
               onClick={Login}
             >
               Authenticate
