@@ -74,7 +74,6 @@ const BIM360ProjectPlansPage = () => {
       const result = await res.json();
       if (Array.isArray(result.data)) {
         const pulledPlans = result.data.map((item, idx) => {
-          
           const doc = item.value || item;
           return {
             id: doc._key || doc.Id || `plan-${Date.now()}-${idx}`,
@@ -82,7 +81,9 @@ const BIM360ProjectPlansPage = () => {
             SheetNumber: doc.SheetNumber || "",
             Discipline: doc.Discipline || "Unassigned",
             Revision: doc.Revision || "",
-            RevisionDate: doc.RevisionDate || "",
+            RevisionDate: doc.RevisionDate
+              ? doc.RevisionDate.split("T")[0]
+              : "",
           };
         });
         setPlans(pulledPlans);
@@ -115,10 +116,10 @@ const BIM360ProjectPlansPage = () => {
     const revisions = {};
     plans.forEach((plan) => {
       if (!plan.isPlaceholder) {
-        const discipline = plan.Discipline || "Unassigned";
-        disciplines[discipline] = (disciplines[discipline] || 0) + 1;
-        const rev = plan.Revision || "N/A";
-        revisions[rev] = (revisions[rev] || 0) + 1;
+        const d = plan.Discipline || "Unassigned";
+        disciplines[d] = (disciplines[d] || 0) + 1;
+        const r = plan.Revision || "N/A";
+        revisions[r] = (revisions[r] || 0) + 1;
       }
     });
 
@@ -131,9 +132,7 @@ const BIM360ProjectPlansPage = () => {
   }, [plans]);
 
   const filteredPlansForTable = useMemo(() => {
-    if (!selectedDiscipline || !Array.isArray(plans)) {
-      return plans ?? [];
-    }
+    if (!selectedDiscipline || !Array.isArray(plans)) return plans ?? [];
     return plans.filter(
       (plan) => (plan.Discipline || "Unassigned") === selectedDiscipline
     );
@@ -164,30 +163,28 @@ const BIM360ProjectPlansPage = () => {
         `${backendUrl}/plans/${accountId}/${projectId}/plans`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" /* Auth */ },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         }
       );
       if (response.ok) {
         alert("Plan data sent successfully!");
-        // fetchPlansData(); // Opcional: recargar
       } else {
         const errorData = await response
           .json()
           .catch(() => ({ message: `Request failed: ${response.status}` }));
-        const errorMessage =
+        const msg =
           errorData?.message ||
           response.statusText ||
           `HTTP error ${response.status}`;
-        setError(errorMessage);
-        alert(`Error sending data: ${errorMessage}`);
+        setError(msg);
+        alert(`Error sending data: ${msg}`);
       }
-    } catch (error) {
-      console.error("Submit error:", error);
-      const errorMessage =
-        error.message || "Unexpected error during submission.";
-      setError(errorMessage);
-      alert(`Request error: ${errorMessage}`);
+    } catch (err) {
+      console.error("Submit error:", err);
+      const msg = err.message || "Unexpected error during submission.";
+      setError(msg);
+      alert(`Request error: ${msg}`);
     } finally {
       setLoading(false);
     }
@@ -197,25 +194,18 @@ const BIM360ProjectPlansPage = () => {
     fetchPlansData();
   };
 
-  // Usar useCallback si la función se pasa como prop y causa re-renders innecesarios
-  const handleDisciplineClick = useCallback((disciplineDatum) => {
-    const disciplineId = disciplineDatum?.id;
-    if (disciplineId) {
-      setSelectedDiscipline((prev) =>
-        prev === disciplineId ? null : disciplineId
-      );
-    }
-  }, []); // Vacío si no depende de nada más del scope exterior que cambie
+  const handleDisciplineClick = useCallback((d) => {
+    setSelectedDiscipline((prev) => (prev === d.id ? null : d.id));
+  }, []);
 
   const resetChartFilter = () => {
     setSelectedDiscipline(null);
   };
 
-  // ======> DECLARACIÓN MOVIDA AQUÍ <======
-  /* ---------- Build Chart Slides ---------- */
+  /* ---------- Chart Slides ---------- */
   const chartSlides = useMemo(() => {
     const slides = [];
-    if (Array.isArray(disciplineCounts) && disciplineCounts.length > 0) {
+    if (disciplineCounts.length) {
       slides.push({
         title: "Plans by Discipline",
         Component: DisciplinePlansPieChart,
@@ -247,7 +237,7 @@ const BIM360ProjectPlansPage = () => {
         },
       });
     }
-    if (Array.isArray(revisionCounts) && revisionCounts.length > 0) {
+    if (revisionCounts.length) {
       slides.push({
         title: "Plans by Revision",
         Component: RevisionPlansPieChart,
@@ -261,14 +251,11 @@ const BIM360ProjectPlansPage = () => {
       });
     }
     return slides;
-  }, [disciplineCounts, revisionCounts, handleDisciplineClick]); // Dependencias correctas
+  }, [disciplineCounts, revisionCounts, handleDisciplineClick]);
 
-  // ======> FIN DE LA DECLARACIÓN MOVIDA <======
-
-  /* ---------- Slick settings (Ahora puede usar chartSlides) ---------- */
   const sliderSettings = {
     dots: true,
-    infinite: chartSlides?.length > 1, // Ahora esto funciona
+    infinite: chartSlides.length > 1,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -302,6 +289,68 @@ const BIM360ProjectPlansPage = () => {
     setSelectedRows([]);
   };
 
+  // ——— IMPORT / EXPORT EXCEL ———
+
+  const exportToExcel = (data, filename = "export.xlsx") => {
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Plans");
+    XLSX.writeFile(wb, filename);
+  };
+
+  const handleExportPlans = () => {
+    exportToExcel(plans, `project-${projectId}-plans.xlsx`);
+  };
+
+  const handleImportPlans = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = evt.target.result;
+      const workbook = XLSX.read(data, { type: "binary" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+      const imported = rows.map((row, idx) => {
+        // 1) Revision: forzamos string para que "0" no sea falsy
+        const rev =
+          row.Revision !== null && row.Revision !== undefined
+            ? String(row.Revision)
+            : "";
+
+        // 2) Fecha: detectamos "DD/MM/YYYY" y la convertimos a "YYYY-MM-DD"
+        let revDate = row.RevisionDate;
+        if (
+          typeof revDate === "string" &&
+          /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(revDate)
+        ) {
+          const [d, m, y] = revDate.split("/");
+          revDate = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+        } else if (revDate instanceof Date) {
+          revDate = revDate.toISOString().split("T")[0];
+        } else {
+          revDate = "";
+        }
+
+        return {
+          id: String(row.id ?? row.Id ?? `import-${Date.now()}-${idx}`),
+          SheetName: row.SheetName,
+          SheetNumber: row.SheetNumber,
+          Discipline: row.Discipline,
+          Revision: rev,
+          RevisionDate: revDate,
+        };
+      });
+
+      setPlans(imported);
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = null;
+  }, []);
+
   /* ---------- Render ---------- */
   return (
     <>
@@ -313,104 +362,79 @@ const BIM360ProjectPlansPage = () => {
       <div className="flex min-h-screen mt-14">
         <BIM360SideBar />
 
-        <main className="flex-1 p-4 bg-gray-100">
-          {/* Encabezado */}
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-xl font-semibold text-gray-800">
-              {" "}
-              Project Plans Management{" "}
-            </h1>
-            <div className="flex gap-2">
-              <Button
-                onClick={handlePullData}
-                variant="outline"
-                size="sm"
-                disabled={loading}
-              >
-                {" "}
-                Pull Data{" "}
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                variant="default"
-                size="sm"
-                disabled={loading}
-              >
-                {" "}
-                Send Data{" "}
-              </Button>
-            </div>
-          </div>
-          <hr className="my-4 border-t border-gray-200" />
+        <main className="flex-1 p-2 px-4 bg-white">
+          <h1 className="text-right text-xl mt-2">PROJECT PLANS MANAGEMENT</h1>
+          <hr className="my-4 border-t border-gray-300" />
 
-          {/* Reset y Error */}
           <div className="mb-4 text-right">
-            {error && (
-              <p className="text-xs text-red-600 mt-1 text-right mr-2 inline-block">
-                Error: {error}
-              </p>
-            )}
+            <button
+              onClick={handlePullData}
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+            >
+              Pull Data
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+            >
+              Send Data
+            </button>
             <button
               onClick={resetChartFilter}
-              disabled={!selectedDiscipline || loading}
-              className={`text-xs py-1 px-3 rounded ml-2 transition-colors duration-150 ease-in-out ${
-                selectedDiscipline && !loading
-                  ? "bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
             >
               Reset Chart Filter
             </button>
+            <button
+              onClick={handleExportPlans}
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+            >
+              Export Plans List
+            </button>
+            <label className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2 cursor-pointer">
+              Importar Excel
+              <input
+                type="file"
+                accept=".xlsx, .xls"
+                onChange={handleImportPlans}
+                className="hidden"
+              />
+            </label>
           </div>
 
-          {/* Layout Principal */}
-          <div
-            className="flex flex-col lg:flex-row gap-4"
-            style={{ height: "calc(100vh - 220px)" }}
-          >
-            {" "}
-            {/* Ajusta 220px según necesites */}
-            {/* Gráficos (1/4) */}
-            <section className="w-full lg:w-1/4 bg-white rounded-lg shadow-md overflow-hidden flex flex-col chart-with-dots">
-              <h2 className="text-base font-semibold p-3 border-b text-gray-700 flex-shrink-0">
-                {" "}
-                Data Overview{" "}
-              </h2>
-              <div className="flex-1 relative min-h-0">
-                {chartSlides.length > 0 ? (
-                  <Slider {...sliderSettings} className="h-full">
-                    {chartSlides.map((slide, index) => (
-                      <div
-                        key={slide.title + index}
-                        className="px-2 pt-2 pb-10 h-full flex flex-col outline-none focus:outline-none"
-                      >
-                        <h3 className="text-sm font-medium mb-1 text-center flex-shrink-0">
-                          {slide.title}
-                        </h3>
-                        <div className="flex-1 relative">
-                          {" "}
-                          <slide.Component {...slide.props} />{" "}
-                        </div>
-                      </div>
-                    ))}
-                  </Slider>
-                ) : (
-                  <div className="p-4 text-center text-gray-400 text-sm h-full flex items-center justify-center">
-                    {" "}
-                    {loading ? "Loading..." : "No chart data."}{" "}
+          <div className="flex h-[700px]">
+            <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
+              <h2 className="text-xl font-bold mt-4 p-6">Plans Data Charts</h2>
+              <hr className="border-gray-300 mb-1 text-xs" />
+              <Slider
+                key={chartSlides.length}
+                {...sliderSettings}
+                className="h-full"
+              >
+                {chartSlides.map((slide, index) => (
+                  <div
+                    key={slide.title + index}
+                    className="px-2 pt-2 pb-10 h-full flex flex-col outline-none focus:outline-none"
+                  >
+                    <h3 className="text-sm font-medium mb-1 text-center flex-shrink-0">
+                      {slide.title}
+                    </h3>
+                    <div className="flex-1 relative">
+                      <slide.Component {...slide.props} />
+                    </div>
                   </div>
-                )}
-              </div>
+                ))}
+              </Slider>
             </section>
-            {/* Tabla (3/4) */}
-            <section className="w-full lg:w-3/4 flex flex-col">
+
+            <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto h-[700px]">
               <PlansTable
-                 plans={plans}
-                 onInputChange={handleInputChange}
-                 onAddRow={handleAddRow}
-                 onRemoveRows={handleRemoveRows}
-                 selectedRows={selectedRows}
-                 setSelectedRows={setSelectedRows}
+                plans={plans}
+                onInputChange={handleInputChange}
+                onAddRow={handleAddRow}
+                onRemoveRows={handleRemoveRows}
+                selectedRows={selectedRows}
+                setSelectedRows={setSelectedRows}
               />
             </section>
           </div>

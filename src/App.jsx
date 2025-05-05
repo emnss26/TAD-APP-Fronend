@@ -18,6 +18,7 @@ import ACC4DDatabase from "./pages/acc/acc.database.4D";
 import ACC5DDatabase from "./pages/acc/acc.database.5D";
 import ACC6DDatabase from "./pages/acc/acc.database.6D";
 import ACCProjectPlansPage from "./pages/acc/acc.project.plans.jsx";
+import ACCProjectTaskManagementPage from "./pages/acc/acc.task.management.page.jsx";
 
 //BIM360 Pages
 import BIM360ProjectsPage from "./pages/bim360/bim360.projects.page.jsx";
@@ -28,6 +29,7 @@ import BIM360RFIsPage from "./pages/bim360/bim360.rfis.page.jsx";
 import BIM3604DDatabase from "./pages/bim360/bim360.database.4D";
 import BIM3605DDatabase from "./pages/bim360/bim360.database.5D";
 import BIM3606DDatabase from "./pages/bim360/bim360.database.6D";
+import BIM360ProjectPlansPage from "./pages/bim360/bim360.project.plans.jsx";
 
 //Protected Route
 import ProtectedRoute from "./components/general_pages_components/protected.route";
@@ -82,6 +84,10 @@ function App() {
             path="/accprojects/:accountId/:projectId/plans"
             element={<ACCProjectPlansPage />}
           />
+          <Route
+            path="/accprojects/:accountId/:projectId/task-manager"
+            element={<ACCProjectTaskManagementPage />}
+          />
 
           {/* BIM360 Pages */}
           <Route path="/bim360projects" element={<BIM360ProjectsPage />} />
@@ -112,6 +118,10 @@ function App() {
           <Route
             path="/bim360projects/:accountId/:projectId/bim3606ddata"
             element={<BIM3606DDatabase />}
+          />
+          <Route
+            path="/bim360projects/:accountId/:projectId/plans"
+            element={<BIM360ProjectPlansPage />}
           />
 
 

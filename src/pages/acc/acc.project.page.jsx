@@ -209,16 +209,16 @@ const ACCProjectPage = () => {
       {/*Header*/}
       <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
 
-      <div className="flex h-screen mt-14">
+      <div className="flex min-h-screen mt-14">
         <ACCSideBar />
 
         {/*Main Content*/}
-        <div className="flex-1 p-2 px-4 bg-white w -full ">
+        <main className="flex-1 min-w-0 p-2 px-4 bg-white">
           <h1 className="text-right text-xl  text-black mt-2">PROJECT HOME</h1>
           <hr className="my-4 border-t border-gray-300" /> {/* Dividing line */}
           {/* Totals Overview (Slider) */}
-          <div className="flex space-x-2 mt-2 items-center justify-center bg-white rounded shadow w-full">
-            <div className="max-w-[1700px] h-[195px] p-2 flex flex-col">
+          <div className="flex space-x-2 mt-2 items-center justify-center bg-white rounded shadow w-full min-w-0">
+            <div className="w-full h-[195px] p-2 flex flex-col">
               <h1 className="text-lg mb-1 font-semibold">Totals Overview</h1>
               <hr className="my-4 border-t border-gray-300" />
 
@@ -358,7 +358,7 @@ const ACCProjectPage = () => {
             </div>
           </div>
           {/* Model Viewer */}
-          <div className="flex space-x-4 mt-4">
+          <div className="flex space-x-4 mt-4 w-full min-w-0">
             <div className="w-full h-[550px] bg-white rounded shadow p-4 flex flex-col">
               <h1 className="text-lg mb-1 font-semibold">
                 Project Federated Model Viewer
@@ -370,7 +370,7 @@ const ACCProjectPage = () => {
               ></div>
             </div>
           </div>
-        </div>
+        </main>
       </div>
 
       {/*Footer*/}
