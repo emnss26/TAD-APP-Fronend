@@ -401,23 +401,26 @@ const ACC4DDatabase = () => {
         return cleanedRow;
       });
 
-      const response = await fetch(
-        `${backendUrl}/modeldata/${accountId}/${projectId}/data`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(cleanedData),
-        }
-      );
+      const CHUNK_SIZE = 200;
+     const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
 
-      if (response.ok) {
-        alert("Data sent successfully");
-        //await handlePullData();
-      } else {
-        const errorData = await response.json();
-        console.error("Error sending data:", errorData.message);
-        alert(`Error sending data: ${errorData.message}`);
-      }
+     for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
+       const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
+       const resp = await fetch(url, {
+         method: "POST",
+         credentials: "include",              // si usas cookies
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(chunk),
+       });
+
+       if (!resp.ok) {
+         const err = await resp.json().catch(() => ({ message: resp.statusText }));
+         throw new Error(`Batch ${Math.floor(i/CHUNK_SIZE)+1} failed: ${err.message}`);
+       }
+     }
+
+     // 2) Todos los lotes enviados
+     alert(`¡Datos enviados en ${Math.ceil(cleanedData.length/CHUNK_SIZE)} lotes!`);
     } catch (error) {
       console.error("Request error:", error);
       alert(`Request error: ${error.message}`);
