@@ -401,14 +401,14 @@ const ACC4DDatabase = () => {
         return cleanedRow;
       });
 
-      const CHUNK_SIZE = 200;
+      const CHUNK_SIZE = 100;
      const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
 
      for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
        const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
        const resp = await fetch(url, {
          method: "POST",
-         credentials: "include",              // si usas cookies
+         credentials: "include",             
          headers: { "Content-Type": "application/json" },
          body: JSON.stringify(chunk),
        });
