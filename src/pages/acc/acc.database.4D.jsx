@@ -402,25 +402,37 @@ const ACC4DDatabase = () => {
       });
 
       const CHUNK_SIZE = 100;
-     const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
+      const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
 
-     for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
-       const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
-       const resp = await fetch(url, {
-         method: "POST",
-         credentials: "include",             
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(chunk),
-       });
+      for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
+        const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
+        const resp = await fetch(url, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(chunk),
+        });
 
-       if (!resp.ok) {
-         const err = await resp.json().catch(() => ({ message: resp.statusText }));
-         throw new Error(`Batch ${Math.floor(i/CHUNK_SIZE)+1} failed: ${err.message}`);
-       }
-     }
+        if (!resp.ok) {
+          
+          let errMsg;
+          try {
+            const errJson = await resp.json();
+            errMsg = errJson.message || resp.statusText;
+          } catch {
+            errMsg = await resp.text();
+          }
+          throw new Error(
+            `Batch ${Math.floor(i / CHUNK_SIZE) + 1} failed: ${errMsg}`
+          );
+        }
+      }
 
-     // 2) Todos los lotes enviados
-     alert(`¡Datos enviados en ${Math.ceil(cleanedData.length/CHUNK_SIZE)} lotes!`);
+      alert(
+        `¡Datos enviados en ${Math.ceil(
+          cleanedData.length / CHUNK_SIZE
+        )} lotes!`
+      );
     } catch (error) {
       console.error("Request error:", error);
       alert(`Request error: ${error.message}`);
