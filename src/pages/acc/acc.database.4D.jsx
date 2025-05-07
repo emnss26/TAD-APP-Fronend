@@ -382,15 +382,13 @@ const ACC4DDatabase = () => {
 
   const handleSubmit = async () => {
     try {
+      // 1) Limpiar y parsear valores numéricos
       const cleanedData = data.map((row) => {
         const cleanedRow = { ...row };
         numericFields.forEach((field) => {
           const value = cleanedRow[field];
           if (typeof value === "string") {
-            if (
-              value.toLowerCase() === "Not specified" ||
-              value.trim() === ""
-            ) {
+            if (value.toLowerCase() === "Not specified" || value.trim() === "") {
               cleanedRow[field] = null;
             } else {
               const parsedValue = parseFloat(value);
@@ -400,10 +398,11 @@ const ACC4DDatabase = () => {
         });
         return cleanedRow;
       });
-
+  
       const CHUNK_SIZE = 100;
       const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
-
+  
+      // 2) Enviar en lotes
       for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
         const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
         const resp = await fetch(url, {
@@ -412,26 +411,31 @@ const ACC4DDatabase = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(chunk),
         });
-
+  
+        // Clonamos la respuesta para poder reintentar leer el body
+        const clone = resp.clone();
+  
         if (!resp.ok) {
-          
           let errMsg;
           try {
+            // Primero intentamos parsear JSON
             const errJson = await resp.json();
-            errMsg = errJson.message || resp.statusText;
+            errMsg = errJson.message || JSON.stringify(errJson);
           } catch {
-            errMsg = await resp.text();
+            // Si no es JSON, leemos como texto (puede ser el HTML de Vercel)
+            errMsg = await clone.text();
           }
           throw new Error(
-            `Batch ${Math.floor(i / CHUNK_SIZE) + 1} failed: ${errMsg}`
+            `Lote ${Math.floor(i / CHUNK_SIZE) + 1} falló: ${errMsg}`
           );
         }
       }
-
+  
+      // 3) Si todos los lotes van bien:
       alert(
         `¡Datos enviados en ${Math.ceil(
           cleanedData.length / CHUNK_SIZE
-        )} lotes!`
+        )} lotes exitosamente!`
       );
     } catch (error) {
       console.error("Request error:", error);
