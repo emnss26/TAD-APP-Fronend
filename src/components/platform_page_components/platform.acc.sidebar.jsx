@@ -30,7 +30,7 @@ export default function ACCSidebar() {
   const [collapsed, setCollapsed] = React.useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("sidebarCollapsed");
-      return saved ? JSON.parse(saved) : false;
+      return saved ? JSON.parse(saved) : true;
     }
     return false;
   });

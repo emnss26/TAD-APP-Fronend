@@ -119,7 +119,7 @@ export const fechBIM360ProjectIssues = async (
     }
     const { data } = await response.json();
 
-    //console.log("BIM360 Issues Data:", data);
+    console.log("BIM360 Issues Data:", data);
 
     return data;
   } catch (error) {

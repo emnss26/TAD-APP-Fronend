@@ -64,7 +64,7 @@ const CompanyUsersChart = ({ companyCounts, onCompanyClick }) => {
         enableGridX={true}
         enableGridY={false}
         width={containerWidth}
-        height={350}
+        height={250}
         tooltip={({ id, value }) => (
           <div
             style={{

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -22,6 +22,16 @@ import {
   fetchACCProjectData,
   fetchACCProjectRFI,
 } from "../../pages/services/acc.services";
+
+const sampleQuestionsRFI = [
+  "How many RFIs are open?",
+  "List closed RFIs.",
+  "Which RFIs have high priority?",
+  "Show me RFIs answered this week.",
+  "Generate a CSV report of all RFIs.",
+];
+
+const backendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL;
 
 const ACCRFIPage = () => {
   const { projectId, accountId } = useParams();
@@ -55,6 +65,13 @@ const ACCRFIPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Chat states
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [userMessage, setUserMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const conversationRef = useRef(null);
 
   // Combined data fetch
   useEffect(() => {
@@ -170,21 +187,69 @@ const ACCRFIPage = () => {
     },
   ];
 
+  const toggleChat = () => {
+    setIsChatOpen((o) => {
+      const next = !o;
+      if (next && messages.length === 0) {
+        setMessages([
+          { role: "assistant", content: "Hi! Ask me anything about RFIs." },
+        ]);
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (conversationRef.current)
+      conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
+  }, [messages]);
+
+  const sendChat = async () => {
+    if (!userMessage.trim() || isSendingMessage) return;
+    setIsSendingMessage(true);
+    const text = userMessage.trim();
+    setMessages((m) => [...m, { role: "user", content: text }]);
+    setUserMessage("");
+    try {
+      const res = await fetch(`${backendUrl}/ai-rfis/rfis`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, accountId, projectId }),
+      });
+      if (!res.ok) throw new Error("Server Error");
+      const data = await res.json();
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", content: data.reply || "No reply." },
+      ]);
+    } catch (err) {
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", content: `Error: ${err.message}` },
+      ]);
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
+
+  const handleKey = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendChat();
+    }
+  };
+  const pickSample = (q) => setUserMessage(q);
+
   return (
     <>
       {loading && <LoadingOverlay />}
 
-      <ACCPlatformprojectsHeader 
-      accountId={accountId} 
-      projectId={projectId} 
-      />
+      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
       <div className="flex min-h-screen mt-14">
         <ACCSideBar />
 
         <main className="flex-1 p-2 px-4 bg-white">
-          <h1 className="text-right text-xl mt-2">
-            PROJECT RFI REPORT
-          </h1>
+          <h1 className="text-right text-xl mt-2">PROJECT RFI REPORT</h1>
           <hr className="my-4 border-t border-gray-300" />
 
           {/* Reset filters */}
@@ -195,48 +260,132 @@ const ACCRFIPage = () => {
             >
               Reset Table Filters
             </button>
+            <button
+              onClick={toggleChat}
+              className="btn-primary text-xs font-bold py-2 px-4 rounded"
+            >
+              {isChatOpen ? "Show RFI Data" : "Ask AI Assistant"}
+            </button>
           </div>
 
           {/* ────── Carousel (Lista de filtros) ────── */}
-          <div className="flex max-h-[775px]">
-            <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
-              <Slider {...sliderSettings}>
-                {dataContainers.map((c) => (
+          {isChatOpen ? (
+            <section className="w-full bg-white p-4 rounded-lg shadow-md border border-gray-200 flex flex-col max-h-[775px]">
+              <h2 className="text-lg font-semibold mb-3 text-center text-blue-600">
+                AI RFI Assistant
+              </h2>
+              <div
+                ref={conversationRef}
+                className="flex-grow overflow-y-auto border p-3 mb-4 bg-gray-50 rounded min-h-[400px] max-h-[550px]"
+              >
+                {messages.map((msg, i) => (
                   <div
-                    key={`${c.title}`}
-                    className="text-xl font-bold mt-4 p-6"
+                    key={i}
+                    className={`mb-3 flex ${
+                      msg.role === "user" ? "justify-end" : "justify-start"
+                    }`}
                   >
-                    <h2 className="text-lg mb-2">{c.title}</h2>
-                    <hr className="border-gray-300 mb-1 text-xs" />
-
-                    <c.chart
-                      data={c.data}
-                      onSliceClick={(v) => handleFilterClick(c.filterKey, v)}
-                    />
-                    <div className="text-xs mt-1 h-40 overflow-y-auto">
-                      <h3 className="font-semibold mb-3">Totals:</h3>
-                      <hr className="border-gray-300 mb-1 text-xs" />
-                      {Object.entries(c.data).map(([k, v]) => (
-                        <p key={k}>{`${k}: ${v}`}</p>
-                      ))}
+                    <div
+                      className={`p-3 rounded-lg shadow-sm ${
+                        msg.role === "user"
+                          ? "bg-blue-100 text-blue-900"
+                          : "bg-gray-200 text-gray-800"
+                      }`}
+                    >
+                      <strong className="block mb-1">
+                        {msg.role === "user" ? "You" : "Assistant"}
+                      </strong>
+                      {msg.content}
                     </div>
                   </div>
                 ))}
-              </Slider>
+                {isSendingMessage && (
+                  <div className="flex justify-start">
+                    <div className="p-3 rounded-lg bg-gray-200 text-gray-500 italic">
+                      Assistant is thinking...
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-1">Try asking:</p>
+                <div className="flex flex-wrap gap-2">
+                  {sampleQuestionsRFI.map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => pickSample(q)}
+                      className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded"
+                      disabled={isSendingMessage}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-end gap-2">
+                <textarea
+                  value={userMessage}
+                  onChange={(e) => setUserMessage(e.target.value)}
+                  onKeyPress={handleKey}
+                  placeholder="Ask about RFIs..."
+                  className="flex-grow border rounded-md p-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={2}
+                  disabled={isSendingMessage}
+                />
+                <button
+                  onClick={sendChat}
+                  disabled={isSendingMessage || !userMessage.trim()}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSendingMessage ? "..." : "Send"}
+                </button>
+              </div>
             </section>
+          ) : (
+            <>
+              {" "}
+              {/* Data view: charts, table, gantt */}
+              <div className="flex max-h-[775px] mb-8">
+                <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
+                  <Slider {...sliderSettings}>
+                    {dataContainers.map((c) => (
+                      <div
+                        key={`${c.title}`}
+                        className="text-xl font-bold mt-4 p-6"
+                      >
+                        <h2 className="text-lg mb-2">{c.title}</h2>
+                        <hr className="border-gray-300 mb-1 text-xs" />
 
-            {/* ────── Tabla RFIs ────── */}
-            <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto max-h-[775px]">
-              <RFITable rfis={displayedRFIs} onViewDetails={() => {}} />
-            </section>
-          </div>
+                        <c.chart
+                          data={c.data}
+                          onSliceClick={(v) =>
+                            handleFilterClick(c.filterKey, v)
+                          }
+                        />
+                        <div className="text-xs mt-1 h-40 overflow-y-auto">
+                          <h3 className="font-semibold mb-3">Totals:</h3>
+                          <hr className="border-gray-300 mb-1 text-xs" />
+                          {Object.entries(c.data).map(([k, v]) => (
+                            <p key={k}>{`${k}: ${v}`}</p>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </Slider>
+                </section>
 
-          {/* ────── Diagrama de Gantt ────── */}
-          <div className="mt-14 px-4 mb-8">
-            <h2 className="text-xl font-semibold mb-2">Gantt RFIs</h2>
-            <RFIsGanttChart rfis={displayedRFIs} />
-          </div>
-          
+                {/* ────── Tabla RFIs ────── */}
+                <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto max-h-[775px]">
+                  <RFITable rfis={displayedRFIs} onViewDetails={() => {}} />
+                </section>
+              </div>
+              {/* ────── Diagrama de Gantt ────── */}
+              <div className="mt-14 px-4 mb-8">
+                <h2 className="text-xl font-semibold mb-2">Gantt RFIs</h2>
+                <RFIsGanttChart rfis={displayedRFIs} />
+              </div>
+            </>
+          )}
         </main>
       </div>
 

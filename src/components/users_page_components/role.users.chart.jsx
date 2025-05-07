@@ -3,7 +3,7 @@ import { ResponsiveBar } from "@nivo/bar";
 
 const RoleUsersChart = ({ roleCounts, onRoleClick }) => {
   const chartContainerRef = useRef(null);
-  const [dimensions, setDimensions] = useState({ width: 400, height: 350 });
+  const [dimensions, setDimensions] = useState({ width: 400, height: 250 });
 
   // Actualizar las dimensiones del contenedor
   useEffect(() => {
@@ -68,7 +68,7 @@ const RoleUsersChart = ({ roleCounts, onRoleClick }) => {
           }}
           enableGridX={true}
           enableGridY={false}
-          height={350} // Ajustar la altura dinámicamente
+          height={250} // Ajustar la altura dinámicamente
           tooltip={({ id, value }) => (
             <div
               style={{

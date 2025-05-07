@@ -30,9 +30,9 @@ export default function BIM360Sidebar() {
   const [collapsed, setCollapsed] = React.useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("bim360SidebarCollapsed");
-      return saved ? JSON.parse(saved) : false;
+      return saved ? JSON.parse(saved) : true;
     }
-    return false;
+    return true;
   });
 
   const { accountId, projectId } = useParams();
