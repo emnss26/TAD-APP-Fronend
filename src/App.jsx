@@ -48,9 +48,9 @@ function App() {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/not-authorized" element={<NotAuthorizedPage />} />
 
-          <Route element={<ProtectedRoute />}>
           <Route path="/platform" element={<PlatformPage />} />
 
+          <Route element={<ProtectedRoute />}>
           {/* ACC Pages */}
           <Route path="/accprojects" element={<ACCProjectsPage />} />
           <Route
