@@ -379,48 +379,151 @@ const BIM3604DDatabase = () => {
   }, [data]);
 
   const handleSubmit = async () => {
-    try {
-      const cleanedData = data.map((row) => {
-        const cleanedRow = { ...row };
-        numericFields.forEach((field) => {
-          const value = cleanedRow[field];
-          if (typeof value === "string") {
-            if (
-              value.toLowerCase() === "Not specified" ||
-              value.trim() === ""
-            ) {
-              cleanedRow[field] = null;
-            } else {
-              const parsedValue = parseFloat(value);
-              cleanedRow[field] = isNaN(parsedValue) ? null : parsedValue;
-            }
+      // Definición de los campos numéricos (asegúrate que esta variable esté definida en tu componente)
+      // Ejemplo: const numericFields = ["Length", "Area", "Volume", "Width"];
+      // Si 'data', 'backendUrl', 'accountId', 'projectId' son props o vienen del estado, asegúrate que estén accesibles.
+    
+      try {
+        // 1) Limpiar y parsear valores numéricos
+        const cleanedData = data.map((row) => {
+          const cleanedRow = { ...row };
+          // Asegúrate que numericFields esté definido y accesible aquí
+          if (typeof numericFields !== 'undefined' && Array.isArray(numericFields)) {
+            numericFields.forEach((field) => {
+              const v = cleanedRow[field];
+              if (typeof v === "string") {
+                if (v.trim() === "" || v.toLowerCase() === "not specified") {
+                  cleanedRow[field] = null;
+                } else {
+                  const n = parseFloat(v);
+                  cleanedRow[field] = isNaN(n) ? null : n;
+                }
+              } else if (v === undefined) { // Si el campo no existe en el row, puedes definirlo como null
+                cleanedRow[field] = null;
+              }
+            });
           }
+          return cleanedRow;
         });
-        return cleanedRow;
-      });
-
-      const response = await fetch(
-        `${backendUrl}/modeldata/${accountId}/${projectId}/data`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(cleanedData),
+    
+        // 2) Parámetros de chunking y reintentos
+        const CHUNK_SIZE = 25; // REDUCIDO: Prueba con 20-30. Ajusta según sea necesario.
+        const MAX_RETRIES = 3; // Número máximo de reintentos por lote
+        const INITIAL_RETRY_DELAY = 1000; // 1 segundo de espera inicial para reintento
+        const PROGRESS_UPDATE_INTERVAL = 200; // Pequeña pausa entre lotes exitosos
+    
+        const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
+        const totalChunks = Math.ceil(cleanedData.length / CHUNK_SIZE);
+        let successfulChunks = 0;
+        let processedItems = 0;
+        const failedBatchesInfo = []; // Para guardar información de lotes que fallaron permanentemente
+    
+        // 3) Enviar lotes secuencialmente con reintentos
+        for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
+          const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
+          const currentChunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
+          let retries = 0;
+          let successInCurrentChunk = false;
+    
+          while (retries < MAX_RETRIES && !successInCurrentChunk) {
+            console.log(
+              `🚀 Enviando lote ${currentChunkNumber}/${totalChunks} (${chunk.length} items). Intento ${retries + 1}/${MAX_RETRIES}...`
+            );
+    
+            try {
+              const resp = await fetch(url, {
+                method: "POST",
+                credentials: "include", // Asegúrate que esto es necesario y está configurado correctamente en el backend (CORS)
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(chunk),
+              });
+    
+              if (resp.ok) { // resp.ok es true para status HTTP 200-299
+                const responseData = await resp.json(); // Leer el cuerpo de la respuesta
+                console.log(`✅ Lote ${currentChunkNumber} completado con status ${resp.status}. Respuesta:`, responseData);
+                successInCurrentChunk = true;
+                successfulChunks++;
+                processedItems += chunk.length; // O podrías usar responseData.data.processed si el backend lo devuelve
+              } else {
+                // Errores HTTP como 400, 401, 500, 504, etc.
+                let errMsg = `HTTP ${resp.status}: ${resp.statusText}`;
+                let errorDetails = null;
+                try {
+                  // Intenta parsear el error como JSON
+                  errorDetails = await resp.json();
+                  errMsg = errorDetails.message || JSON.stringify(errorDetails);
+                } catch (e) {
+                  // Si no es JSON, intenta leer como texto (puede ser HTML de error de Vercel)
+                  const textError = await resp.text();
+                  errMsg = textError.substring(0, 200); // Mostrar solo una parte si es HTML largo
+                  if (resp.status === 504 && textError.toLowerCase().includes("vercel")) {
+                    errMsg = `Gateway Timeout (504). El servidor de Vercel tardó demasiado en responder.`;
+                  }
+                }
+                console.error(`Error en lote ${currentChunkNumber}, Intento ${retries + 1}: ${errMsg}`);
+                
+                // Solo reintentar para errores de servidor (5xx, incluido 504) o algunos errores específicos
+                if (resp.status >= 500 && resp.status <= 599) { // 500, 502, 503, 504, etc.
+                  retries++;
+                  if (retries < MAX_RETRIES) {
+                    const delay = INITIAL_RETRY_DELAY * Math.pow(2, retries - 1); // Backoff exponencial
+                    console.log(`Reintentando lote ${currentChunkNumber} en ${delay / 1000}s...`);
+                    await new Promise((r) => setTimeout(r, delay));
+                  } else {
+                    // Máximo de reintentos alcanzado para este lote
+                    const finalErrorMsg = `Lote ${currentChunkNumber} falló después de ${MAX_RETRIES} intentos: ${errMsg}`;
+                    console.error(finalErrorMsg);
+                    failedBatchesInfo.push({ batch: currentChunkNumber, error: errMsg, items: chunk.length });
+                    // No lanzamos un error aquí para permitir que otros lotes continúen, se informará al final.
+                    break; // Salir del bucle while de reintentos para este lote
+                  }
+                } else {
+                  // Para errores 4xx (Bad Request, Unauthorized, etc.), no tiene sentido reintentar.
+                  const clientErrorMsg = `Lote ${currentChunkNumber} falló con error cliente (status ${resp.status}): ${errMsg}`;
+                  console.error(clientErrorMsg);
+                  failedBatchesInfo.push({ batch: currentChunkNumber, error: clientErrorMsg, items: chunk.length });
+                  break; // Salir del bucle while de reintentos
+                }
+              }
+            } catch (networkError) { // Captura errores de red (fetch falló por completo, ej. sin conexión)
+              console.error(`Error de red en lote ${currentChunkNumber}, Intento ${retries + 1}: ${networkError.message}`);
+              retries++;
+              if (retries < MAX_RETRIES) {
+                const delay = INITIAL_RETRY_DELAY * Math.pow(2, retries - 1);
+                console.log(`Reintentando lote ${currentChunkNumber} en ${delay / 1000}s (error de red)...`);
+                await new Promise((r) => setTimeout(r, delay));
+              } else {
+                const finalNetErrorMsg = `Lote ${currentChunkNumber} falló por error de red después de ${MAX_RETRIES} intentos: ${networkError.message}`;
+                console.error(finalNetErrorMsg);
+                failedBatchesInfo.push({ batch: currentChunkNumber, error: finalNetErrorMsg, items: chunk.length });
+                break; // Salir del bucle while de reintentos
+              }
+            }
+          } // Fin while (reintentos)
+    
+          // Pequeña pausa entre la finalización de un lote (o sus reintentos) y el inicio del siguiente.
+          // Solo si no es el último lote.
+          if (currentChunkNumber < totalChunks) {
+              await new Promise((r) => setTimeout(r, PROGRESS_UPDATE_INTERVAL));
+          }
+        } // Fin for (lotes)
+    
+        // 6) Informar resultado final
+        if (failedBatchesInfo.length > 0) {
+          console.error("Algunos lotes no pudieron ser procesados:", failedBatchesInfo);
+          let failureSummary = failedBatchesInfo.map(f => `Lote ${f.batch} (${f.items} items) falló: ${f.error}`).join("\n");
+          alert(
+            `Proceso completado con errores.\nLotes exitosos: ${successfulChunks}/${totalChunks} (${processedItems} items).\n\nLotes fallidos:\n${failureSummary}`
+          );
+        } else {
+          alert(`¡Todos los datos (${processedItems} items en ${successfulChunks} lotes) enviados exitosamente!`);
         }
-      );
-
-      if (response.ok) {
-        alert("Data sent successfully");
-        //await handlePullData();
-      } else {
-        const errorData = await response.json();
-        console.error("Error sending data:", errorData.message);
-        alert(`Error sending data: ${errorData.message}`);
+    
+      } catch (error) { // Captura errores inesperados en la lógica de handleSubmit fuera del bucle de lotes.
+        console.error("Error general en handleSubmit:", error);
+        alert(`Error crítico al procesar los datos: ${error.message}`);
       }
-    } catch (error) {
-      console.error("Request error:", error);
-      alert(`Request error: ${error.message}`);
-    }
-  };
+    };
 
   const handlePullData = async (discipline = null) => {
     try {
