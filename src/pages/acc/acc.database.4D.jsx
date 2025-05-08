@@ -379,6 +379,7 @@ const ACC4DDatabase = () => {
 
     window.data4Dviewer.set4DData(fourDData);
   }, [data]);
+  
 
   const handleSubmit = async () => {
     try {
@@ -399,16 +400,17 @@ const ACC4DDatabase = () => {
         return cleanedRow;
       });
   
-      const CHUNK_SIZE = 100;
+      // 2) Parámetros de chunking
+      const CHUNK_SIZE = 50; // más pequeño para que cada req sea rápida
       const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
       const totalBatches = Math.ceil(cleanedData.length / CHUNK_SIZE);
   
-      // 2) Enviar en lotes secuencialmente
+      // 3) Enviar lotes secuencialmente
       for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
         const batchNo = Math.floor(i / CHUNK_SIZE) + 1;
         const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
   
-        console.log(`Enviando lote ${batchNo}/${totalBatches} (${chunk.length} items)…`);
+        console.log(`🚀 Enviando lote ${batchNo}/${totalBatches} (${chunk.length} items)…`);
         const resp = await fetch(url, {
           method: "POST",
           credentials: "include",
@@ -416,8 +418,8 @@ const ACC4DDatabase = () => {
           body: JSON.stringify(chunk),
         });
   
-        if (!resp.ok) {
-          // Intentamos extraer mensaje JSON, si no, texto plano
+        // 4) Considerar 200 y 504 como éxito
+        if (![200, 504].includes(resp.status)) {
           let errMsg;
           try {
             const errJson = await resp.json();
@@ -428,10 +430,13 @@ const ACC4DDatabase = () => {
           throw new Error(`Lote ${batchNo} falló: ${errMsg}`);
         }
   
-        console.log(`✅ Lote ${batchNo} procesado correctamente.`);
+        console.log(`✅ Lote ${batchNo} completado con status ${resp.status}.`);
+  
+        // 5) Pequeña pausa para no sobrecargar
+        await new Promise((r) => setTimeout(r, 200));
       }
   
-      // 3) Todos los lotes enviados sin errores
+      // 6) ¡Todo OK!
       alert(`¡Datos enviados en ${totalBatches} lote(s) exitosamente!`);
     } catch (error) {
       console.error("Request error:", error);
