@@ -18,15 +18,15 @@ const PlatformPage = () => {
     const params = new URLSearchParams(search);
     const token = params.get("token");
 
-    // Si viene ?token=, guárdalo y limpia la URL
+    
     if (token) {
       setCookie("access_token", token, {
         path: "/",
-        maxAge: 3600,        // 1 hora
-        sameSite: "lax",     // o "none" si lo necesitas
+        maxAge: 3600,        
+        sameSite: "none",     
         secure: window.location.protocol === "https:",
       });
-      // Redirige a /platform SIN el query para no exponer el token
+      
       navigate("/platform", { replace: true });
     }
   }, [search, setCookie, navigate]);
