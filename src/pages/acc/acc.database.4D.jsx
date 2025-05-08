@@ -381,30 +381,30 @@ const ACC4DDatabase = () => {
   }, [data]);
 
   const handleSubmit = async () => {
-    const CHUNK_SIZE = 500;
-    const MAX_RETRIES = 2;
-    const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
-  
-    // 1) Limpiar y parsear valores numéricos
-    const cleanedData = data.map((row) => {
-      const cleanedRow = { ...row };
-      numericFields.forEach((field) => {
-        const v = cleanedRow[field];
-        if (typeof v === "string") {
-          if (v.trim() === "" || v.toLowerCase() === "not specified") {
-            cleanedRow[field] = null;
-          } else {
-            const n = parseFloat(v);
-            cleanedRow[field] = isNaN(n) ? null : n;
+    try {
+      // 1) Limpiar y parsear valores numéricos
+      const cleanedData = data.map((row) => {
+        const cleanedRow = { ...row };
+        numericFields.forEach((field) => {
+          const value = cleanedRow[field];
+          if (typeof value === "string") {
+            if (value.toLowerCase() === "Not specified" || value.trim() === "") {
+              cleanedRow[field] = null;
+            } else {
+              const parsedValue = parseFloat(value);
+              cleanedRow[field] = isNaN(parsedValue) ? null : parsedValue;
+            }
           }
-        }
+        });
+        return cleanedRow;
       });
-      return cleanedRow;
-    });
   
-    // Helper recursivo para enviar un solo chunk, con reintentos y "split on fail"
-    const sendChunk = async (chunk, batchNo, retries = MAX_RETRIES) => {
-      try {
+      const CHUNK_SIZE = 500;
+      const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
+  
+      // 2) Enviar en lotes
+      for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
+        const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
         const resp = await fetch(url, {
           method: "POST",
           credentials: "include",
@@ -412,57 +412,34 @@ const ACC4DDatabase = () => {
           body: JSON.stringify(chunk),
         });
   
+        // Clonamos la respuesta para poder reintentar leer el body
+        const clone = resp.clone();
+  
         if (!resp.ok) {
-          // leer mensaje de error (JSON o texto)
-          let msg;
+          let errMsg;
           try {
-            const j = await resp.clone().json();
-            msg = j.message || JSON.stringify(j);
+            // Primero intentamos parsear JSON
+            const errJson = await resp.json();
+            errMsg = errJson.message || JSON.stringify(errJson);
           } catch {
-            msg = await resp.clone().text();
+            // Si no es JSON, leemos como texto (puede ser el HTML de Vercel)
+            errMsg = await clone.text();
           }
-          throw new Error(`HTTP ${resp.status}: ${msg}`);
+          throw new Error(
+            `Lote ${Math.floor(i / CHUNK_SIZE) + 1} falló: ${errMsg}`
+          );
         }
-        console.log(`✅ Lote ${batchNo} correcto (${chunk.length} items)`);
-      } catch (err) {
-        console.warn(`⚠️ Lote ${batchNo}, intento ${MAX_RETRIES - retries + 1} falló:`, err.message);
-  
-        // si todavía podemos reintentar, lo hacemos
-        if (retries > 0) {
-          // si el chunk es grande y sigue fallando, lo partimos en dos
-          if (chunk.length > 1) {
-            const mid = Math.ceil(chunk.length / 2);
-            const firstHalf = chunk.slice(0, mid);
-            const secondHalf = chunk.slice(mid);
-  
-            await sendChunk(firstHalf, `${batchNo}.1`, MAX_RETRIES);
-            await sendChunk(secondHalf, `${batchNo}.2`, MAX_RETRIES);
-            return;
-          }
-          // si es un solo item o ya pequeñito, reintentar igual
-          return sendChunk(chunk, batchNo, retries - 1);
-        }
-  
-        // si ya no quedan reintentos, lanza el error
-        throw new Error(`Lote ${batchNo} definitivamente falló: ${err.message}`);
-      }
-    };
-  
-    try {
-      // 2) Procesar todos los lotes en serie
-      const totalBatches = Math.ceil(cleanedData.length / CHUNK_SIZE);
-      for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
-        const batchNo = Math.floor(i / CHUNK_SIZE) + 1;
-        const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
-        console.log(`🚀 Enviando lote ${batchNo}/${totalBatches} (${chunk.length} items)`);
-        await sendChunk(chunk, batchNo);
       }
   
-      // 3) Éxito
-      alert(`¡Datos enviados en ${Math.ceil(cleanedData.length / CHUNK_SIZE)} lotes exitosamente!`);
+      // 3) Si todos los lotes van bien:
+      alert(
+        `¡Datos enviados en ${Math.ceil(
+          cleanedData.length / CHUNK_SIZE
+        )} lotes exitosamente!`
+      );
     } catch (error) {
       console.error("Request error:", error);
-      alert(`Error al enviar datos: ${error.message}`);
+      alert(`Request error: ${error.message}`);
     }
   };
 
