@@ -386,25 +386,29 @@ const ACC4DDatabase = () => {
       const cleanedData = data.map((row) => {
         const cleanedRow = { ...row };
         numericFields.forEach((field) => {
-          const value = cleanedRow[field];
-          if (typeof value === "string") {
-            if (value.toLowerCase() === "Not specified" || value.trim() === "") {
+          const v = cleanedRow[field];
+          if (typeof v === "string") {
+            if (v.trim() === "" || v.toLowerCase() === "not specified") {
               cleanedRow[field] = null;
             } else {
-              const parsedValue = parseFloat(value);
-              cleanedRow[field] = isNaN(parsedValue) ? null : parsedValue;
+              const n = parseFloat(v);
+              cleanedRow[field] = isNaN(n) ? null : n;
             }
           }
         });
         return cleanedRow;
       });
   
-      const CHUNK_SIZE = 500;
+      const CHUNK_SIZE = 100;
       const url = `${backendUrl}/modeldata/${accountId}/${projectId}/data`;
+      const totalBatches = Math.ceil(cleanedData.length / CHUNK_SIZE);
   
-      // 2) Enviar en lotes
+      // 2) Enviar en lotes secuencialmente
       for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
+        const batchNo = Math.floor(i / CHUNK_SIZE) + 1;
         const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
+  
+        console.log(`Enviando lote ${batchNo}/${totalBatches} (${chunk.length} items)…`);
         const resp = await fetch(url, {
           method: "POST",
           credentials: "include",
@@ -412,34 +416,26 @@ const ACC4DDatabase = () => {
           body: JSON.stringify(chunk),
         });
   
-        // Clonamos la respuesta para poder reintentar leer el body
-        const clone = resp.clone();
-  
         if (!resp.ok) {
+          // Intentamos extraer mensaje JSON, si no, texto plano
           let errMsg;
           try {
-            // Primero intentamos parsear JSON
             const errJson = await resp.json();
             errMsg = errJson.message || JSON.stringify(errJson);
           } catch {
-            // Si no es JSON, leemos como texto (puede ser el HTML de Vercel)
-            errMsg = await clone.text();
+            errMsg = await resp.text();
           }
-          throw new Error(
-            `Lote ${Math.floor(i / CHUNK_SIZE) + 1} falló: ${errMsg}`
-          );
+          throw new Error(`Lote ${batchNo} falló: ${errMsg}`);
         }
+  
+        console.log(`✅ Lote ${batchNo} procesado correctamente.`);
       }
   
-      // 3) Si todos los lotes van bien:
-      alert(
-        `¡Datos enviados en ${Math.ceil(
-          cleanedData.length / CHUNK_SIZE
-        )} lotes exitosamente!`
-      );
+      // 3) Todos los lotes enviados sin errores
+      alert(`¡Datos enviados en ${totalBatches} lote(s) exitosamente!`);
     } catch (error) {
       console.error("Request error:", error);
-      alert(`Request error: ${error.message}`);
+      alert(`Error al enviar datos: ${error.message}`);
     }
   };
 
