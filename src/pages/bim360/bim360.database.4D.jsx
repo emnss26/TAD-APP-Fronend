@@ -407,7 +407,7 @@ const BIM3604DDatabase = () => {
         });
     
         // 2) Parámetros de chunking y reintentos
-        const CHUNK_SIZE = 250; // REDUCIDO: Prueba con 20-30. Ajusta según sea necesario.
+        const CHUNK_SIZE = 500; // REDUCIDO: Prueba con 20-30. Ajusta según sea necesario.
         const MAX_RETRIES = 3; // Número máximo de reintentos por lote
         const INITIAL_RETRY_DELAY = 1000; // 1 segundo de espera inicial para reintento
         const PROGRESS_UPDATE_INTERVAL = 200; // Pequeña pausa entre lotes exitosos

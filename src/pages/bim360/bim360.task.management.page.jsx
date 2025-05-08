@@ -3,10 +3,10 @@ import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { Button } from "@/components/ui/button";
 
-import ACCPlatformprojectsHeader from "../../components/platform_page_components/acc.platform.header.projects";
+import BIM360PlatformprojectsHeader from "../../components/platform_page_components/bim360.platform.header.projects";
 import { Footer } from "../../components/general_pages_components/general.pages.footer";
+import BIM360SideBar from "../../components/platform_page_components/platform.bim360.sidebar";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
-import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
 
 import {
   Tabs,
@@ -28,12 +28,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-import { fechACCProjectUsers } from "../../pages/services/acc.services";
+import { fechBIM360ProjectUsers } from "../../pages/services/bim360.services";
 
 const backendUrl =
   import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
 
-const ACCProjectTaskManagementPage = () => {
+const BIM360ProjectTaskManagementPage = () => {
   const { projectId, accountId } = useParams();
   const [cookies] = useCookies(["access_token"]);
 
@@ -50,13 +50,12 @@ const ACCProjectTaskManagementPage = () => {
         setLoading(true);
         const tasksArray = await taskService.getTasks(projectId, accountId);
 
-        // 1) Llamamos al servicio que devuelve { users: […] }
-        const usersData = await fechACCProjectUsers(
+        const usersData = await fechBIM360ProjectUsers(
           projectId,
           cookies.access_token,
           accountId
         );
-        // 2) Extraemos el array de usuarios
+
         const usersArray = Array.isArray(usersData.users)
           ? usersData.users
           : [];
@@ -73,9 +72,6 @@ const ACCProjectTaskManagementPage = () => {
     fetchData();
   }, [projectId, accountId, cookies.access_token]);
 
-  //console.log("Users", users);
-  //console.log("Tasks", tasks);
-
   const handleAddTask = async (newTask) => {
     try {
       const created = await taskService.createTask(
@@ -91,25 +87,24 @@ const ACCProjectTaskManagementPage = () => {
   };
 
   const handleUpdateTask = async (taskToUpdate) => {
-    
     console.log("Updating task:", taskToUpdate);
     console.log("Project ID:", taskToUpdate.id);
-    try{const updated = await taskService.updateTask(
-      projectId,
-      accountId,
-      taskToUpdate.id,
-      taskToUpdate
-    );
-    console.log("Updated task:", updated);
-    
-    setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-  }catch (err) {
-    setError(err.message);
-  };
-}
+    try {
+      const updated = await taskService.updateTask(
+        projectId,
+        accountId,
+        taskToUpdate.id,
+        taskToUpdate
+      );
+      console.log("Updated task:", updated);
 
-const handleDeleteTask = async (taskId) => {
-  
+      setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar esta tarea?")) {
       return;
     }
@@ -117,7 +112,7 @@ const handleDeleteTask = async (taskId) => {
       setError(null);
       await taskService.deleteTask(projectId, accountId, taskId);
 
-   setTasks(tasks.filter((task) => task.id !== taskId));
+      setTasks(tasks.filter((task) => task.id !== taskId));
     } catch (err) {
       console.error("Error deleting task:", err);
       setError(
@@ -134,10 +129,13 @@ const handleDeleteTask = async (taskId) => {
     <>
       {loading && <LoadingOverlay />}
       {/*Header*/}
-      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
+      <BIM360PlatformprojectsHeader
+        accountId={accountId}
+        projectId={projectId}
+      />
 
       <div className="flex min-h-screen mt-14">
-        <ACCSideBar />
+        <BIM360SideBar />
 
         <main className="flex-1 min-w-0 p-2 px-4 bg-white">
           <h1 className="text-right text-xl mt-2">
@@ -211,4 +209,4 @@ const handleDeleteTask = async (taskId) => {
   );
 };
 
-export default ACCProjectTaskManagementPage;
+export default BIM360ProjectTaskManagementPage;

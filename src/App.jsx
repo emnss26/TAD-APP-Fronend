@@ -6,6 +6,8 @@ import LoginPage from "./pages/Login.Page";
 import PlatformPage from "./pages/Platform.Page";
 import AboutPage from "./pages/About.Page";
 import ServicesPage from "./pages/Services.Page";
+import NotFoundPage from "./pages/NotFound.Page"; 
+import NotAuthorizedPage from "./pages/NotAllowed";
 
 //ACC Pages
 import ACCProjectsPage from "./pages/acc/acc.projects.page.jsx";
@@ -30,6 +32,7 @@ import BIM3604DDatabase from "./pages/bim360/bim360.database.4D";
 import BIM3605DDatabase from "./pages/bim360/bim360.database.5D";
 import BIM3606DDatabase from "./pages/bim360/bim360.database.6D";
 import BIM360ProjectPlansPage from "./pages/bim360/bim360.project.plans.jsx";
+import BIM360ProjectTaskManagementPage from "./pages/bim360/bim360.task.management.page.jsx";
 
 //Protected Route
 import ProtectedRoute from "./components/general_pages_components/protected.route";
@@ -43,6 +46,10 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/not-authorized" element={<NotAuthorizedPage />} />
+
+          <Route element={<ProtectedRoute />}>
+          <Route path="/platform" element={<PlatformPage />} />
 
           <Route path="/platform" element={<PlatformPage />} />
 
@@ -123,9 +130,14 @@ function App() {
             path="/bim360projects/:accountId/:projectId/plans"
             element={<BIM360ProjectPlansPage />}
           />
+          <Route
+            path="/bim360projects/:accountId/:projectId/task-manager"
+            element={<BIM360ProjectTaskManagementPage />}
+          />
 
-
+          </Route>
           {/* 404 Not Found */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>
     </CookiesProvider>

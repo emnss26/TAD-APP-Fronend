@@ -15,6 +15,19 @@ export const disciplineOptions = [
   "Plumbing",
   "Fire Protection",
   "Special Systems",
+  "HVAC",
+  "Fire Alarm",
+  "Security",
+  "Access Control",
+  "CCTV",
+  "Data",
+  "Telephony",
+  "Audio Visual",
+  "Low Voltage",
+  "High Voltage",
+  "Power",
+  "Lighting",
+  "For Reference Only",
 ];
 
 export const elementtype = [
