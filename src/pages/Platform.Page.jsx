@@ -1,7 +1,7 @@
-// npm install react-tsparticles tsparticles-slim
-
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { useNavigate } from "react-router-dom";
+
 import PlatformHeader from "../components/platform_page_components/platform.access.header.jsx";
 import { Footer } from "../components/general_pages_components/general.pages.footer.jsx";
 
@@ -10,7 +10,26 @@ import { loadSlim } from "tsparticles-slim";
 
 const PlatformPage = () => {
   const [cookies] = useCookies(["access_token"]);
+  const [ , setCookie ] = useCookies(["access_token"]);
   const navigate = useNavigate();
+  const { search } = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const token = params.get("token");
+
+    // Si viene ?token=, guárdalo y limpia la URL
+    if (token) {
+      setCookie("access_token", token, {
+        path: "/",
+        maxAge: 3600,        // 1 hora
+        sameSite: "lax",     // o "none" si lo necesitas
+        secure: window.location.protocol === "https:",
+      });
+      // Redirige a /platform SIN el query para no exponer el token
+      navigate("/platform", { replace: true });
+    }
+  }, [search, setCookie, navigate]);
 
   const goToBim360 = () => navigate("/bim360projects");
   const goToAcc = () => navigate("/accprojects");

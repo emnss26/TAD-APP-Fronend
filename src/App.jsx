@@ -51,8 +51,6 @@ function App() {
           <Route element={<ProtectedRoute />}>
           <Route path="/platform" element={<PlatformPage />} />
 
-          <Route path="/platform" element={<PlatformPage />} />
-
           {/* ACC Pages */}
           <Route path="/accprojects" element={<ACCProjectsPage />} />
           <Route
