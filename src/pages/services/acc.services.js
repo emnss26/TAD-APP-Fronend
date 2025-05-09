@@ -1,9 +1,15 @@
+import { getCsrfToken } from "@/utils/security/csrf";
+
 const backendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL;
 
 export const fetchACCProjectsData = async (token) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(`${backendUrl}/acc/accprojects`, {
       credentials: "include",
+      headers: {
+        "X-CSRF-Token": csrfToken
+      }
     });
 
     if (!response.ok) {
@@ -23,10 +29,14 @@ export const fetchACCProjectsData = async (token) => {
 
 export const fetchACCProjectData = async (projectId, token, accountId) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/acc/accprojects/${accountId}/${projectId}`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token": csrfToken
+        }
       }
     );
 
@@ -52,10 +62,14 @@ const toBase64 = async (str) => {
 
 export const fetchACCFederatedModel = async (projectId, token, accountId) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/datamanagement/items/${accountId}/${projectId}/federatedmodel`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token": csrfToken
+        }
       }
     );
 
@@ -75,10 +89,15 @@ export const fetchACCFederatedModel = async (projectId, token, accountId) => {
 
 export const fechACCProjectUsers = async (projectId, token, accountId) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/acc/accprojects/${accountId}/${projectId}/users`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token": csrfToken
+        }
+
       }
     );
     if (!response.ok) {
@@ -97,10 +116,14 @@ export const fechACCProjectUsers = async (projectId, token, accountId) => {
 
 export const fechACCProjectIssues = async (projectId, token, accountId) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/acc/accprojects/${accountId}/${projectId}/issues`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token": csrfToken
+        }
       }
     );
     if (!response.ok) {
@@ -119,10 +142,14 @@ export const fechACCProjectIssues = async (projectId, token, accountId) => {
 
 export const fetchACCProjectRFI = async (projectId, token, accountId) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/acc/accprojects/${accountId}/${projectId}/rfis`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token": csrfToken
+        }
       }
     );
     if (!response.ok) {
@@ -145,10 +172,14 @@ export const fetchACCProjectSubmittals = async (
   accountId
 ) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
-      `${backendUrl}/acc/accprojects/${accountId}/${projectId}/submittals`,
+      `${backendUrl}/acc/accprojects/${accountId}/${projectId}/submittals`, 
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token": csrfToken
+        }
       }
     );
     if (!response.ok) {

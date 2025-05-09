@@ -1,9 +1,14 @@
+import { getCsrfToken } from "@/utils/security/csrf";
 const backendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL;
 
 export const fetchBIM360ProjectsData = async (access_token) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(`${backendUrl}/bim360/bim360projects/`, {
       credentials: "include",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+      }
     });
 
     if (!response.ok) {
@@ -27,10 +32,14 @@ export const fetchBIM360ProjectData = async (
   accountId
 ) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/bim360/bim360projects/${accountId}/${projectId}`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token": csrfToken
+        }
       }
     );
     if (!response.ok) {
@@ -58,10 +67,14 @@ export const fetchBIM360FederatedModel = async (
   accountId
 ) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/datamanagement/items/${accountId}/${projectId}/federatedmodel`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token" : csrfToken,
+        }
       }
     );
 
@@ -82,10 +95,14 @@ export const fechBIM360ProjectUsers = async (
   accountId
 ) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/bim360/bim360projects/${accountId}/${projectId}/users`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token" : csrfToken
+        }
       }
     );
     if (!response.ok) {
@@ -108,10 +125,14 @@ export const fechBIM360ProjectIssues = async (
   accountId
 ) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/bim360/bim360projects/${accountId}/${projectId}/issues`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token" : csrfToken
+        }
       }
     );
     if (!response.ok) {
@@ -134,10 +155,14 @@ export const fetchBIM360ProjectRFI = async (
   accountId
 ) => {
   try {
+    const csrfToken = getCsrfToken();
     const response = await fetch(
       `${backendUrl}/bim360/bim360projects/${accountId}/${projectId}/rfis`,
       {
         credentials: "include",
+        headers: {
+          "X-CSRF-Token" : csrfToken
+        }
       }
     );
     if (!response.ok) {
