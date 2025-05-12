@@ -23,6 +23,7 @@ import DisciplinePlansPieChart from "../../components/plans_components/plans.dis
 import * as XLSX from "xlsx";
 
 import PlansTable from "../../components/plans_components/plans.table";
+import FolderMappingModal from "../../components/plans_components/plans.tree.selection";
 
 const defaultPlanRow = {
   Id: Date.now(),
@@ -54,6 +55,11 @@ const ACCProjectPlansPage = () => {
   /* ---------- Filter State ---------- */
   const [selectedDiscipline, setSelectedDiscipline] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
+
+  /* ---------- Folder Mapping States ---------- */
+  const [showMapping, setShowMapping] = useState(false);
+  const [folderTree, setFolderTree] = useState(null);
+  const [mappedPlans, setMappedPlans] = useState([]);
 
   /* ---------- Data Fetching Function (Reusable) ---------- */
   const fetchPlansData = useCallback(async () => {
@@ -98,6 +104,18 @@ const ACCProjectPlansPage = () => {
       setLoading(false);
     }
   }, [accountId, projectId]);
+
+  useEffect(() => {
+    setMappedPlans(
+      plans.map((p) => ({
+        ...p,
+        exists: false,
+        lastModifiedTime: "",
+        revisionProcess: "",
+        revisionStatus: "",
+      }))
+    );
+  }, [plans]);
 
   /* ---------- Initial Data Load ---------- */
   useEffect(() => {
@@ -284,10 +302,152 @@ const ACCProjectPlansPage = () => {
     ]);
   };
 
-  const handleRemoveRows = (ids) => {
-    setPlans((prev) => prev.filter((p) => !ids.includes(p.id)));
-    setSelectedRows([]);
+  const handleRemoveRows = async (ids) => {
+    if (!ids.length) return;
+
+    // 1️⃣ Dispara el DELETE al backend
+    try {
+      const res = await fetch(
+        `${backendUrl}/plans/${accountId}/${projectId}/plans`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids }), // ids = SheetNumber (_key)
+        }
+      );
+
+      if (!res.ok) {
+        const { message } = await res.json();
+        throw new Error(message || `HTTP ${res.status}`);
+      }
+
+      // 2️⃣ Actualiza la UI solo si el backend respondió OK
+      setPlans((prev) => prev.filter((p) => !ids.includes(p.id)));
+      setSelectedRows([]);
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert(`Error al borrar: ${err.message}`);
+    }
   };
+
+  const handleFolderChosen = async (folderId, tree) => {
+    const findNode = (nodes) => {
+      for (const n of nodes) {
+        if (n.id === folderId) return n;
+        if (n.children) {
+          const found = findNode(n.children);
+          if (found) return found;
+        }
+      }
+    };
+    const root = findNode(tree);
+    if (!root) {
+      console.warn("Carpeta no encontrada en el árbol:", folderId);
+      return;
+    }
+
+    const flattenFiles = (nodes) => {
+      let out = [];
+      nodes.forEach((n) => {
+        if (n.type === "file") {
+          out.push({
+            itemId: n.id, // → lineage URN, p.e. urn:adsk.wipprod:dm.lineage:...
+            versionUrn: n.version_urn, // → versionedFileUrn, p.e. urn:...fs.file:vf....?version=1
+            name: n.name,
+          });
+        }
+        if (n.children) {
+          out = out.concat(flattenFiles(n.children));
+        }
+      });
+      return out;
+    };
+
+    const fileNodes = flattenFiles(root.children || []);
+    const lineageIds = fileNodes.map((f) => f.itemId);
+    const versionedUrns = fileNodes.map((f) => f.versionUrn);
+
+    const fileNames = fileNodes.map((f) => f.name);
+    console.log("🗂️ Archivos encontrados en la carpeta:", fileNames);
+
+    const fileIds = fileNodes.map((f) => f.id);
+    console.log("🆔 File IDs:", fileIds);
+
+    let details = [];
+    try {
+      const resp = await fetch(
+        `${backendUrl}/datamanagement/items/${accountId}/${projectId}/file-data`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ itemIds: lineageIds }), // <-- lineage URNs
+        }
+      );
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.error || resp.statusText);
+      details = json.data;
+      console.log("📑 Detalles recibidos:", details);
+    } catch (err) {
+      console.error("Error fetch item details:", err);
+      alert(`No pude cargar detalles de archivos: ${err.message}`);
+    }
+
+    let filesRevisions = [];
+    try {
+      const resp = await fetch(
+        `${backendUrl}/datamanagement/items/${accountId}/${projectId}/file-revisions`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ itemIds: versionedUrns }), // <-- versionedFileUrn
+        }
+      );
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.error || resp.statusText);
+      filesRevisions = json.data;
+      console.log("📑 Revisions recibidas:", filesRevisions);
+    } catch (err) {
+      console.error("Error fetch files revisions:", err);
+      alert(`No pude cargar revisiones de archivos: ${err.message}`);
+    }
+
+    setMappedPlans(
+      plans.map((plan) => {
+        const matchNode = fileNodes.find((f) =>
+          f.name.toLowerCase().includes((plan.SheetNumber || "").toLowerCase())
+        );
+        const exists = !!matchNode;
+        const itemId = matchNode?.id ?? null;
+        const versionUrn = matchNode?.versionUrn;
+        const lineageId = matchNode?.itemId;
+
+        const detail = details.find((d) => d.data?.id === lineageId);
+        console.log("detail", detail);
+        const rawTS = detail?.data?.attributes?.lastModifiedTime;
+        const lastModifiedTime = rawTS ? rawTS.split("T")[0] : "";
+
+        const fileRev =
+          filesRevisions.find((fr) => fr.itemId === versionUrn) || {};
+        const revisionProcess = fileRev.label || "";
+        const revisionStatus = fileRev.reviewStatus || "";
+
+        console.log("detail", lastModifiedTime);
+
+        return {
+          ...plan,
+          exists,
+          itemId,
+          lastModifiedTime,
+          revisionProcess,
+          revisionStatus,
+        };
+      })
+    );
+  };
+
+  console.log("mappedPlans", mappedPlans);
 
   // ——— IMPORT / EXPORT EXCEL ———
 
@@ -351,6 +511,8 @@ const ACCProjectPlansPage = () => {
     e.target.value = null;
   }, []);
 
+  const displayedPlans = mappedPlans.length ? mappedPlans : plans;
+
   /* ---------- Render ---------- */
   return (
     <>
@@ -365,8 +527,13 @@ const ACCProjectPlansPage = () => {
         <main className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl mt-2">PROJECT PLANS MANAGEMENT</h1>
           <hr className="my-4 border-t border-gray-300" />
-
           <div className="mb-4 text-right">
+            <button
+              onClick={() => setShowMapping(true)}
+              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+            >
+              Files – Folder mapping
+            </button>
             <button
               onClick={handlePullData}
               className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
@@ -402,6 +569,16 @@ const ACCProjectPlansPage = () => {
             </label>
           </div>
 
+          {/* modal */}
+          <FolderMappingModal
+            open={showMapping}
+            onClose={() => setShowMapping(false)}
+            accountId={accountId}
+            projectId={projectId}
+            backendUrl={backendUrl}
+            onFolderChosen={handleFolderChosen}
+          />
+
           <div className="flex h-[700px]">
             <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
               <h2 className="text-xl font-bold mt-4 p-6">Plans Data Charts</h2>
@@ -429,7 +606,10 @@ const ACCProjectPlansPage = () => {
 
             <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto h-[700px]">
               <PlansTable
-                plans={plans}
+                plans={displayedPlans.filter(
+                  (p) =>
+                    !selectedDiscipline || p.Discipline === selectedDiscipline
+                )}
                 onInputChange={handleInputChange}
                 onAddRow={handleAddRow}
                 onRemoveRows={handleRemoveRows}

@@ -2,40 +2,28 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
-import PlatformHeader from "../components/platform_page_components/platform.access.header.jsx";
-import { Footer } from "../components/general_pages_components/general.pages.footer.jsx";
-
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 
+import PlatformHeader from "../components/platform_page_components/platform.access.header.jsx";
+import { Footer } from "../components/general_pages_components/general.pages.footer.jsx";
+
 const PlatformPage = () => {
-  const [cookies] = useCookies(["access_token"]);
-  const [ , setCookie ] = useCookies(["access_token"]);
+  const [cookies, setCookie] = useCookies(["access_token"]);
   const navigate = useNavigate();
   const { search } = useLocation();
 
-  useEffect(() => {
-    const params = new URLSearchParams(search);
-    const token = params.get("token");
 
-    
-    if (token) {
-      setCookie("access_token", token, {
-        path: "/",
-        maxAge: 3600,        
-        sameSite: "none",     
-        secure: window.location.protocol === "https:",
-      });
-      
-      navigate("/platform", { replace: true });
-    }
-  }, [search, setCookie, navigate]);
-
+  // Redirect handlers for BIM 360 and ACC
   const goToBim360 = () => navigate("/bim360projects");
   const goToAcc = () => navigate("/accprojects");
 
-  const particlesInit = async (engine) => await loadSlim(engine);
+  // Initialize tsparticles engine
+  const particlesInit = async (engine) => {
+    await loadSlim(engine);
+  };
 
+  // Particle configuration
   const particlesOptions = {
     fullScreen: { enable: false },
     fpsLimit: 60,
@@ -48,10 +36,18 @@ const PlatformPage = () => {
         opacity: 0.6,
         width: 1.5,
       },
-      move: { enable: true, speed: 1, outModes: { default: "bounce" } },
+      move: {
+        enable: true,
+        speed: 1,
+        outModes: { default: "bounce" },
+      },
       size: {
         value: { min: 1, max: 4 },
-        animation: { enable: true, speed: 3, minimumValue: 0.3 },
+        animation: {
+          enable: true,
+          speed: 3,
+          minimumValue: 0.3,
+        },
       },
       shape: { type: ["circle"] },
       number: { value: 85 },
@@ -70,9 +66,10 @@ const PlatformPage = () => {
     },
   };
 
+  // Render: Page layout with platform selector and particle background
   return (
-    <div className="relative flex flex-col min-h-screen bg-[#ffffff] z-10">
-      {/* Partículas cubriendo todo, sin bloquear interacciones */}
+    <div className="relative flex flex-col min-h-screen bg-white z-10">
+      {/* Background Particles (non-blocking interaction) */}
       <Particles
         id="tsparticles"
         init={particlesInit}
@@ -83,21 +80,20 @@ const PlatformPage = () => {
       {/* Header */}
       <PlatformHeader className="relative z-10" />
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="relative z-10 flex flex-1 flex-row items-center justify-center px-8 py-8 mt-20">
-        {/* Left */}
+        {/* Left Side */}
         <div className="w-1/2 flex items-center justify-center h-[60vh]">
           <h1 className="text-7xl font-semibold text-primary">T A D</h1>
         </div>
 
-        {/* Right */}
+        {/* Right Side */}
         <div className="w-1/2 flex flex-col justify-center items-center text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
             TAD APP | Select Your Platform
           </h1>
           <p className="text-lg text-slate-600 max-w-xl mb-6">
-            Select your platform to access your projects and tools. You can
-            choose between BIM 360 and Autodesk Construction Cloud (ACC).
+            Select your platform to access your projects and tools. You can choose between BIM 360 and Autodesk Construction Cloud (ACC).
           </p>
 
           <div className="flex gap-x-4">

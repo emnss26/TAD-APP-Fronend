@@ -1,19 +1,19 @@
-// npm install react-tsparticles tsparticles-slim
-
 import { useNavigate } from "react-router-dom";
-import { Header } from "../components/general_pages_components/general.pages.header";
-import { Footer } from "../components/general_pages_components/general.pages.footer.jsx";
-
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
+
+import { Header } from "../components/general_pages_components/general.pages.header";
+import { Footer } from "../components/general_pages_components/general.pages.footer.jsx";
 
 const NotFoundPage = () => {
   const navigate = useNavigate();
 
+  // Initializes the tsparticles engine using the slim bundle
   const particlesInit = async (engine) => {
     await loadSlim(engine);
   };
 
+  // Particle background configuration (reused across static pages)
   const particlesOptions = {
     fullScreen: { enable: false },
     fpsLimit: 60,
@@ -26,10 +26,18 @@ const NotFoundPage = () => {
         opacity: 0.6,
         width: 1.5,
       },
-      move: { enable: true, speed: 1, outModes: { default: "bounce" } },
+      move: {
+        enable: true,
+        speed: 1,
+        outModes: { default: "bounce" },
+      },
       size: {
         value: { min: 1, max: 4 },
-        animation: { enable: true, speed: 3, minimumValue: 0.3 },
+        animation: {
+          enable: true,
+          speed: 3,
+          minimumValue: 0.3,
+        },
       },
       shape: { type: ["circle"] },
       number: { value: 85 },
@@ -48,9 +56,10 @@ const NotFoundPage = () => {
     },
   };
 
+  // Render: Page structure for 404 Not Found
   return (
     <div className="relative flex flex-col min-h-screen bg-white">
-      {/* Partículas cubriendo todo, sin bloquear interacciones */}
+      {/* Background Particles (non-blocking interaction) */}
       <Particles
         id="tsparticles"
         init={particlesInit}
@@ -61,17 +70,17 @@ const NotFoundPage = () => {
       {/* Header */}
       <Header className="relative z-10" />
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="relative z-10 flex flex-1 flex-row items-center justify-center px-8 py-8 mt-20">
-        {/* Left */}
+        {/* Left Side */}
         <div className="w-1/2 flex items-center justify-center h-[60vh]">
           <h1 className="text-7xl font-semibold text-primary">T A D</h1>
         </div>
 
-        {/* Right */}
+        {/* Right Side */}
         <div className="w-1/2 flex flex-col justify-center items-center text-center px-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            NOT FOUND
+            Not Found
           </h1>
         </div>
       </main>

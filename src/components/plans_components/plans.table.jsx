@@ -9,12 +9,6 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
   Pagination,
@@ -26,6 +20,12 @@ import {
 } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Filter, Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export default function PlansTable({
   plans = [],
@@ -42,109 +42,79 @@ export default function PlansTable({
   const [disciplineFilter, setDisciplineFilter] = useState("");
   const itemsPerPage = 10;
 
+  const uniqueDisciplines = useMemo(
+    () => Array.from(new Set(plans.map((p) => p.Discipline || "Unassigned"))),
+    [plans]
+  );
+
+  // 1) Filtrado
   const filtered = useMemo(() => {
     const term = searchTerm.toLowerCase();
-    return (plans || []).filter(plan => {
-      const textMatch =
+    return plans.filter((p) => {
+      const matchText =
         !term ||
-        (plan.SheetName || "").toLowerCase().includes(term) ||
-        (plan.SheetNumber || "").toLowerCase().includes(term) ||
-        (plan.Discipline || "").toLowerCase().includes(term) ||
-        String(plan.Revision || "").toLowerCase().includes(term) ||
-        String(plan.RevisionDate || "").toLowerCase().includes(term);
-      const discMatch =
-        !disciplineFilter ||
-        (plan.Discipline || "Unassigned") === disciplineFilter;
-      return textMatch && discMatch;
+        p.SheetName.toLowerCase().includes(term) ||
+        p.SheetNumber.toLowerCase().includes(term) ||
+        (p.Discipline || "").toLowerCase().includes(term) ||
+        String(p.Revision).toLowerCase().includes(term) ||
+        String(p.lastModifiedTime).toLowerCase().includes(term) ||
+        (p.revisionProcess || "").toLowerCase().includes(term) ||
+        (p.revisionStatus || "").toLowerCase().includes(term);
+      const matchDisc = !disciplineFilter || p.Discipline === disciplineFilter;
+      return matchText && matchDisc;
     });
   }, [plans, searchTerm, disciplineFilter]);
 
+  // 2) Ordenamiento
   const sorted = useMemo(() => {
     const arr = [...filtered];
     if (!sortField) return arr;
     return arr.sort((a, b) => {
-      const aVal = a[sortField] ?? "";
-      const bVal = b[sortField] ?? "";
+      let aVal = a[sortField] ?? "";
+      let bVal = b[sortField] ?? "";
+      // numérico para Revision
       if (sortField === "Revision") {
-        const na = parseInt(aVal, 10) || 0;
-        const nb = parseInt(bVal, 10) || 0;
-        return sortDirection === "asc" ? na - nb : nb - na;
+        aVal = parseInt(aVal, 10) || 0;
+        bVal = parseInt(bVal, 10) || 0;
+        return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
       }
+      // fecha para lastModifiedTime
+      if (sortField === "lastModifiedTime") {
+        aVal = new Date(aVal).getTime() || 0;
+        bVal = new Date(bVal).getTime() || 0;
+        return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+      }
+      // string compare
       return sortDirection === "asc"
         ? String(aVal).localeCompare(String(bVal))
         : String(bVal).localeCompare(String(aVal));
     });
   }, [filtered, sortField, sortDirection]);
 
+  // 3) Paginación
   const paginated = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return sorted.slice(start, start + itemsPerPage);
-  }, [sorted, currentPage, itemsPerPage]);
+  }, [sorted, currentPage]);
 
-  const paddedRows = useMemo(() => {
-    const rows = [...paginated];
-    const toAdd = itemsPerPage - rows.length;
-    for (let i = 0; i < toAdd; i++) {
-      rows.push({ id: `empty-${currentPage}-${i}`, isPlaceholder: true });
-    }
-    return rows;
-  }, [paginated, itemsPerPage, currentPage]);
+  // 4) Placeholder para filas vacías
+  const padded = useMemo(() => {
+    const fill = itemsPerPage - paginated.length;
+    return fill > 0
+      ? [
+          ...paginated,
+          ...Array.from({ length: fill }, (_, i) => ({
+            id: `empty-${currentPage}-${i}`,
+            isPlaceholder: true,
+          })),
+        ]
+      : paginated;
+  }, [paginated, currentPage]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / itemsPerPage));
-  const uniqueDisciplines = Array.from(
-    new Set((plans || []).map(p => p.Discipline || "Unassigned"))
-  );
 
-  const handleSort = useCallback(
-    field => {
-      const dir = field === sortField && sortDirection === "asc" ? "desc" : "asc";
-      setSortField(field);
-      setSortDirection(dir);
-      setCurrentPage(1);
-    },
-    [sortField, sortDirection]
-  );
-
-  const handleReset = useCallback(() => {
-    setSearchTerm("");
-    setDisciplineFilter("");
-    setSortField("SheetNumber");
-    setSortDirection("asc");
-    setCurrentPage(1);
-  }, []);
-
-  const handleRowCheckboxChange = useCallback(
-    (id, checked) => {
-      setSelectedRows(prev =>
-        checked ? [...prev, id] : prev.filter(x => x !== id)
-      );
-    },
-    [setSelectedRows]
-  );
-
-  const handleSelectAllChange = useCallback(
-    checked => {
-      const ids = paginated
-        .map(p => p.id)
-        .filter(id => id && !String(id).startsWith("empty-"));
-      setSelectedRows(checked ? ids : []);
-    },
-    [paginated, setSelectedRows]
-  );
-
-  const handleCellInputChange = useCallback(
-    (id, field, e) => {
-      e.stopPropagation();
-      onInputChange?.(id, field, e.target.value);
-    },
-    [onInputChange]
-  );
-
-  const handleRemoveClick = useCallback(() => {
-    onRemoveRows?.(selectedRows);
-  }, [onRemoveRows, selectedRows]);
-
-  const sortIndicator = field =>
+  // Helpers de control
+  const sortIndicator = (field) =>
     field === sortField ? (
       sortDirection === "asc" ? (
         <ChevronUp className="inline h-4 w-4 ml-1" />
@@ -152,6 +122,13 @@ export default function PlansTable({
         <ChevronDown className="inline h-4 w-4 ml-1" />
       )
     ) : null;
+
+  const handleSort = (field) => {
+    const dir = field === sortField && sortDirection === "asc" ? "desc" : "asc";
+    setSortField(field);
+    setSortDirection(dir);
+    setCurrentPage(1);
+  };
 
   return (
     <Card className="w-full bg-white">
@@ -162,29 +139,33 @@ export default function PlansTable({
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2 top-2 h-4 w-4 text-gray-500 pointer-events-none" />
               <Input
-                placeholder="Search..."
                 className="pl-8"
+                placeholder="Search…"
                 value={searchTerm}
-                onChange={e => {
+                onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
               />
             </div>
-            <Button
-              className="bg-[#e2e2e2] text-black hover:bg-[#2ea3e3] hover:text-white transition-colors shadow-sm"
-              onClick={handleReset}
+            <Button onClick={() => {
+                setSearchTerm("");
+                setDisciplineFilter("");
+                setSortField("SheetNumber");
+                setSortDirection("asc");
+                setCurrentPage(1);
+              }}
             >
               Reset
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="border-gray-300">
+                <Button variant="outline" size="sm">
                   <Filter className="mr-1.5 h-3.5 w-3.5" />
                   {disciplineFilter ? `Disc: ${disciplineFilter}` : "Filter"}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="text-sm">
+              <DropdownMenuContent>
                 <DropdownMenuItem
                   onSelect={() => {
                     setDisciplineFilter("");
@@ -193,7 +174,7 @@ export default function PlansTable({
                 >
                   All Disciplines
                 </DropdownMenuItem>
-                {uniqueDisciplines.map(d => (
+                {uniqueDisciplines.map((d) => (
                   <DropdownMenuItem
                     key={d}
                     onSelect={() => {
@@ -206,18 +187,13 @@ export default function PlansTable({
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onAddRow}
-              className="border-gray-300"
-            >
+            <Button variant="outline" size="sm" onClick={onAddRow}>
               <Plus className="h-3.5 w-3.5 mr-1" /> Add
             </Button>
             <Button
               variant="destructive"
               size="sm"
-              onClick={handleRemoveClick}
+              onClick={() => onRemoveRows(selectedRows)}
               disabled={!selectedRows.length}
             >
               <Trash2 className="h-3.5 w-3.5 mr-1" /> Remove ({selectedRows.length})
@@ -229,130 +205,189 @@ export default function PlansTable({
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-white">
+            <TableHeader>
               <TableRow>
+                {/* 1. select all */}
                 <TableHead className="p-2">
                   <Checkbox
-                    id="select-all"
-                    aria-label="Select all rows on page"
                     checked={
                       paginated.length > 0 &&
                       paginated
-                        .map(p => p.id)
-                        .filter(id => id && !String(id).startsWith("empty-"))
-                        .every(id => selectedRows.includes(id))
+                        .map((p) => p.id)
+                        .filter((id) => !String(id).startsWith("empty-"))
+                        .every((id) => selectedRows.includes(id))
                     }
-                    onCheckedChange={handleSelectAllChange}
+                    onCheckedChange={(chk) =>
+                      setSelectedRows(
+                        chk
+                          ? paginated
+                              .map((p) => p.id)
+                              .filter((id) => !String(id).startsWith("empty-"))
+                          : []
+                      )
+                    }
                   />
                 </TableHead>
+
+                {/* 2. Discipline */}
                 <TableHead
-                  className="p-2 cursor-pointer text-black"
+                  className="p-2 cursor-pointer"
                   onClick={() => handleSort("Discipline")}
                 >
                   Discipline{sortIndicator("Discipline")}
                 </TableHead>
+
+                {/* 3. Sheet Name */}
                 <TableHead
-                  className="p-2 cursor-pointer text-black"
+                  className="p-2 cursor-pointer"
                   onClick={() => handleSort("SheetName")}
                 >
                   Sheet Name{sortIndicator("SheetName")}
                 </TableHead>
+
+                {/* 4. Sheet Number */}
                 <TableHead
-                  className="p-2 cursor-pointer text-black"
+                  className="p-2 cursor-pointer"
                   onClick={() => handleSort("SheetNumber")}
                 >
                   Sheet Number{sortIndicator("SheetNumber")}
                 </TableHead>
+
+                {/* 5. En carpeta */}
+                <TableHead className="p-2 text-center">
+                  In Folder
+                </TableHead>
+
+                {/* 6. Revision */}
                 <TableHead
-                  className="p-2 text-black text-right cursor-pointer"
+                  className="p-2 text-right cursor-pointer"
                   onClick={() => handleSort("Revision")}
                 >
                   Revision{sortIndicator("Revision")}
                 </TableHead>
+
+                {/* 7. Last Modification Date */}
                 <TableHead
-                  className="p-2 text-black text-right cursor-pointer"
-                  onClick={() => handleSort("RevisionDate")}
+                  className="p-2 text-right cursor-pointer"
+                  onClick={() => handleSort("lastModifiedTime")}
                 >
-                  Rev. Date{sortIndicator("RevisionDate")}
+                  Last Mod. Date{sortIndicator("lastModifiedTime")}
+                </TableHead>
+
+                {/* 8. Revision Process */}
+                <TableHead
+                  className="p-2 text-center cursor-pointer"
+                  onClick={() => handleSort("revisionProcess")}
+                >
+                  Process{sortIndicator("revisionProcess")}
+                </TableHead>
+
+                {/* 9. Revision Status */}
+                <TableHead
+                  className="p-2 text-center cursor-pointer"
+                  onClick={() => handleSort("revisionStatus")}
+                >
+                  Status{sortIndicator("revisionStatus")}
                 </TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {sorted.length === 0 && (searchTerm || disciplineFilter) ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="p-8 text-center text-gray-500">
+                  <TableCell colSpan={9} className="p-8 text-center">
                     No plans found matching criteria.
                   </TableCell>
                 </TableRow>
               ) : (
-                paddedRows.map(plan =>
+                padded.map((plan) =>
                   plan.isPlaceholder ? (
                     <TableRow key={plan.id} className="h-9">
-                      <TableCell colSpan={6} className="p-4 bg-gray-50" />
+                      <TableCell colSpan={9} className="bg-gray-50" />
                     </TableRow>
                   ) : (
-                    <TableRow
-                      key={plan.id}
-                      className="hover:bg-gray-50 transition-colors duration-100"
-                    >
-                      <TableCell className="p-2 align-middle">
+                    <TableRow key={plan.id} className="hover:bg-gray-50">
+                      {/* 1 */}
+                      <TableCell className="p-2">
                         <Checkbox
-                          id={`select-${plan.id}`}
                           checked={selectedRows.includes(plan.id)}
-                          onCheckedChange={checked =>
-                            handleRowCheckboxChange(plan.id, !!checked)
+                          onCheckedChange={(chk) =>
+                            setSelectedRows((prev) =>
+                              chk
+                                ? [...prev, plan.id]
+                                : prev.filter((x) => x !== plan.id)
+                            )
                           }
                         />
                       </TableCell>
-                      <TableCell className="p-2 align-middle">
+
+                      {/* 2 Discipline */}
+                      <TableCell className="p-2">
+                        <Input
+                          className="border-none focus:ring-0 bg-transparent"
+                          value={plan.Discipline}
+                          onChange={(e) =>
+                            onInputChange(plan.id, "Discipline", e.target.value)
+                          }
+                        />
+                      </TableCell>
+
+                      {/* 3 SheetName */}
+                      <TableCell className="p-2">
+                        <Input
+                          className="border-none focus:ring-0 bg-transparent"
+                          value={plan.SheetName}
+                          onChange={(e) =>
+                            onInputChange(plan.id, "SheetName", e.target.value)
+                          }
+                        />
+                      </TableCell>
+
+                      {/* 4 SheetNumber */}
+                      <TableCell className="p-2">
+                        <Input
+                          className="border-none focus:ring-0 bg-transparent"
+                          value={plan.SheetNumber}
+                          onChange={(e) =>
+                            onInputChange(plan.id, "SheetNumber", e.target.value)
+                          }
+                        />
+                      </TableCell>
+
+                      {/* 5 exists */}
+                      <TableCell className="p-2 text-center">
+                        {plan.exists ? (
+                          <span className="text-green-600">✔︎</span>
+                        ) : (
+                          <span className="text-red-500">✖︎</span>
+                        )}
+                      </TableCell>
+
+                      {/* 6 Revision */}
+                      <TableCell className="p-2 text-right">
                         <Input
                           type="text"
-                          value={plan.Discipline || ""}
-                          onChange={e =>
-                            handleCellInputChange(plan.id, "Discipline", e)
+                          className="border-none focus:ring-0 bg-transparent text-right"
+                          value={plan.Revision}
+                          onChange={(e) =>
+                            onInputChange(plan.id, "Revision", e.target.value)
                           }
-                          className="w-full bg-transparent border-none focus:bg-white focus:border focus:ring-0"
                         />
                       </TableCell>
-                      <TableCell className="p-2 align-middle">
-                        <Input
-                          type="text"
-                          value={plan.SheetName || ""}
-                          onChange={e =>
-                            handleCellInputChange(plan.id, "SheetName", e)
-                          }
-                          className="w-full bg-transparent border-none focus:bg-white focus:border focus:ring-0"
-                        />
+
+                      {/* 7 lastModifiedTime */}
+                      <TableCell className="p-2 text-right">
+                        {plan.lastModifiedTime}
                       </TableCell>
-                      <TableCell className="p-2 align-middle">
-                        <Input
-                          type="text"
-                          value={plan.SheetNumber || ""}
-                          onChange={e =>
-                            handleCellInputChange(plan.id, "SheetNumber", e)
-                          }
-                          className="w-full bg-transparent border-none focus:bg-white focus:border focus:ring-0"
-                        />
+
+                      {/* 8 revisionProcess */}
+                      <TableCell className="p-2 text-center">
+                        {plan.revisionProcess || "Not in a revision process"}
                       </TableCell>
-                      <TableCell className="p-2 align-middle text-right">
-                        <Input
-                          type="text"
-                          value={plan.Revision ?? ""}
-                          onChange={e =>
-                            handleCellInputChange(plan.id, "Revision", e)
-                          }
-                          className="w-full bg-transparent border-none focus:bg-white focus:border focus:ring-0"
-                        />
-                      </TableCell>
-                      <TableCell className="p-2 align-middle text-right">
-                        <Input
-                          type="date"
-                          value={plan.RevisionDate ?? ""}
-                          onChange={e =>
-                            handleCellInputChange(plan.id, "RevisionDate", e)
-                          }
-                          className="w-full bg-transparent border-none focus:bg-white focus:border focus:ring-0"
-                        />
+
+                      {/* 9 revisionStatus */}
+                      <TableCell className="p-2 text-center">
+                        {plan.revisionStatus || "Not Applicable"}
                       </TableCell>
                     </TableRow>
                   )
@@ -365,31 +400,29 @@ export default function PlansTable({
         {totalPages > 1 && (
           <div className="flex justify-between items-center p-4 border-t">
             <span className="text-sm text-gray-600">
-              Showing {paginated.length} of {sorted.length} plans
+              Showing {paginated.length} of {sorted.length}
             </span>
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
                     href="#"
-                    onClick={e => {
+                    onClick={(e) => {
                       e.preventDefault();
-                      setCurrentPage(p => Math.max(1, p - 1));
+                      setCurrentPage((p) => Math.max(1, p - 1));
                     }}
-                    className={
-                      currentPage === 1 ? "opacity-50 pointer-events-none" : ""
-                    }
+                    disabled={currentPage === 1}
                   />
                 </PaginationItem>
                 {Array.from({ length: totalPages }, (_, i) => (
                   <PaginationItem key={i + 1}>
                     <PaginationLink
                       href="#"
-                      onClick={e => {
+                      isActive={currentPage === i + 1}
+                      onClick={(e) => {
                         e.preventDefault();
                         setCurrentPage(i + 1);
                       }}
-                      isActive={currentPage === i + 1}
                     >
                       {i + 1}
                     </PaginationLink>
@@ -398,15 +431,11 @@ export default function PlansTable({
                 <PaginationItem>
                   <PaginationNext
                     href="#"
-                    onClick={e => {
+                    onClick={(e) => {
                       e.preventDefault();
-                      setCurrentPage(p => Math.min(totalPages, p + 1));
+                      setCurrentPage((p) => Math.min(totalPages, p + 1));
                     }}
-                    className={
-                      currentPage === totalPages
-                        ? "opacity-50 pointer-events-none"
-                        : ""
-                    }
+                    disabled={currentPage === totalPages}
                   />
                 </PaginationItem>
               </PaginationContent>
