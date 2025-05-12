@@ -1,6 +1,6 @@
 const backendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL;
 
-export const fetchACCProjectsData = async (token) => {
+export const fetchACCProjectsData = async () => {
   try {
     const response = await fetch(`${backendUrl}/acc/accprojects`, {
       credentials: "include",
@@ -21,7 +21,7 @@ export const fetchACCProjectsData = async (token) => {
   }
 };
 
-export const fetchACCProjectData = async (projectId, token, accountId) => {
+export const fetchACCProjectData = async (projectId,  accountId) => {
   try {
     const response = await fetch(
       `${backendUrl}/acc/accprojects/${accountId}/${projectId}`,
@@ -50,7 +50,7 @@ const toBase64 = async (str) => {
   return btoa(String.fromCharCode(...bytes));
 };
 
-export const fetchACCFederatedModel = async (projectId, token, accountId) => {
+export const fetchACCFederatedModel = async (projectId,  accountId) => {
   try {
     const response = await fetch(
       `${backendUrl}/datamanagement/items/${accountId}/${projectId}/federatedmodel`,
@@ -73,7 +73,7 @@ export const fetchACCFederatedModel = async (projectId, token, accountId) => {
   }
 };
 
-export const fechACCProjectUsers = async (projectId, token, accountId) => {
+export const fechACCProjectUsers = async (projectId,  accountId) => {
   try {
     const response = await fetch(
       `${backendUrl}/acc/accprojects/${accountId}/${projectId}/users`,
@@ -95,7 +95,7 @@ export const fechACCProjectUsers = async (projectId, token, accountId) => {
   }
 };
 
-export const fechACCProjectIssues = async (projectId, token, accountId) => {
+export const fechACCProjectIssues = async (projectId,  accountId) => {
   try {
     const response = await fetch(
       `${backendUrl}/acc/accprojects/${accountId}/${projectId}/issues`,
@@ -117,7 +117,7 @@ export const fechACCProjectIssues = async (projectId, token, accountId) => {
   }
 };
 
-export const fetchACCProjectRFI = async (projectId, token, accountId) => {
+export const fetchACCProjectRFI = async (projectId,  accountId) => {
   try {
     const response = await fetch(
       `${backendUrl}/acc/accprojects/${accountId}/${projectId}/rfis`,
@@ -141,7 +141,7 @@ export const fetchACCProjectRFI = async (projectId, token, accountId) => {
 
 export const fetchACCProjectSubmittals = async (
   projectId,
-  token,
+  
   accountId
 ) => {
   try {
