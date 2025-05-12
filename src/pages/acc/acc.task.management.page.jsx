@@ -53,7 +53,6 @@ const ACCProjectTaskManagementPage = () => {
         // 1) Llamamos al servicio que devuelve { users: […] }
         const usersData = await fechACCProjectUsers(
           projectId,
-          cookies.access_token,
           accountId
         );
         // 2) Extraemos el array de usuarios
@@ -71,7 +70,7 @@ const ACCProjectTaskManagementPage = () => {
       }
     };
     fetchData();
-  }, [projectId, accountId, cookies.access_token]);
+  }, [projectId, accountId]);
 
   //console.log("Users", users);
   //console.log("Tasks", tasks);

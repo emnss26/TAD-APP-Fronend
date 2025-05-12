@@ -70,7 +70,6 @@ const ACCSubmittalsPage = () => {
     const getProjectSubmittals = async () => {
       const projectSubmittals = await fetchACCProjectSubmittals(
         projectId,
-        cookies.access_token,
         accountId
       );
 
@@ -95,7 +94,7 @@ const ACCSubmittalsPage = () => {
       });
     };
     getProjectSubmittals();
-  }, [projectId, cookies.access_token, accountId]);
+  }, [projectId, accountId]);
 
   useEffect(() => {
     if (!submittals.length) {
@@ -123,7 +122,7 @@ const ACCSubmittalsPage = () => {
 
   async function fetchAll(projectId, cookies, accountId) {
     await Promise.all([
-      fetchACCProjectSubmittals(projectId, cookies.access_token, accountId),
+      fetchACCProjectSubmittals(projectId,  accountId),
     ]);
   }
 

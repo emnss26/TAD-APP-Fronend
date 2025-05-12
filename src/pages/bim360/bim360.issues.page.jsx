@@ -76,7 +76,7 @@ const BIM360IssuesPage = () => {
     setLoading(true);
     setError(null);
     Promise.all([
-      fechBIM360ProjectIssues(projectId, cookies.access_token, accountId),
+      fechBIM360ProjectIssues(projectId, accountId),
     ])
       .then(([issuesResp]) => {
         setIssues(issuesResp.issues || []);
@@ -86,7 +86,7 @@ const BIM360IssuesPage = () => {
         setError(err);
       })
       .finally(() => setLoading(false));
-  }, [projectId, accountId, cookies.access_token]);
+  }, [projectId, accountId]);
 
   /* ---------- Derive counts & charts data ---------- */
   const { chartsData, customTitles } = useMemo(() => {

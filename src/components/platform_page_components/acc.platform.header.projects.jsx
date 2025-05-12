@@ -39,14 +39,14 @@ const ACCPlatformprojectsHeader = ({ accountId, projectId }) => {
   //ProjectsData
   useEffect(() => {
     const getProjects = async () => {
-      const projectsData = await fetchACCProjectsData(cookies.access_token);
+      const projectsData = await fetchACCProjectsData();
 
       //console.log("Projects Data:", projectData.name);
 
       setProjectsData(projectsData);
     };
     getProjects();
-  }, [cookies.access_token]);
+  }, []);
 
   //console.log("Projects Data Header:", projectsData?.projects);
 
@@ -55,7 +55,6 @@ const ACCPlatformprojectsHeader = ({ accountId, projectId }) => {
     const getProject = async () => {
       const projectData = await fetchACCProjectData(
         projectId,
-        cookies.access_token,
         accountId
       );
 
@@ -64,7 +63,7 @@ const ACCPlatformprojectsHeader = ({ accountId, projectId }) => {
       setProject(projectData);
     };
     getProject();
-  }, [projectId, cookies.access_token, accountId]);
+  }, [projectId, accountId]);
 
   //console.log("Project Data Header:", project?.name);
 

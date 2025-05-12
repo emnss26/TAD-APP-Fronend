@@ -104,12 +104,12 @@ const BIM360ProjectPage = () => {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetchBIM360ProjectsData(cookies.access_token),
-      fetchBIM360ProjectData(projectId, cookies.access_token, accountId),
-      fetchBIM360FederatedModel(projectId, cookies.access_token, accountId),
-      fechBIM360ProjectUsers(projectId, cookies.access_token, accountId),
-      fechBIM360ProjectIssues(projectId, cookies.access_token, accountId),
-      fetchBIM360ProjectRFI(projectId, cookies.access_token, accountId),
+      fetchBIM360ProjectsData(),
+      fetchBIM360ProjectData(projectId, accountId),
+      fetchBIM360FederatedModel(projectId, accountId),
+      fechBIM360ProjectUsers(projectId, accountId),
+      fechBIM360ProjectIssues(projectId, accountId),
+      fetchBIM360ProjectRFI(projectId, accountId),
     ])
       .then(
         ([
@@ -160,14 +160,14 @@ const BIM360ProjectPage = () => {
         setError(err);
       })
       .finally(() => setLoading(false));
-  }, [projectId, accountId, cookies.access_token]);
+  }, [projectId, accountId]);
 
   //Project Model Simple Viewer
   useEffect(() => {
     if (federatedModel) {
-      simpleViewer(federatedModel, cookies.access_token);
+      simpleViewer(federatedModel);
     }
-  }, [federatedModel, cookies.access_token]);
+  }, [federatedModel]);
 
   return (
     <>

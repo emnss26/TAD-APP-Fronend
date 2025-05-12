@@ -52,7 +52,6 @@ const BIM360ProjectTaskManagementPage = () => {
 
         const usersData = await fechBIM360ProjectUsers(
           projectId,
-          cookies.access_token,
           accountId
         );
 
@@ -70,7 +69,7 @@ const BIM360ProjectTaskManagementPage = () => {
       }
     };
     fetchData();
-  }, [projectId, accountId, cookies.access_token]);
+  }, [projectId, accountId]);
 
   const handleAddTask = async (newTask) => {
     try {

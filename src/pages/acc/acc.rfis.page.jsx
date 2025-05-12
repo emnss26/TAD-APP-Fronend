@@ -79,9 +79,9 @@ const ACCRFIPage = () => {
     setError(null);
 
     Promise.all([
-      fetchACCProjectsData(cookies.access_token),
-      fetchACCProjectData(projectId, cookies.access_token, accountId),
-      fetchACCProjectRFI(projectId, cookies.access_token, accountId),
+      fetchACCProjectsData(),
+      fetchACCProjectData(projectId, accountId),
+      fetchACCProjectRFI(projectId, accountId),
     ])
       .then(([projectsResp, projectResp, rfiResp]) => {
         setProjectsData(projectsResp);
@@ -100,7 +100,7 @@ const ACCRFIPage = () => {
         setError(err);
       })
       .finally(() => setLoading(false));
-  }, [projectId, accountId, cookies.access_token]);
+  }, [projectId, accountId]);
 
   // Compute counts
   useEffect(() => {

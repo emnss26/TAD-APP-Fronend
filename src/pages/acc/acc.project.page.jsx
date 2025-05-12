@@ -115,13 +115,13 @@ const ACCProjectPage = () => {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetchACCProjectsData(cookies.access_token),
-      fetchACCProjectData(projectId, cookies.access_token, accountId),
-      fetchACCFederatedModel(projectId, cookies.access_token, accountId),
-      fechACCProjectUsers(projectId, cookies.access_token, accountId),
-      fechACCProjectIssues(projectId, cookies.access_token, accountId),
-      fetchACCProjectRFI(projectId, cookies.access_token, accountId),
-      fetchACCProjectSubmittals(projectId, cookies.access_token, accountId),
+      fetchACCProjectsData(),
+      fetchACCProjectData(projectId, accountId),
+      fetchACCFederatedModel(projectId, accountId),
+      fechACCProjectUsers(projectId, accountId),
+      fechACCProjectIssues(projectId, accountId),
+      fetchACCProjectRFI(projectId, accountId),
+      fetchACCProjectSubmittals(projectId, accountId),
     ])
       .then(
         ([

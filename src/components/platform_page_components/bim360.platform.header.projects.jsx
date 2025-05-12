@@ -39,14 +39,14 @@ const BIM360PlatformprojectsHeader = ({ accountId, projectId }) => {
   //ProjectsData
   useEffect(() => {
     const getProjects = async () => {
-      const projectsData = await fetchBIM360ProjectsData(cookies.access_token);
+      const projectsData = await fetchBIM360ProjectsData();
 
       //console.log("Projects Data:", projectData.name);
 
       setProjectsData(projectsData);
     };
     getProjects();
-  }, [cookies.access_token]);
+  }, []);
 
   //console.log("Projects Data Header:", projectsData?.projects);
 
@@ -55,7 +55,6 @@ const BIM360PlatformprojectsHeader = ({ accountId, projectId }) => {
     const getProject = async () => {
       const projectData = await fetchBIM360ProjectData(
         projectId,
-        cookies.access_token,
         accountId
       );
 
@@ -64,7 +63,7 @@ const BIM360PlatformprojectsHeader = ({ accountId, projectId }) => {
       setProject(projectData);
     };
     getProject();
-  }, [projectId, cookies.access_token, accountId]);
+  }, [projectId, accountId]);
 
   //console.log("Project Data Header:", project?.name);
 

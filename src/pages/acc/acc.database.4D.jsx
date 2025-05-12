@@ -106,7 +106,7 @@ const ACC4DDatabase = () => {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetchACCFederatedModel(projectId, cookies.access_token, accountId),
+      fetchACCFederatedModel(projectId, accountId),
     ])
       .then(([federatedModelResp]) => {
         setFederatedModel(federatedModelResp);
@@ -119,7 +119,7 @@ const ACC4DDatabase = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [projectId, accountId, cookies.access_token]);
+  }, [projectId, accountId]);
 
   const fieldsToCheck = useMemo(
     () => [

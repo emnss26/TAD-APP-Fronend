@@ -68,7 +68,6 @@ const ACCProjectUsersPage = () => {
     const getProject = async () => {
       const projectData = await fetchACCProjectData(
         projectId,
-        cookies.access_token,
         accountId
       );
 
@@ -77,14 +76,13 @@ const ACCProjectUsersPage = () => {
       setProject(projectData);
     };
     getProject();
-  }, [projectId, cookies.access_token, accountId]);
+  }, [projectId, accountId]);
 
   //Project Users
   useEffect(() => {
     const getProjectUsers = async () => {
       const projectUsers = await fechACCProjectUsers(
         projectId,
-        cookies.access_token,
         accountId
       );
 
@@ -126,7 +124,7 @@ const ACCProjectUsersPage = () => {
       setTotalUsers(total);
     };
     getProjectUsers();
-  }, [projectId, cookies.access_token, accountId]);
+  }, [projectId, accountId]);
 
   useEffect(() => {
     let filtered = users;
@@ -163,19 +161,19 @@ const ACCProjectUsersPage = () => {
     setSelectedRole(null);
   };
 
-  async function fetchAll(projectId, cookies, accountId) {
+  async function fetchAll(projectId, accountId) {
     await Promise.all([
-      fetchACCProjectData(projectId, cookies.access_token, accountId),
-      fechACCProjectUsers(projectId, cookies.access_token, accountId),
+      fetchACCProjectData(projectId,  accountId),
+      fechACCProjectUsers(projectId,  accountId),
     ]);
   }
 
   useEffect(() => {
     setLoading(true);
-    fetchAll(projectId, cookies, accountId)
-      .catch(console.error) // maneja errores
+    fetchAll(projectId, accountId)
+      .catch(console.error) 
       .finally(() => setLoading(false));
-  }, [projectId, cookies, accountId]);
+  }, [projectId, accountId]);
 
   const exportToExcel = (data, filename = "export.xlsx") => {
     // Sólo estos campos

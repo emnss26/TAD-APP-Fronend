@@ -1,6 +1,6 @@
 const backendUrl = import.meta.env.VITE_API_BACKEND_BASE_URL;
 
-export const fetchBIM360ProjectsData = async (access_token) => {
+export const fetchBIM360ProjectsData = async () => {
   try {
     const response = await fetch(`${backendUrl}/bim360/bim360projects/`, {
       credentials: "include",
@@ -23,7 +23,6 @@ export const fetchBIM360ProjectsData = async (access_token) => {
 
 export const fetchBIM360ProjectData = async (
   projectId,
-  access_token,
   accountId
 ) => {
   try {
@@ -54,7 +53,6 @@ const toBase64 = async (str) => {
 
 export const fetchBIM360FederatedModel = async (
   projectId,
-  access_token,
   accountId
 ) => {
   try {
@@ -78,7 +76,6 @@ export const fetchBIM360FederatedModel = async (
 
 export const fechBIM360ProjectUsers = async (
   projectId,
-  access_token,
   accountId
 ) => {
   try {
@@ -104,7 +101,6 @@ export const fechBIM360ProjectUsers = async (
 
 export const fechBIM360ProjectIssues = async (
   projectId,
-  access_token,
   accountId
 ) => {
   try {
@@ -119,7 +115,7 @@ export const fechBIM360ProjectIssues = async (
     }
     const { data } = await response.json();
 
-    console.log("BIM360 Issues Data:", data);
+    //console.log("BIM360 Issues Data:", data);
 
     return data;
   } catch (error) {
@@ -130,7 +126,6 @@ export const fechBIM360ProjectIssues = async (
 
 export const fetchBIM360ProjectRFI = async (
   projectId,
-  access_token,
   accountId
 ) => {
   try {

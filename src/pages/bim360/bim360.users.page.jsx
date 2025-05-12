@@ -74,7 +74,6 @@ const BIM360ProjectUsersPage = () => {
     const getProject = async () => {
       const projectData = await fetchBIM360ProjectData(
         projectId,
-        cookies.access_token,
         accountId
       );
 
@@ -83,14 +82,13 @@ const BIM360ProjectUsersPage = () => {
       setProject(projectData);
     };
     getProject();
-  }, [projectId, cookies.access_token, accountId]);
+  }, [projectId, accountId]);
 
   //Project Users
   useEffect(() => {
     const getProjectUsers = async () => {
       const projectUsers = await fechBIM360ProjectUsers(
         projectId,
-        cookies.access_token,
         accountId
       );
 
@@ -132,7 +130,7 @@ const BIM360ProjectUsersPage = () => {
       setTotalUsers(total);
     };
     getProjectUsers();
-  }, [projectId, cookies.access_token, accountId]);
+  }, [projectId, accountId]);
 
   useEffect(() => {
     let filtered = users;
@@ -169,19 +167,19 @@ const BIM360ProjectUsersPage = () => {
     setSelectedRole(null);
   };
 
-  async function fetchAll(projectId, cookies, accountId) {
+  async function fetchAll(projectId,  accountId) {
     await Promise.all([
-      fetchBIM360ProjectData(projectId, cookies.access_token, accountId),
-      fechBIM360ProjectUsers(projectId, cookies.access_token, accountId),
+      fetchBIM360ProjectData(projectId, accountId),
+      fechBIM360ProjectUsers(projectId, accountId),
     ]);
   }
 
   useEffect(() => {
     setLoading(true);
-    fetchAll(projectId, cookies, accountId)
+    fetchAll(projectId, accountId)
       .catch(console.error) // maneja errores
       .finally(() => setLoading(false));
-  }, [projectId, cookies, accountId]);
+  }, [projectId, accountId]);
 
   const exportToExcel = (data, filename = "export.xlsx") => {
     // Sólo estos campos

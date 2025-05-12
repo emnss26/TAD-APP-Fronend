@@ -79,9 +79,9 @@ const BIM360RFIPage = () => {
     setError(null);
 
     Promise.all([
-      fetchBIM360ProjectsData(cookies.access_token),
-      fetchBIM360ProjectData(projectId, cookies.access_token, accountId),
-      fetchBIM360ProjectRFI(projectId, cookies.access_token, accountId),
+      fetchBIM360ProjectsData(),
+      fetchBIM360ProjectData(projectId, accountId),
+      fetchBIM360ProjectRFI(projectId, accountId),
     ])
       .then(([projectsResp, projectResp, rfiResp]) => {
         setProjectsData(projectsResp);
@@ -100,7 +100,7 @@ const BIM360RFIPage = () => {
         setError(err);
       })
       .finally(() => setLoading(false));
-  }, [projectId, accountId, cookies.access_token]);
+  }, [projectId, accountId]);
 
   // Compute counts
   useEffect(() => {

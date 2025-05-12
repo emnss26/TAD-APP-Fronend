@@ -115,7 +115,7 @@ const backendUrl =
       setLoading(true);
       setError(null);
       Promise.all([
-        fetchBIM360FederatedModel(projectId, cookies.access_token, accountId),
+        fetchBIM360FederatedModel(projectId, accountId),
       ])
         .then(([federatedModelResp]) => {
           setFederatedModel(federatedModelResp);
@@ -128,7 +128,7 @@ const backendUrl =
         .finally(() => {
           setLoading(false);
         });
-    }, [projectId, accountId, cookies.access_token]);
+    }, [projectId, accountId]);
   
     const fieldsToCheck = useMemo(
       () => [

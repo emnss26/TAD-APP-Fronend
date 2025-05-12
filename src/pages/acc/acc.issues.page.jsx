@@ -76,7 +76,7 @@ const ACCIssuesPage = () => {
     setLoading(true);
     setError(null);
     Promise.all([
-      fechACCProjectIssues(projectId, cookies.access_token, accountId),
+      fechACCProjectIssues(projectId,  accountId),
     ])
       .then(([issuesResp]) => {
         setIssues(issuesResp.issues || []);
@@ -86,7 +86,7 @@ const ACCIssuesPage = () => {
         setError(err);
       })
       .finally(() => setLoading(false));
-  }, [projectId, accountId, cookies.access_token]);
+  }, [projectId, accountId]);
 
   /* ---------- Derive counts & charts data ---------- */
   const { chartsData, customTitles } = useMemo(() => {
