@@ -1,18 +1,28 @@
-import React from "react";
-import { useCookies } from "react-cookie";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const ProtectedRoute = () => {
-  const [cookies] = useCookies(["access_token"]);
-  const { search } = useLocation();
-  const token = new URLSearchParams(search).get("token");
+const backendUrl =
+  import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
+  
+const ProtectedRoute = ({ children }) => {
+  const navigate = useNavigate();
 
-  // si ya hay cookie *o* viene token en la URL, dejamos pasar
-  if (cookies.access_token || token) {
-    return <Outlet />;
-  }
+  useEffect(() => {
+    fetch(`${backendUrl}/auth/status`, {
+      credentials: 'include',
+    })
+      .then((res) => {
+        if (res.status === 401) {
+          navigate('/not-authorized');
+        }
+      })
+      .catch((err) => {
+        console.error('Error verifying authentication status:', err);
+        navigate('/not-authorized');
+      });
+  }, [navigate]);
 
-  return <Navigate to="/not-authorized" replace />;
+  return children;
 };
 
 export default ProtectedRoute;
