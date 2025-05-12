@@ -1,28 +1,27 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Outlet } from 'react-router-dom';
 
 const backendUrl =
   import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
-  
-const ProtectedRoute = ({ children }) => {
+
+export default function ProtectedRoute() {
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${backendUrl}/auth/status`, {
       credentials: 'include',
     })
-      .then((res) => {
+      .then(res => {
         if (res.status === 401) {
           navigate('/not-authorized');
         }
       })
-      .catch((err) => {
-        console.error('Error verifying authentication status:', err);
+      .catch(err => {
+        console.error('Error verificando autenticación:', err);
         navigate('/not-authorized');
       });
   }, [navigate]);
 
-  return children;
-};
-
-export default ProtectedRoute;
+  // ESTE es el “hueco” donde se renderizan las rutas hijas
+  return <Outlet />;
+}
