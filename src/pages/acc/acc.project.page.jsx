@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { simpleViewer } from "../../utils/Viewers/simple.viewer";
 import { useCookies } from "react-cookie";
 
-// Slider
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -198,8 +197,6 @@ const ACCProjectPage = () => {
   useEffect(() => {
     if (federatedModel) {
       simpleViewer(federatedModel);
-
-      //console.log("Token:", cookies.access_token);
     }
   }, [federatedModel]);
 

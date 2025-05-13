@@ -1,5 +1,3 @@
-// npm install react-tsparticles tsparticles-slim
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -9,30 +7,42 @@ import { Footer } from "../../components/general_pages_components/general.pages.
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 
+// Backend URL configuration from environment variables
 const backendUrl =
   import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
 
 const ACCProjectsPage = () => {
   const [projects, setProjects] = useState([]);
 
+  // Fetch ACC projects from the backend
   useEffect(() => {
     const getProjects = async () => {
-      const response = await fetch(`${backendUrl}/acc/accprojects`, {
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error("Network response was not ok");
-      const { data } = await response.json();
-      setProjects(
-        data.projects.filter(
-          (p) => p.attributes.extension.data.projectType === "ACC"
-        )
-      );
+      try {
+        const response = await fetch(`${backendUrl}/acc/accprojects`, {
+          credentials: "include",
+        });
+
+        if (!response.ok) throw new Error("Network response was not ok");
+
+        const { data } = await response.json();
+        setProjects(
+          data.projects.filter(
+            (p) => p.attributes.extension.data.projectType === "ACC"
+          )
+        );
+      } catch (error) {
+        console.error("Error fetching ACC projects:", error);
+      }
     };
+
     getProjects();
   }, []);
 
-  const particlesInit = async (engine) => await loadSlim(engine);
+  const particlesInit = async (engine) => {
+    await loadSlim(engine);
+  };
 
+  // Particle animation options
   const particlesOptions = {
     fullScreen: { enable: false },
     fpsLimit: 60,
@@ -69,7 +79,7 @@ const ACCProjectsPage = () => {
 
   return (
     <div className="relative flex flex-col min-h-screen bg-[#ffffff] z-10">
-      {/* Partículas cubriendo todo, sin bloquear interacciones */}
+      {/* Decorative background particle animation */}
       <Particles
         id="tsparticles"
         init={particlesInit}
@@ -77,27 +87,29 @@ const ACCProjectsPage = () => {
         className="absolute inset-0 z-0 pointer-events-none"
       />
 
-      {/* Header */}
+      {/* Platform header */}
       <PlatformHeader className="relative z-10" />
 
-      {/* Main Content */}
+      {/* Main content area */}
       <main className="relative z-10 flex flex-1 flex-row items-center justify-center px-8 py-8 mt-20">
-        {/* Left */}
+        {/* Left column (branding or intro) */}
         <div className="w-1/2 flex items-center justify-center h-[60vh]">
           <h1 className="text-7xl font-semibold text-primary">T A D</h1>
         </div>
 
-        {/* Right */}
+        {/* Right column (project list) */}
         <div className="w-1/2 flex flex-col items-center text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Select your project
           </h1>
           <p className="text-lg text-slate-600 max-w-xl mb-6">
-            These are the projects associated with your account, please select
-            one.
+            These are the projects associated with your account. Please select one.
           </p>
 
-          <div className="w-full max-w-4xl" style={{ height: "450px", overflowY: "auto" }}>
+          <div
+            className="w-full max-w-4xl"
+            style={{ height: "450px", overflowY: "auto" }}
+          >
             {projects.length > 0 ? (
               <ul className="space-y-4">
                 {projects.map((project) => (

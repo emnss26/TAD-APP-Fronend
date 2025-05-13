@@ -86,7 +86,7 @@ const ACCIssuesPage = () => {
         setError(err);
       })
       .finally(() => setLoading(false));
-  }, [projectId, accountId]);
+  }, [projectId, accountId, cookies.access_token]);
 
   /* ---------- Derive counts & charts data ---------- */
   const { chartsData, customTitles } = useMemo(() => {
