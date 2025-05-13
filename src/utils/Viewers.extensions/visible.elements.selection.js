@@ -8,7 +8,7 @@ class VisibleSelectionExtension extends Autodesk.Viewing.Extension {
   }
 
   load() {
-    console.log("VisibleSelectionExtension loaded.");
+    //console.log("VisibleSelectionExtension loaded.");
     return true;
   }
 
@@ -17,7 +17,7 @@ class VisibleSelectionExtension extends Autodesk.Viewing.Extension {
       this._group.removeControl(this._button);
       this._button = null;
     }
-    console.log("VisibleSelectionExtension unloaded.");
+    //console.log("VisibleSelectionExtension unloaded.");
     return true;
   }
 
@@ -69,10 +69,7 @@ class VisibleSelectionExtension extends Autodesk.Viewing.Extension {
       allLeafDbIds.forEach((dbId) => {
         // Log properties to debug
         this.viewer.model.getProperties(dbId, (props) => {
-          console.log(
-            `DBID: ${dbId} - Name: ${props.name} - ExternalId: ${props.externalId}`,
-            props
-          );
+          //console.log( `DBID: ${dbId} - Name: ${props.name} - ExternalId: ${props.externalId}`, props );
         });
 
         // Determine if visible

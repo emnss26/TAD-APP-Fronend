@@ -9,7 +9,7 @@ class ShowDbIdExtension extends Autodesk.Viewing.Extension {
   }
 
   load() {
-    console.log("TAD => Extension ShowDbIdExtension cargada correctamente");
+    //console.log("TAD => Extension ShowDbIdExtension cargada correctamente");
     return true;
   }
 

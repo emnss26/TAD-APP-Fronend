@@ -12,7 +12,7 @@ export const fetchACCProjectsData = async () => {
 
     const { data } = await response.json();
 
-    console.log("ACC Projects Data:", data);
+    //console.log("ACC Projects Data:", data);
 
     return data;
   } catch (error) {
@@ -36,7 +36,7 @@ export const fetchACCProjectData = async (projectId,  accountId) => {
 
     const { data } = await response.json();
 
-    console.log("ACC Project Data:", data);
+    //console.log("ACC Project Data:", data);
 
     return data;
   } catch (error) {
@@ -64,7 +64,7 @@ export const fetchACCFederatedModel = async (projectId,  accountId) => {
     }
     const { data } = await response.json();
 
-    console.log("ACC Federated Model:", data.federatedmodel);
+    //console.log("ACC Federated Model:", data.federatedmodel);
 
     return data.federatedmodel ? await toBase64(data.federatedmodel) : null;
   } catch (error) {
@@ -86,7 +86,7 @@ export const fechACCProjectUsers = async (projectId,  accountId) => {
     }
     const { data } = await response.json();
 
-    console.log("ACC Project Users:", data.users);
+    //console.log("ACC Project Users:", data.users);
 
     return data;
   } catch (error) {
@@ -108,7 +108,7 @@ export const fechACCProjectIssues = async (projectId,  accountId) => {
     }
     const { data } = await response.json();
 
-    console.log("ACC Project Issues:", data.issues);
+    //console.log("ACC Project Issues:", data.issues);
 
     return data;
   } catch (error) {
@@ -130,7 +130,7 @@ export const fetchACCProjectRFI = async (projectId,  accountId) => {
     }
     const { data, error, message } = await response.json();
 
-    console.log("ACC Project RFI:", data);
+    //console.log("ACC Project RFI:", data);
 
     return data;
   } catch (error) {
@@ -156,7 +156,7 @@ export const fetchACCProjectSubmittals = async (
     }
     const { data } = await response.json();
 
-    console.log("ACC Project Submittals:", data.submittals);
+    //console.log("ACC Project Submittals:", data.submittals);
 
     return data;
   } catch (error) {

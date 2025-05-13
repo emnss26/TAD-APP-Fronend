@@ -8,7 +8,7 @@ class ModeDataExtractionExtension extends Autodesk.Viewing.Extension {
   }
 
   load() {
-    console.log("ModeDataExtractionExtension has been loaded");
+    //console.log("ModeDataExtractionExtension has been loaded");
     return true;
   }
 
@@ -17,7 +17,7 @@ class ModeDataExtractionExtension extends Autodesk.Viewing.Extension {
       this._group.removeControl(this._button);
       this._button = null;
     }
-    console.log("ModeDataExtractionExtension has been unloaded");
+    //console.log("ModeDataExtractionExtension has been unloaded");
     return true;
   }
 
@@ -46,12 +46,12 @@ class ModeDataExtractionExtension extends Autodesk.Viewing.Extension {
                 }, {}),
               },
             });
-            console.log("Data extracted :", event.detail);
+            //console.log("Data extracted :", event.detail);
             window.dispatchEvent(event);
           });
         });
       } else {
-        console.log("No hay selección.");
+        //console.log("No hay selección.");
       }
     };
 

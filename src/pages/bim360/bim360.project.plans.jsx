@@ -511,6 +511,8 @@ const BIM360ProjectPlansPage = () => {
     e.target.value = null;
   }, []);
 
+  const displayedPlans = mappedPlans.length ? mappedPlans : plans;
+
   /* ---------- Render ---------- */
   return (
     <>
@@ -525,84 +527,102 @@ const BIM360ProjectPlansPage = () => {
       <div className="flex min-h-screen mt-14">
         <BIM360SideBar />
 
-        <main className="flex-1 p-2 px-4 bg-white">
-          <h1 className="text-right text-xl mt-2">PROJECT PLANS MANAGEMENT</h1>
-          <hr className="my-4 border-t border-gray-300" />
-
-          <div className="mb-4 text-right">
-            <button
-              onClick={handlePullData}
-              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
-            >
-              Pull Data
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
-            >
-              Send Data
-            </button>
-            <button
-              onClick={resetChartFilter}
-              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
-            >
-              Reset Chart Filter
-            </button>
-            <button
-              onClick={handleExportPlans}
-              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
-            >
-              Export Plans List
-            </button>
-            <label className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2 cursor-pointer">
-              Importar Excel
-              <input
-                type="file"
-                accept=".xlsx, .xls"
-                onChange={handleImportPlans}
-                className="hidden"
-              />
-            </label>
-          </div>
-
-          <div className="flex h-[700px]">
-            <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
-              <h2 className="text-xl font-bold mt-4 p-6">Plans Data Charts</h2>
-              <hr className="border-gray-300 mb-1 text-xs" />
-              <Slider
-                key={chartSlides.length}
-                {...sliderSettings}
-                className="h-full"
-              >
-                {chartSlides.map((slide, index) => (
-                  <div
-                    key={slide.title + index}
-                    className="px-2 pt-2 pb-10 h-full flex flex-col outline-none focus:outline-none"
-                  >
-                    <h3 className="text-sm font-medium mb-1 text-center flex-shrink-0">
-                      {slide.title}
-                    </h3>
-                    <div className="flex-1 relative">
-                      <slide.Component {...slide.props} />
-                    </div>
+         <main className="flex-1 p-2 px-4 bg-white">
+                  <h1 className="text-right text-xl mt-2">PROJECT PLANS MANAGEMENT</h1>
+                  <hr className="my-4 border-t border-gray-300" />
+                  <div className="mb-4 text-right">
+                    <button
+                      onClick={() => setShowMapping(true)}
+                      className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+                    >
+                      Files – Folder mapping
+                    </button>
+                    <button
+                      onClick={handlePullData}
+                      className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+                    >
+                      Pull Data
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+                    >
+                      Send Data
+                    </button>
+                    <button
+                      onClick={resetChartFilter}
+                      className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+                    >
+                      Reset Chart Filter
+                    </button>
+                    <button
+                      onClick={handleExportPlans}
+                      className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+                    >
+                      Export Plans List
+                    </button>
+                    <label className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2 cursor-pointer">
+                      Importar Excel
+                      <input
+                        type="file"
+                        accept=".xlsx, .xls"
+                        onChange={handleImportPlans}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
-                ))}
-              </Slider>
-            </section>
-
-            <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto h-[700px]">
-              <PlansTable
-                plans={plans}
-                onInputChange={handleInputChange}
-                onAddRow={handleAddRow}
-                onRemoveRows={handleRemoveRows}
-                selectedRows={selectedRows}
-                setSelectedRows={setSelectedRows}
-              />
-            </section>
-          </div>
-        </main>
-      </div>
+        
+                  {/* modal */}
+                  <FolderMappingModal
+                    open={showMapping}
+                    onClose={() => setShowMapping(false)}
+                    accountId={accountId}
+                    projectId={projectId}
+                    backendUrl={backendUrl}
+                    onFolderChosen={handleFolderChosen}
+                  />
+        
+                  <div className="flex h-[700px]">
+                    <section className="w-1/4 bg-gray-50 mr-4 rounded-lg shadow-md chart-with-dots">
+                      <h2 className="text-xl font-bold mt-4 p-6">Plans Data Charts</h2>
+                      <hr className="border-gray-300 mb-1 text-xs" />
+                      <Slider
+                        key={chartSlides.length}
+                        {...sliderSettings}
+                        className="h-full"
+                      >
+                        {chartSlides.map((slide, index) => (
+                          <div
+                            key={slide.title + index}
+                            className="px-2 pt-2 pb-10 h-full flex flex-col outline-none focus:outline-none"
+                          >
+                            <h3 className="text-sm font-medium mb-1 text-center flex-shrink-0">
+                              {slide.title}
+                            </h3>
+                            <div className="flex-1 relative">
+                              <slide.Component {...slide.props} />
+                            </div>
+                          </div>
+                        ))}
+                      </Slider>
+                    </section>
+        
+                    <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto h-[700px]">
+                      <PlansTable
+                        plans={displayedPlans.filter(
+                          (p) =>
+                            !selectedDiscipline || p.Discipline === selectedDiscipline
+                        )}
+                        onInputChange={handleInputChange}
+                        onAddRow={handleAddRow}
+                        onRemoveRows={handleRemoveRows}
+                        selectedRows={selectedRows}
+                        setSelectedRows={setSelectedRows}
+                      />
+                    </section>
+                  </div>
+                </main>
+              </div>
 
       <Footer />
     </>

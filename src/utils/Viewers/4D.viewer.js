@@ -109,7 +109,7 @@ function handleSliderChange(event, viewer) {
 
 function set4DData(newData) {
   data4Dglobal = newData;
-  console.log("Updated 4D data:", data4Dglobal);
+  //console.log("Updated 4D data:", data4Dglobal);
 }
 
 function resetViewerState(viewer) {
@@ -125,12 +125,12 @@ function resetViewerState(viewer) {
   }
   lastSliderDate = null;
   data4Dglobal = [];
-  console.log("Reset 4D data:", data4Dglobal);
+  //console.log("Reset 4D data:", data4Dglobal);
   if (viewer) {
     viewer.setThemingColor(null, null, viewer);
     viewer.hideAll();
   }
-  console.log("Viewer reset complete.");
+  //console.log("Viewer reset complete.");
 }
 
 function countDbIdsInNode(nodeId) {
@@ -154,13 +154,9 @@ export async function data4Dviewer({
   setIsLoadingTree,
   setCategoryData,
 }) {
-  console.log("token viewer 4D :", federatedModel);
-
+  
   const response = await fetch(`${backendUrl}/auth/token`);
   const { data } = await response.json();
-
-  console.log("4D Viewer URN:", federatedModel);
-  console.log("token viewer:", data.access_token);
 
   const options = {
     env: "AutodeskProduction",
@@ -188,7 +184,7 @@ export async function data4Dviewer({
 
   Autodesk.Viewing.Initializer(options, () => {
     const startCode = viewer.start();
-    console.log("Viewer start code:", startCode);
+    
     if (startCode !== 0) {
       console.error("Failed to start viewer");
       return;
@@ -234,10 +230,7 @@ export async function data4Dviewer({
         viewer.addEventListener(
           Autodesk.Viewing.SELECTION_CHANGED_EVENT,
           (event) => {
-            console.log(
-              "SELECTION_CHANGED_EVENT fired. dbIds:",
-              event.dbIdArray
-            );
+            //console.log("SELECTION_CHANGED_EVENT fired. dbIds:",event.dbIdArray );
             if (setSelectionCount) {
               setSelectionCount(event.dbIdArray.length);
             }

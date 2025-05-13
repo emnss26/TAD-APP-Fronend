@@ -8,7 +8,7 @@ class CategorySelectionExtension extends Autodesk.Viewing.Extension {
   }
 
   load() {
-    console.log("Category Selection Extension has been loaded.");
+    //console.log("Category Selection Extension has been loaded.");
     return true;
   }
 
@@ -17,7 +17,7 @@ class CategorySelectionExtension extends Autodesk.Viewing.Extension {
       this._group.removeControl(this._button);
       this._button = null;
     }
-    console.log("Category Selection Extension has been downloaded.");
+    //console.log("Category Selection Extension has been downloaded.");
     return true;
   }
 
@@ -50,7 +50,7 @@ class CategorySelectionExtension extends Autodesk.Viewing.Extension {
           return;
         }
 
-        console.log("Category reference: ", categoryValue);
+        //console.log("Category reference: ", categoryValue);
 
         const instanceTree = this.viewer.model.getData().instanceTree;
         if (!instanceTree) {
@@ -90,7 +90,7 @@ class CategorySelectionExtension extends Autodesk.Viewing.Extension {
           });
         }
 
-        console.log("Total de elementos visibles: ", visibleDbIds.length);
+        //console.log("Total de elementos visibles: ", visibleDbIds.length);
 
         this.viewer.model.getBulkProperties(
           visibleDbIds,
@@ -108,11 +108,7 @@ class CategorySelectionExtension extends Autodesk.Viewing.Extension {
                 similarCategoryIds.push(item.dbId);
               }
             });
-            console.log(
-              "Se encontraron " +
-                similarCategoryIds.length +
-                " elementos de la misma categoría (visibles)."
-            );
+            //console.log( "Se encontraron " + similarCategoryIds.length + " elementos de la misma categoría (visibles)." );
 
             this.viewer.isolate(similarCategoryIds);
           }

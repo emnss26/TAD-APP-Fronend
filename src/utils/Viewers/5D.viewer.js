@@ -21,7 +21,7 @@ function resetViewerState(viewer) {
     viewer.setThemingColor(null, null, viewer);
     viewer.hideAll();
   }
-  console.log("Viewer reset complete.");
+  //console.log("Viewer reset complete.");
 }
 
 export async function data5Dviewer({
@@ -32,13 +32,10 @@ export async function data5Dviewer({
   setIsLoadingTree,
   setCategoryData,
 }) {
-  console.log("token viewer 5D :", federatedModel);
+  
 
   const response = await fetch(`${backendUrl}/auth/token`);
   const { data } = await response.json();
-
-  console.log("5D Viewer URN:", federatedModel);
-  console.log("token viewer:", data.access_token);
 
   const options = {
     env: "AutodeskProduction",
@@ -68,7 +65,7 @@ export async function data5Dviewer({
     options,
     () => {
       const startCode = viewer.start();
-      console.log("Viewer start code:", startCode);
+      
       if (startCode !== 0) {
         console.error("Failed to start viewer");
         return;

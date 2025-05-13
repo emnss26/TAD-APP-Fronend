@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { SketchPicker } from "react-color";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"; 
+
+const DEFAULT_COLOR = "#f28c28"; 
 
 export default function EnhancedColorPicker({
   selectedColor,
@@ -14,34 +16,45 @@ export default function EnhancedColorPicker({
   useEffect(() => {
     if (displayPicker && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
+  
       setPosition({ top: rect.bottom + 35, left: rect.left - 60 });
     }
-  }, [displayPicker]);
+  }, [displayPicker]); 
+
+  const handleColorChangeComplete = (color) => {
+    setSelectedColor(color.hex);
+  };
+
+  const togglePicker = () => {
+    setDisplayPicker((prevDisplay) => !prevDisplay);
+  };
 
   return (
     <div className="relative inline-block" ref={containerRef}>
       <Button
         variant="outline"
-        className="h-8 w-12 p-0 border-gray-300"
-        onClick={() => setDisplayPicker(!displayPicker)}
+        className="h-8 w-12 p-0 border-gray-300" 
+        onClick={togglePicker}
+        aria-label="Open color picker" 
       >
         <div
           className="h-full w-full rounded-sm overflow-hidden"
-          style={{ backgroundColor: selectedColor || "#f28c28" }}
-        ></div>
+          style={{ backgroundColor: selectedColor || DEFAULT_COLOR }}
+          aria-hidden="true" 
+        />
       </Button>
       {displayPicker &&
         createPortal(
           <div
-            className="absolute z-50"
+            className="absolute z-50" 
             style={{ top: position.top, left: position.left }}
           >
             <SketchPicker
-              color={selectedColor || "#f28c28"}
-              onChangeComplete={(color) => setSelectedColor(color.hex)}
+              color={selectedColor || DEFAULT_COLOR}
+              onChangeComplete={handleColorChangeComplete}
             />
           </div>,
-          document.body
+          document.body 
         )}
     </div>
   );

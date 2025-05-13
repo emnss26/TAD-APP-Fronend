@@ -7,9 +7,6 @@ export const simpleViewer = async (urn) => {
   const response = await fetch(`${backendUrl}/auth/token`);
   const { data } = await response.json();
 
-  console.log("Simple Viewer URN:", urn);
-  console.log("token viewer:", data.access_token);
-
   const options = {
     env: "AutodeskProduction",
     api: "modelDerivativeV2",
