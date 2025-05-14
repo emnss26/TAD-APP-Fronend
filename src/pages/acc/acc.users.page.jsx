@@ -240,6 +240,7 @@ const ACCProjectUsersPage = () => {
     try {
       const res = await fetch(`${backendUrl}/ai-users/users`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text, accountId, projectId }),
       });

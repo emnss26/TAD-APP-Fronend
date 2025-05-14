@@ -87,9 +87,12 @@ const ACCProjectPlansPage = () => {
             SheetNumber: doc.SheetNumber || "",
             Discipline: doc.Discipline || "Unassigned",
             Revision: doc.Revision || "",
-            RevisionDate: doc.RevisionDate
-              ? doc.RevisionDate.split("T")[0]
+            lastModifiedTime: doc.LastModifiedDate
+              ? doc.LastModifiedDate.split("T")[0]
               : "",
+            exists: doc.InFolder ?? false,
+            revisionProcess: doc.InARevisionProcess || "",
+            revisionStatus: doc.RevisionStatus || "",
           };
         });
         setPlans(pulledPlans);
@@ -104,18 +107,6 @@ const ACCProjectPlansPage = () => {
       setLoading(false);
     }
   }, [accountId, projectId]);
-
-  useEffect(() => {
-    setMappedPlans(
-      plans.map((p) => ({
-        ...p,
-        exists: false,
-        lastModifiedTime: "",
-        revisionProcess: "",
-        revisionStatus: "",
-      }))
-    );
-  }, [plans]);
 
   /* ---------- Initial Data Load ---------- */
   useEffect(() => {
@@ -175,7 +166,10 @@ const ACCProjectPlansPage = () => {
         SheetNumber: plan.SheetNumber,
         Discipline: plan.Discipline,
         Revision: plan.Revision,
-        RevisionDate: plan.RevisionDate,
+        LastModifiedDate: plan.lastModifiedTime,
+        InFolder: plan.exists,
+        InARevisionProcess: plan.revisionProcess,
+        RevisionStatus: plan.revisionStatus,
       }));
       const response = await fetch(
         `${backendUrl}/plans/${accountId}/${projectId}/plans`,
@@ -331,121 +325,111 @@ const ACCProjectPlansPage = () => {
   };
 
   const handleFolderChosen = async (folderId, tree) => {
-    const findNode = (nodes) => {
-      for (const n of nodes) {
-        if (n.id === folderId) return n;
-        if (n.children) {
-          const found = findNode(n.children);
-          if (found) return found;
-        }
+  // 1️⃣ Encuentra la carpeta seleccionada en el árbol
+  const findNode = (nodes) => {
+    for (const n of nodes) {
+      if (n.id === folderId) return n;
+      if (n.children) {
+        const found = findNode(n.children);
+        if (found) return found;
       }
-    };
-    const root = findNode(tree);
-    if (!root) {
-      console.warn("Carpeta no encontrada en el árbol:", folderId);
-      return;
     }
-
-    const flattenFiles = (nodes) => {
-      let out = [];
-      nodes.forEach((n) => {
-        if (n.type === "file") {
-          out.push({
-            itemId: n.id, // → lineage URN, p.e. urn:adsk.wipprod:dm.lineage:...
-            versionUrn: n.version_urn, // → versionedFileUrn, p.e. urn:...fs.file:vf....?version=1
-            name: n.name,
-          });
-        }
-        if (n.children) {
-          out = out.concat(flattenFiles(n.children));
-        }
-      });
-      return out;
-    };
-
-    const fileNodes = flattenFiles(root.children || []);
-    const lineageIds = fileNodes.map((f) => f.itemId);
-    const versionedUrns = fileNodes.map((f) => f.versionUrn);
-
-    const fileNames = fileNodes.map((f) => f.name);
-    console.log("🗂️ Archivos encontrados en la carpeta:", fileNames);
-
-    const fileIds = fileNodes.map((f) => f.id);
-    console.log("🆔 File IDs:", fileIds);
-
-    let details = [];
-    try {
-      const resp = await fetch(
-        `${backendUrl}/datamanagement/items/${accountId}/${projectId}/file-data`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ itemIds: lineageIds }), // <-- lineage URNs
-        }
-      );
-      const json = await resp.json();
-      if (!resp.ok) throw new Error(json.error || resp.statusText);
-      details = json.data;
-      console.log("📑 Detalles recibidos:", details);
-    } catch (err) {
-      console.error("Error fetch item details:", err);
-      alert(`No pude cargar detalles de archivos: ${err.message}`);
-    }
-
-    let filesRevisions = [];
-    try {
-      const resp = await fetch(
-        `${backendUrl}/datamanagement/items/${accountId}/${projectId}/file-revisions`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ itemIds: versionedUrns }), // <-- versionedFileUrn
-        }
-      );
-      const json = await resp.json();
-      if (!resp.ok) throw new Error(json.error || resp.statusText);
-      filesRevisions = json.data;
-      console.log("📑 Revisions recibidas:", filesRevisions);
-    } catch (err) {
-      console.error("Error fetch files revisions:", err);
-      alert(`No pude cargar revisiones de archivos: ${err.message}`);
-    }
-
-    setMappedPlans(
-      plans.map((plan) => {
-        const matchNode = fileNodes.find((f) =>
-          f.name.toLowerCase().includes((plan.SheetNumber || "").toLowerCase())
-        );
-        const exists = !!matchNode;
-        const itemId = matchNode?.id ?? null;
-        const versionUrn = matchNode?.versionUrn;
-        const lineageId = matchNode?.itemId;
-
-        const detail = details.find((d) => d.data?.id === lineageId);
-        console.log("detail", detail);
-        const rawTS = detail?.data?.attributes?.lastModifiedTime;
-        const lastModifiedTime = rawTS ? rawTS.split("T")[0] : "";
-
-        const fileRev =
-          filesRevisions.find((fr) => fr.itemId === versionUrn) || {};
-        const revisionProcess = fileRev.label || "";
-        const revisionStatus = fileRev.reviewStatus || "";
-
-        console.log("detail", lastModifiedTime);
-
-        return {
-          ...plan,
-          exists,
-          itemId,
-          lastModifiedTime,
-          revisionProcess,
-          revisionStatus,
-        };
-      })
-    );
   };
+  const root = findNode(tree);
+  if (!root) {
+    console.warn("Carpeta no encontrada en el árbol:", folderId);
+    return;
+  }
+
+  // 2️⃣ Aplana el árbol para obtener sólo los nodos de tipo "file"
+  const flattenFiles = (nodes) => {
+    let out = [];
+    nodes.forEach((n) => {
+      if (n.type === "file") {
+        out.push({
+          itemId: n.id,
+          versionUrn: n.version_urn,
+          name: n.name,
+        });
+      }
+      if (n.children) {
+        out = out.concat(flattenFiles(n.children));
+      }
+    });
+    return out;
+  };
+  const fileNodes = flattenFiles(root.children || []);
+  const lineageIds = fileNodes.map((f) => f.itemId);
+  const versionedUrns = fileNodes.map((f) => f.versionUrn);
+
+  // 3️⃣ Trae los detalles de los archivos (lastModifiedTime)
+  let details = [];
+  try {
+    const resp = await fetch(
+      `${backendUrl}/datamanagement/items/${accountId}/${projectId}/file-data`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemIds: lineageIds }),
+      }
+    );
+    const json = await resp.json();
+    if (!resp.ok) throw new Error(json.error || resp.statusText);
+    details = json.data;
+  } catch (err) {
+    console.error("Error fetch item details:", err);
+    alert(`No pude cargar detalles de archivos: ${err.message}`);
+  }
+
+  // 4️⃣ Trae las revisiones de los archivos (process + status)
+  let filesRevisions = [];
+  try {
+    const resp = await fetch(
+      `${backendUrl}/datamanagement/items/${accountId}/${projectId}/file-revisions`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemIds: versionedUrns }),
+      }
+    );
+    const json = await resp.json();
+    if (!resp.ok) throw new Error(json.error || resp.statusText);
+    filesRevisions = json.data;
+  } catch (err) {
+    console.error("Error fetch files revisions:", err);
+    alert(`No pude cargar revisiones de archivos: ${err.message}`);
+  }
+
+  // 5️⃣ Mapea UNA VEZ el estado con la info nueva
+  const updated = plans.map((plan) => {
+    const matchNode = fileNodes.find((f) =>
+      f.name.toLowerCase().includes((plan.SheetNumber || "").toLowerCase())
+    );
+    const exists = !!matchNode;
+    const lineageId = matchNode?.itemId;
+    const detail = details.find((d) => d.data?.id === lineageId);
+    const rawTS = detail?.data?.attributes?.lastModifiedTime;
+    const lastModifiedTime = rawTS ? rawTS.split("T")[0] : "";
+    const versionUrn = matchNode?.versionUrn;
+    const fileRev = filesRevisions.find((fr) => fr.itemId === versionUrn) || {};
+    const revisionProcess = fileRev.label || "";
+    const revisionStatus = fileRev.reviewStatus || "";
+
+    return {
+      ...plan,
+      exists,
+      lastModifiedTime,
+      revisionProcess,
+      revisionStatus,
+    };
+  });
+
+  // 6️⃣ Solo aquí volcamos los dos estados (planes “crudos” y mapeados)
+  setMappedPlans(updated);
+  setPlans(updated);
+};
 
   console.log("mappedPlans", mappedPlans);
 
