@@ -410,7 +410,7 @@ const ACC4DDatabase = () => {
       });
   
       // 2) Parámetros de chunking y reintentos
-      const CHUNK_SIZE = 25; // REDUCIDO: Prueba con 20-30. Ajusta según sea necesario.
+      const CHUNK_SIZE = 500; // REDUCIDO: Prueba con 20-30. Ajusta según sea necesario.
       const MAX_RETRIES = 3; // Número máximo de reintentos por lote
       const INITIAL_RETRY_DELAY = 1000; // 1 segundo de espera inicial para reintento
       const PROGRESS_UPDATE_INTERVAL = 200; // Pequeña pausa entre lotes exitosos
@@ -708,7 +708,7 @@ const ACC4DDatabase = () => {
     setIsLoading(true);
     try {
       const lowerMsg = userMessage.toLowerCase();
-      let endpoint = `${backendUrl}/accprojectdatabase`;
+      let endpoint = `${backendUrl}/ai-modeldata`;
       let isViewerCommand = false;
       let isDBIDCommand = false;
       let isUpdateCommand = false;
@@ -736,10 +736,10 @@ const ACC4DDatabase = () => {
       );
 
       if (containsDBID && !containsUpdateKeyword) {
-        endpoint = `${backendUrl}/accprojectdatabase/dbid-question`;
+        endpoint = `${backendUrl}/ai-modeldata/dbid-question`;
         isDBIDCommand = true;
       } else if (containsDBID && containsUpdateKeyword) {
-        endpoint = `${backendUrl}/accprojectdatabase/update-field`;
+        endpoint = `${backendUrl}/ai-modeldata/update-field`;
         isUpdateCommand = true;
       } else if (
         lowerMsg.startsWith("aisla") ||
@@ -749,13 +749,13 @@ const ACC4DDatabase = () => {
         lowerMsg.startsWith("hide") ||
         lowerMsg.startsWith("highlight")
       ) {
-        endpoint = `${backendUrl}/accprojectdatabase/autodesk-command`;
+        endpoint = `${backendUrl}/ai-modeldata/autodesk-command`;
         isViewerCommand = true;
       } else if (
         lowerMsg.startsWith("date range:") ||
         (lowerMsg.includes("construction") && lowerMsg.includes("dates"))
       ) {
-        endpoint = `${backendUrl}/accprojectdatabase/date-range`;
+        endpoint = `${backendUrl}/ai-modeldata/date-range`;
         isDateRangeCommand = true;
       }
 
@@ -803,7 +803,7 @@ const ACC4DDatabase = () => {
         }
         // Reintentar con todo el contexto
         const allData = await fetchAllData(cleanprojectId);
-        response = await fetch(`${backendUrl}/accprojectdatabase`, {
+        response = await fetch(`${backendUrl}/ai-modeldata`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

@@ -337,7 +337,7 @@ const BIM360ProjectPlansPage = () => {
   };
   const root = findNode(tree);
   if (!root) {
-    console.warn("Carpeta no encontrada en el árbol:", folderId);
+    //console.warn("Carpeta no encontrada en el árbol:", folderId);
     return;
   }
 
@@ -431,7 +431,7 @@ const BIM360ProjectPlansPage = () => {
   setPlans(updated);
 };
 
-  console.log("mappedPlans", mappedPlans);
+  //console.log("mappedPlans", mappedPlans);
 
   // ——— IMPORT / EXPORT EXCEL ———
 

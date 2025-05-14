@@ -50,11 +50,7 @@ const BIM360ProjectTaskManagementPage = () => {
         setLoading(true);
         const tasksArray = await taskService.getTasks(projectId, accountId);
 
-        const usersData = await fechBIM360ProjectUsers(
-          projectId,
-          accountId
-        );
-
+        const usersData = await fechBIM360ProjectUsers(projectId, accountId);
         const usersArray = Array.isArray(usersData.users)
           ? usersData.users
           : [];
@@ -87,7 +83,6 @@ const BIM360ProjectTaskManagementPage = () => {
 
   const handleUpdateTask = async (taskToUpdate) => {
     console.log("Updating task:", taskToUpdate);
-    console.log("Project ID:", taskToUpdate.id);
     try {
       const updated = await taskService.updateTask(
         projectId,
@@ -97,37 +92,42 @@ const BIM360ProjectTaskManagementPage = () => {
       );
       console.log("Updated task:", updated);
 
-      setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+      setTasks((prev) =>
+        prev.map((t) => (t.id === updated.id ? updated : t))
+      );
     } catch (err) {
       setError(err.message);
     }
   };
 
   const handleDeleteTask = async (taskId) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar esta tarea?")) {
+    if (!window.confirm("Are you sure you want to delete this task?")) {
       return;
     }
     try {
       setError(null);
       await taskService.deleteTask(projectId, accountId, taskId);
-
-      setTasks(tasks.filter((task) => task.id !== taskId));
+      setTasks((prev) => prev.filter((task) => task.id !== taskId));
     } catch (err) {
       console.error("Error deleting task:", err);
       setError(
-        err instanceof Error ? err.message : "Error al eliminar la tarea."
+        err instanceof Error ? err.message : "Error deleting the task."
       );
     }
   };
 
   if (loading) {
-    return <div className="container mx-auto py-6">Cargando tareas...</div>;
+    return (
+      <div className="container mx-auto py-6">
+        Loading tasks...
+      </div>
+    );
   }
 
   return (
     <>
       {loading && <LoadingOverlay />}
-      {/*Header*/}
+      {/* Header */}
       <BIM360PlatformprojectsHeader
         accountId={accountId}
         projectId={projectId}
@@ -148,7 +148,7 @@ const BIM360ProjectTaskManagementPage = () => {
               className="bg-purple-600 hover:bg-purple-700"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
-              Nueva Tarea
+              New Task
             </Button>
           </div>
 
@@ -162,11 +162,11 @@ const BIM360ProjectTaskManagementPage = () => {
             <TabsList className="mb-4">
               <TabsTrigger value="list" className="flex items-center">
                 <LayoutGrid className="mr-2 h-4 w-4" />
-                Lista de Tareas
+                Task List
               </TabsTrigger>
               <TabsTrigger value="gantt" className="flex items-center">
                 <BarChart2 className="mr-2 h-4 w-4" />
-                Diagrama de Gantt
+                Gantt Chart
               </TabsTrigger>
             </TabsList>
             <TabsContent value="list">
@@ -182,13 +182,13 @@ const BIM360ProjectTaskManagementPage = () => {
             </TabsContent>
           </Tabs>
 
-          {/* Dialogo para crear nueva tarea */}
+          {/* Dialog for creating new task */}
           <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>Crear Nueva Tarea</DialogTitle>
+                <DialogTitle>Create New Task</DialogTitle>
                 <DialogDescription>
-                  Completa los detalles de la nueva tarea.
+                  Fill in the details for the new task.
                 </DialogDescription>
               </DialogHeader>
               <TaskManagementForm
@@ -202,7 +202,7 @@ const BIM360ProjectTaskManagementPage = () => {
           </Dialog>
         </main>
       </div>
-      {/*Footer*/}
+      {/* Footer */}
       <Footer />
     </>
   );
