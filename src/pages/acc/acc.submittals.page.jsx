@@ -230,7 +230,7 @@ const ACCSubmittalsPage = () => {
     setMessages((m) => [...m, { role: "user", content: text }]);
     setUserMessage("");
     try {
-      const res = await fetch(`${backendUrl}/ai-submittlas/submittals`, {
+      const res = await fetch(`${backendUrl}/ai-submittals/submittals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text, accountId, projectId }),

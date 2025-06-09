@@ -244,7 +244,7 @@ const BIM360ProjectUsersPage = () => {
       setMessages((m) => [...m, { role: "user", content: text }]);
       setUserMessage("");
       try {
-        const res = await fetch(`${backendUrl}/ai/users`, {
+        const res = await fetch(`${backendUrl}/ai-users/users`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: text, accountId, projectId }),
