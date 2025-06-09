@@ -426,7 +426,7 @@ const BIM3604DDatabase = () => {
           let successInCurrentChunk = false;
     
           while (retries < MAX_RETRIES && !successInCurrentChunk) {
-            console.log(
+            console.debug(
               `🚀 Enviando lote ${currentChunkNumber}/${totalChunks} (${chunk.length} items). Intento ${retries + 1}/${MAX_RETRIES}...`
             );
     
@@ -440,7 +440,7 @@ const BIM3604DDatabase = () => {
     
               if (resp.ok) { // resp.ok es true para status HTTP 200-299
                 const responseData = await resp.json(); // Leer el cuerpo de la respuesta
-                console.log(`✅ Lote ${currentChunkNumber} completado con status ${resp.status}. Respuesta:`, responseData);
+                console.debug(`✅ Lote ${currentChunkNumber} completado con status ${resp.status}. Respuesta:`, responseData);
                 successInCurrentChunk = true;
                 successfulChunks++;
                 processedItems += chunk.length; // O podrías usar responseData.data.processed si el backend lo devuelve
@@ -467,7 +467,7 @@ const BIM3604DDatabase = () => {
                   retries++;
                   if (retries < MAX_RETRIES) {
                     const delay = INITIAL_RETRY_DELAY * Math.pow(2, retries - 1); // Backoff exponencial
-                    console.log(`Reintentando lote ${currentChunkNumber} en ${delay / 1000}s...`);
+                    console.debug(`Reintentando lote ${currentChunkNumber} en ${delay / 1000}s...`);
                     await new Promise((r) => setTimeout(r, delay));
                   } else {
                     // Máximo de reintentos alcanzado para este lote
@@ -490,7 +490,7 @@ const BIM3604DDatabase = () => {
               retries++;
               if (retries < MAX_RETRIES) {
                 const delay = INITIAL_RETRY_DELAY * Math.pow(2, retries - 1);
-                console.log(`Reintentando lote ${currentChunkNumber} en ${delay / 1000}s (error de red)...`);
+                console.debug(`Reintentando lote ${currentChunkNumber} en ${delay / 1000}s (error de red)...`);
                 await new Promise((r) => setTimeout(r, delay));
               } else {
                 const finalNetErrorMsg = `Lote ${currentChunkNumber} falló por error de red después de ${MAX_RETRIES} intentos: ${networkError.message}`;

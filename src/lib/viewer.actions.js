@@ -1,8 +1,8 @@
 
 export const isolateObjectsInViewer = (viewer, dbIds) => {
   const ids = dbIds.map(id => Number(id));
-  console.log("viewer isoalte:", viewer);
-  console.log("dbIds isolate :", ids);
+  console.debug("viewer isoalte:", viewer);
+  console.debug("dbIds isolate :", ids);
   if (viewer && dbIds.length > 0) {
     viewer.isolate(ids );
     viewer.fitToView(ids );
@@ -14,7 +14,7 @@ export const isolateObjectsInViewer = (viewer, dbIds) => {
 };
 
 export const showAllObjects = (viewer) => {
-  console.log("viewer:", viewer);
+  console.debug("viewer:", viewer);
   if (viewer) {
     viewer.isolate(); 
   } else {
@@ -24,8 +24,8 @@ export const showAllObjects = (viewer) => {
 
 export const hideObjectsInViewer = (viewer, dbIds) => {
   const ids = dbIds.map(id => Number(id));
-  console.log("viewer:", viewer);
-  console.log("dbIds:", ids);
+  console.debug("viewer:", viewer);
+  console.debug("dbIds:", ids);
   if (viewer && ids.length > 0) {
     viewer.hide(ids);
   } else {
@@ -65,7 +65,7 @@ export const applyFilterToViewer = async (
       return;
     }
 
-    console.log("Data de elementos filtrados:", data.dbIds);
+    console.debug("Data de elementos filtrados:", data.dbIds);
 
     switch (filterType) {
       case "isolate":
