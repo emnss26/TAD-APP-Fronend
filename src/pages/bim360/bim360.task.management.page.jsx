@@ -183,8 +183,8 @@ const BIM360ProjectTaskManagementPage = () => {
           </Tabs>
 
           {/* Dialog for creating new task */}
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogContent className="sm:max-w-[600px]">
+          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen} modal={false}>
+            <DialogContent nonModal className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Create New Task</DialogTitle>
                 <DialogDescription>
