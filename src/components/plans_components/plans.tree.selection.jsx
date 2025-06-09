@@ -88,7 +88,7 @@ export default function FolderMappingModal({
 
   const handleConfirm = () => {
     if (selected) {
-        console.log("📂 Folder seleccionado:", selected);
+        console.debug("📂 Folder seleccionado:", selected);
       onFolderChosen(selected.id, tree);
       onClose();
     }
