@@ -82,7 +82,7 @@ const BIM360ProjectTaskManagementPage = () => {
   };
 
   const handleUpdateTask = async (taskToUpdate) => {
-    console.log("Updating task:", taskToUpdate);
+    console.debug("Updating task:", taskToUpdate);
     try {
       const updated = await taskService.updateTask(
         projectId,
@@ -90,7 +90,7 @@ const BIM360ProjectTaskManagementPage = () => {
         taskToUpdate.id,
         taskToUpdate
       );
-      console.log("Updated task:", updated);
+      console.debug("Updated task:", updated);
 
       setTasks((prev) =>
         prev.map((t) => (t.id === updated.id ? updated : t))

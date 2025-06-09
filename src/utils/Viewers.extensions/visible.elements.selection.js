@@ -86,13 +86,13 @@ class VisibleSelectionExtension extends Autodesk.Viewing.Extension {
           }
         }
 
-        console.log(`dbId ${dbId} -> isVisible? ${isVisible}`);
+        console.debug(`dbId ${dbId} -> isVisible? ${isVisible}`);
         if (isVisible) {
           visibleLeafDbIds.push(dbId);
         }
       });
 
-      console.log(`Visible leaf nodes found: ${visibleLeafDbIds.length}`);
+      console.debug(`Visible leaf nodes found: ${visibleLeafDbIds.length}`);
       this.viewer.select(visibleLeafDbIds);
     };
   }
