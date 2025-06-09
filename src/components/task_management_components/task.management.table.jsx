@@ -155,7 +155,7 @@ export function TaskManagementTable({
         onOpenChange={(open) => !open && setEditingTask(null)}
         modal={false}
       >
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent nonModal className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Editar tarea</DialogTitle>
             <DialogDescription>

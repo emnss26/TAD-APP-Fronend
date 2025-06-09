@@ -189,7 +189,8 @@ const ACCProjectTaskManagementPage = () => {
 
           {/* Dialog for creating new task */}
           <Dialog open={isFormOpen} onOpenChange={setIsFormOpen} modal={false}>
-            <DialogContent className="sm:max-w-[600px]">
+            
+           <DialogContent nonModal className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Create New Task</DialogTitle>
                 <DialogDescription>
