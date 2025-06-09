@@ -9,10 +9,8 @@ import React, {
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
-import BIM360PlatformprojectsHeader from "../../components/platform_page_components/bim360.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
-import BIM360SideBar from "../../components/platform_page_components/platform.bim360.sidebar";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
+import BIM360PlatformLayout from "../../components/platform_page_components/bim360.platform.layout";
 
 import { data4Dviewer } from "../../utils/Viewers/4D.viewer";
 
@@ -877,18 +875,12 @@ const BIM3604DDatabase = () => {
   }, [showAIpanel]);
 
   return (
-    <>
+    <BIM360PlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
-
-      {/* Header */}
-      <BIM360PlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
 
       {/* Contenedor principal: ocupa todo el viewport menos el header */}
       <div
-        className="flex flex-col mt-14"
+        className="flex flex-col"
         style={{
           minHeight:
             "calc(100vh - 3.5rem)" /* Ajusta si tu header no mide 56px */,
@@ -896,7 +888,6 @@ const BIM3604DDatabase = () => {
       >
         {/* Sidebar + contenido desplazable */}
         <div className="flex flex-1">
-          <BIM360SideBar />
 
           <div className="flex-1 p-4 bg-white overflow-auto">
             {/* Título */}
@@ -1076,10 +1067,8 @@ const BIM3604DDatabase = () => {
           </div>
         </div>
 
-        {/* Footer siempre al final */}
-        <Footer />
       </div>
-    </>
+    </BIM360PlatformLayout>
   );
 };
 

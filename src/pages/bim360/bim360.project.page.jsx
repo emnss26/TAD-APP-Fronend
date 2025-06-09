@@ -8,10 +8,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import BIM360PlatformprojectsHeader from "../../components/platform_page_components/bim360.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
-import BIM360SideBar from "../../components/platform_page_components/platform.bim360.sidebar";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
+import BIM360PlatformLayout from "../../components/platform_page_components/bim360.platform.layout";
 
 import {
   fetchBIM360ProjectsData,
@@ -170,16 +168,10 @@ const BIM360ProjectPage = () => {
   }, [federatedModel]);
 
   return (
-    <>
+    <BIM360PlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
-      {/*Header*/}
-      <BIM360PlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
 
-      <div className="flex min-h-screen mt-14">
-        <BIM360SideBar />
+      <div className="flex min-h-screen">
 
         {/*Main Content*/}
         <div className="flex-1 min-w-0 p-2 px-4 bg-white">
@@ -293,9 +285,7 @@ const BIM360ProjectPage = () => {
           </div>
         </div>
       </div>
-      {/*Footer*/}
-      <Footer />
-    </>
+    </BIM360PlatformLayout>
   );
 };
 

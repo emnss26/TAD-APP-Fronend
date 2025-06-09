@@ -6,10 +6,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import ACCPlatformprojectsHeader from "../../components/platform_page_components/acc.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
-import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
+import ACCPlatformLayout from "../../components/platform_page_components/acc.platform.layout";
 
 import submittalsSpecChart from "../../components/submittlas_page_components/submittals.spec.chart";
 import submittalsStatusChart from "../../components/submittlas_page_components/submttals.status.chart";
@@ -260,16 +258,10 @@ const ACCSubmittalsPage = () => {
   const pickSampleSub = (q) => setUserMessage(q);
 
   return (
-    <>
+    <ACCPlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
 
-      {/*Header*/}
-      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
-
-      <div className="flex min-h-screen mt-14">
-        {/* Sidebar */}
-        <ACCSideBar />
-
+      <div className="flex min-h-screen">
         {/* Main Content */}
         <div className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl text-black mt-2">
@@ -419,8 +411,7 @@ const ACCSubmittalsPage = () => {
           )}
         </div>
       </div>
-      <Footer />
-    </>
+    </ACCPlatformLayout>
   );
 };
 

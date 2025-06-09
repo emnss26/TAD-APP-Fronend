@@ -9,10 +9,8 @@ import React, {
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
-import ACCPlatformprojectsHeader from "../../components/platform_page_components/acc.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
-import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
+import ACCPlatformLayout from "../../components/platform_page_components/acc.platform.layout";
 
 import { data5Dviewer } from "../../utils/Viewers/5D.viewer";
 
@@ -796,15 +794,12 @@ const ACC5DDatabase = () => {
   }, [showAIpanel]);
 
   return (
-    <>
+    <ACCPlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
-
-      {/* Header */}
-      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
 
       {/* Contenedor principal: ocupa todo el viewport menos el header */}
       <div
-        className="flex flex-col mt-14"
+        className="flex flex-col"
         style={{
           minHeight:
             "calc(100vh - 3.5rem)" /* Ajusta si tu header no mide 56px */,
@@ -812,7 +807,6 @@ const ACC5DDatabase = () => {
       >
         {/* Sidebar + contenido desplazable */}
         <div className="flex flex-1">
-          <ACCSideBar />
 
           <div className="flex-1 p-4 bg-white overflow-auto">
             {/* Título */}
@@ -977,10 +971,8 @@ const ACC5DDatabase = () => {
           </div>
         </div>
 
-        {/* Footer siempre al final */}
-        <Footer />
       </div>
-    </>
+    </ACCPlatformLayout>
   );
 };
 
