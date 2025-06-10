@@ -155,7 +155,7 @@ export function TaskManagementTable({
       <Dialog
         open={!!editingTask}
         onOpenChange={(open) => !open && setEditingTask(null)}
-        
+        modal={false}
       >
         <DialogContent
           nonModal
