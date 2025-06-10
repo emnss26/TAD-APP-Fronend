@@ -605,4 +605,4 @@ const BIM360ProjectPlansPage = () => {
   );
 };
 
-export default BIM360ProjectPlansPage;
+export default React.memo(BIM360ProjectPlansPage);

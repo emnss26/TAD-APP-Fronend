@@ -198,4 +198,4 @@ const BIM360ProjectTaskManagementPage = () => {
   );
 };
 
-export default BIM360ProjectTaskManagementPage;
+export default React.memo(BIM360ProjectTaskManagementPage);

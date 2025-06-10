@@ -1074,4 +1074,4 @@ const ACC4DDatabase = () => {
   );
 };
 
-export default ACC4DDatabase;
+export default React.memo(ACC4DDatabase);

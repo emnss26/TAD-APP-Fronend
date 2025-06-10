@@ -204,4 +204,4 @@ const ACCProjectTaskManagementPage = () => {
   );
 };
 
-export default ACCProjectTaskManagementPage;
+export default React.memo(ACCProjectTaskManagementPage);

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -386,4 +386,4 @@ const ACCRFIPage = () => {
     </ACCPlatformLayout>
   );
 };
-export default ACCRFIPage;
+export default React.memo(ACCRFIPage);

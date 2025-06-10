@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -396,4 +396,4 @@ const ACCIssuesPage = () => {
     </ACCPlatformLayout>
   );
 };
-export default ACCIssuesPage;
+export default React.memo(ACCIssuesPage);

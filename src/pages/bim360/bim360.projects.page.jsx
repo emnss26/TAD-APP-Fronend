@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
 
@@ -140,4 +140,4 @@ const BIM360ProjectsPage = () => {
   );
 };
 
-export default BIM360ProjectsPage;
+export default React.memo(BIM360ProjectsPage);

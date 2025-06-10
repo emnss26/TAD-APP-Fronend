@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { simpleViewer } from "../../utils/Viewers/simple.viewer";
 import { useCookies } from "react-cookie";
@@ -367,4 +367,4 @@ const ACCProjectPage = () => {
   );
 };
 
-export default ACCProjectPage;
+export default React.memo(ACCProjectPage);
