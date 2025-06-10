@@ -3,10 +3,8 @@ import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { Button } from "@/components/ui/button";
 
-import ACCPlatformprojectsHeader from "../../components/platform_page_components/acc.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
-import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
+import ACCPlatformLayout from "../../components/platform_page_components/acc.platform.layout";
 
 import {
   Tabs,
@@ -130,16 +128,10 @@ const ACCProjectTaskManagementPage = () => {
   }
 
   return (
-    <>
+    <ACCPlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
-      {/* Header */}
-      <ACCPlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
 
-      <div className="flex min-h-screen mt-14">
-        <ACCSideBar />
+      <div className="flex min-h-screen">
 
         <main className="flex-1 min-w-0 p-2 px-4 bg-white">
           <h1 className="text-right text-xl mt-2">
@@ -208,9 +200,7 @@ const ACCProjectTaskManagementPage = () => {
           </Dialog>
         </main>
       </div>
-      {/* Footer */}
-      <Footer />
-    </>
+    </ACCPlatformLayout>
   );
 };
 

@@ -2,10 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
-import ACCPlatformprojectsHeader from "../../components/platform_page_components/acc.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
-import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
+import ACCPlatformLayout from "../../components/platform_page_components/acc.platform.layout";
 
 import { utils, writeFile } from "xlsx";
 
@@ -265,18 +263,10 @@ const ACCProjectUsersPage = () => {
   };
 
   return (
-    <>
+    <ACCPlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
-      {/* Navigation Bar */}
-      <ACCPlatformprojectsHeader 
-      accountId={accountId} 
-      projectId={projectId} 
-      />
 
-      <div className="flex min-h-screen mt-14">
-        {/* Sidebar */}
-        <ACCSideBar />
-
+      <div className="flex min-h-screen">
         {/* Main Content */}
         <div className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl text-black mt-2">
@@ -426,9 +416,7 @@ const ACCProjectUsersPage = () => {
         </div>
       </div>
 
-      {/*Footer*/}
-      <Footer />
-    </>
+    </ACCPlatformLayout>
   );
 };
 

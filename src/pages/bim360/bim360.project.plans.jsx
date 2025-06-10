@@ -13,10 +13,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import BIM360PlatformprojectsHeader from "../../components/platform_page_components/bim360.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
-import BIM360SideBar from "../../components/platform_page_components/platform.bim360.sidebar";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
+import BIM360PlatformLayout from "../../components/platform_page_components/bim360.platform.layout";
 
 import RevisionPlansPieChart from "../../components/plans_components/plans.revision.chart";
 import DisciplinePlansPieChart from "../../components/plans_components/plans.discipline.chart";
@@ -499,17 +497,12 @@ const BIM360ProjectPlansPage = () => {
 
   /* ---------- Render ---------- */
   return (
-    <>
+    <BIM360PlatformLayout projectId={projectId} accountId={accountId}>
       {loading && (
         <LoadingOverlay message={error ? `Error: ${error}` : "Loading..."} />
       )}
-      <BIM360PlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
 
-      <div className="flex min-h-screen mt-14">
-        <BIM360SideBar />
+      <div className="flex min-h-screen">
 
          <main className="flex-1 p-2 px-4 bg-white">
                   <h1 className="text-right text-xl mt-2">PROJECT PLANS MANAGEMENT</h1>
@@ -608,8 +601,7 @@ const BIM360ProjectPlansPage = () => {
                 </main>
               </div>
 
-      <Footer />
-    </>
+    </BIM360PlatformLayout>
   );
 };
 

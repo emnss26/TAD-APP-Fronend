@@ -2,10 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
-import BIM360PlatformprojectsHeader from "../../components/platform_page_components/bim360.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
-import BIM360SideBar from "../../components/platform_page_components/platform.bim360.sidebar";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
+import BIM360PlatformLayout from "../../components/platform_page_components/bim360.platform.layout";
 
 import { utils, writeFile } from "xlsx";
 
@@ -270,17 +268,10 @@ const BIM360ProjectUsersPage = () => {
     };
 
   return (
-    <>
+    <BIM360PlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
-      {/* Navigation Bar */}
-      <BIM360PlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
 
-      <div className="flex min-h-screen mt-14">
-        {/* Sidebar */}
-        <BIM360SideBar />
+      <div className="flex min-h-screen">
 
         {/* Main Content */}
         <div className="flex-1 p-2 px-4 bg-white">
@@ -431,9 +422,7 @@ const BIM360ProjectUsersPage = () => {
         </div>
       </div>
 
-      {/*Footer*/}
-      <Footer />
-    </>
+    </BIM360PlatformLayout>
   );
 };
 

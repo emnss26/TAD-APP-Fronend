@@ -6,10 +6,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import BIM360PlatformprojectsHeader from "../../components/platform_page_components/bim360.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
-import BIM360SideBar from "../../components/platform_page_components/platform.bim360.sidebar";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
+import BIM360PlatformLayout from "../../components/platform_page_components/bim360.platform.layout";
 
 import IssuesTable from "../../components/issues_page_components/issues.table";
 import { IssuesGanttChart } from "../../components/issues_page_components/issues.gantt.chart";
@@ -244,16 +242,10 @@ const BIM360IssuesPage = () => {
 
   /* ---------- Render ---------- */
   return (
-    <>
+    <BIM360PlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
 
-      <BIM360PlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
-
-      <div className="flex min-h-screen mt-14">
-        <BIM360SideBar />
+      <div className="flex min-h-screen">
 
         <main className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl mt-2">PROJECT ISSUES REPORT</h1>
@@ -402,8 +394,7 @@ const BIM360IssuesPage = () => {
         </main>
       </div>
 
-      <Footer />
-    </>
+    </BIM360PlatformLayout>
   );
 };
 

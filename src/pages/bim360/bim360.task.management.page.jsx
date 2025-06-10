@@ -3,10 +3,8 @@ import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { Button } from "@/components/ui/button";
 
-import BIM360PlatformprojectsHeader from "../../components/platform_page_components/bim360.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
-import BIM360SideBar from "../../components/platform_page_components/platform.bim360.sidebar";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
+import BIM360PlatformLayout from "../../components/platform_page_components/bim360.platform.layout";
 
 import {
   Tabs,
@@ -125,16 +123,10 @@ const BIM360ProjectTaskManagementPage = () => {
   }
 
   return (
-    <>
+    <BIM360PlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
-      {/* Header */}
-      <BIM360PlatformprojectsHeader
-        accountId={accountId}
-        projectId={projectId}
-      />
 
-      <div className="flex min-h-screen mt-14">
-        <BIM360SideBar />
+      <div className="flex min-h-screen">
 
         <main className="flex-1 min-w-0 p-2 px-4 bg-white">
           <h1 className="text-right text-xl mt-2">
@@ -202,9 +194,7 @@ const BIM360ProjectTaskManagementPage = () => {
           </Dialog>
         </main>
       </div>
-      {/* Footer */}
-      <Footer />
-    </>
+    </BIM360PlatformLayout>
   );
 };
 

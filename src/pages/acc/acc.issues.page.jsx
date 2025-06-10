@@ -6,10 +6,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import ACCPlatformprojectsHeader from "../../components/platform_page_components/acc.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
-import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
+import ACCPlatformLayout from "../../components/platform_page_components/acc.platform.layout";
 
 import IssuesTable from "../../components/issues_page_components/issues.table";
 import { IssuesGanttChart } from "../../components/issues_page_components/issues.gantt.chart";
@@ -243,16 +241,10 @@ const ACCIssuesPage = () => {
 
   /* ---------- Render ---------- */
   return (
-    <>
+    <ACCPlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
 
-      <ACCPlatformprojectsHeader 
-      accountId={accountId} 
-      projectId={projectId} 
-      />
-
-      <div className="flex min-h-screen mt-14">
-        <ACCSideBar />
+      <div className="flex min-h-screen">
 
         <main className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl mt-2">PROJECT ISSUES REPORT</h1>
@@ -401,8 +393,7 @@ const ACCIssuesPage = () => {
         </main>
       </div>
 
-      <Footer />
-    </>
+    </ACCPlatformLayout>
   );
 };
 export default ACCIssuesPage;

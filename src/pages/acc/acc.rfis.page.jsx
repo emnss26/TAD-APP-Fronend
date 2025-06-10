@@ -11,10 +11,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import ACCPlatformprojectsHeader from "../../components/platform_page_components/acc.platform.header.projects";
-import { Footer } from "../../components/general_pages_components/general.pages.footer";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
-import ACCSideBar from "../../components/platform_page_components/platform.acc.sidebar";
+import ACCPlatformLayout from "../../components/platform_page_components/acc.platform.layout";
 import { RFIsGanttChart } from "../../components/rfis_page_components/rfi.gantt.chart";
 
 import {
@@ -241,13 +239,9 @@ const ACCRFIPage = () => {
   const pickSample = (q) => setUserMessage(q);
 
   return (
-    <>
+    <ACCPlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
-
-      <ACCPlatformprojectsHeader accountId={accountId} projectId={projectId} />
-      <div className="flex min-h-screen mt-14">
-        <ACCSideBar />
-
+      <div className="flex min-h-screen">
         <main className="flex-1 p-2 px-4 bg-white">
           <h1 className="text-right text-xl mt-2">PROJECT RFI REPORT</h1>
           <hr className="my-4 border-t border-gray-300" />
@@ -389,8 +383,7 @@ const ACCRFIPage = () => {
         </main>
       </div>
 
-      <Footer />
-    </>
+    </ACCPlatformLayout>
   );
 };
 export default ACCRFIPage;
