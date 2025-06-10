@@ -57,7 +57,11 @@ export function TaskManagementTable({
 
   // Abrir diálogo de edición con la tarea completa
   const handleEditClick = (task) => {
-    setEditingTask(task);
+    // open the edit dialog on the next tick to avoid Radix
+    // treating the current click as an outside interaction
+    setTimeout(() => {
+      setEditingTask(task);
+    }, 0);
   };
 
   const handleUpdateSubmit = (updated) => {
