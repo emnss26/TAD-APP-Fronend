@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
@@ -91,4 +92,4 @@ const NotFoundPage = () => {
   );
 };
 
-export default NotFoundPage;
+export default React.memo(NotFoundPage);

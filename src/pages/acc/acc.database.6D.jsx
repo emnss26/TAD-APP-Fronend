@@ -918,4 +918,4 @@ const ACC6DDatabase = () => {
   );
 };
 
-export default ACC6DDatabase;
+export default React.memo(ACC6DDatabase);

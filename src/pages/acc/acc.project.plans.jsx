@@ -604,4 +604,4 @@ const ACCProjectPlansPage = () => {
   );
 };
 
-export default ACCProjectPlansPage;
+export default React.memo(ACCProjectPlansPage);

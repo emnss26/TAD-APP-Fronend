@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { simpleViewer } from "../../utils/Viewers/simple.viewer";
 import { useCookies } from "react-cookie";
@@ -289,4 +289,4 @@ const BIM360ProjectPage = () => {
   );
 };
 
-export default BIM360ProjectPage;
+export default React.memo(BIM360ProjectPage);

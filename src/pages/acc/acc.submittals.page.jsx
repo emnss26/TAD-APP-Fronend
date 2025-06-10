@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -415,4 +415,4 @@ const ACCSubmittalsPage = () => {
   );
 };
 
-export default ACCSubmittalsPage;
+export default React.memo(ACCSubmittalsPage);

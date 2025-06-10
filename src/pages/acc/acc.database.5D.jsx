@@ -976,4 +976,4 @@ const ACC5DDatabase = () => {
   );
 };
 
-export default ACC5DDatabase;
+export default React.memo(ACC5DDatabase);

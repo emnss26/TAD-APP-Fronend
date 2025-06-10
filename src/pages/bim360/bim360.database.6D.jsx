@@ -918,4 +918,4 @@ const backendUrl =
     );
   };
   
-  export default BIM3606DDatabase;
+  export default React.memo(BIM3606DDatabase);

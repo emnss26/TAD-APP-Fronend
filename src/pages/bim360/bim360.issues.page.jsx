@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -398,4 +398,4 @@ const BIM360IssuesPage = () => {
   );
 };
 
-export default BIM360IssuesPage;
+export default React.memo(BIM360IssuesPage);

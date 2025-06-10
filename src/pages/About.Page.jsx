@@ -1,3 +1,4 @@
+import React from "react";
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 
@@ -91,4 +92,4 @@ const AboutPage = () => {
   );
 };
 
-export default AboutPage;
+export default React.memo(AboutPage);

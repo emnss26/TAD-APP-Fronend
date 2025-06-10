@@ -1,3 +1,4 @@
+import React from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 
@@ -170,4 +171,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default React.memo(LoginPage);
