@@ -57,8 +57,6 @@ export function TaskManagementTable({
 
   // Abrir diálogo de edición con la tarea completa
   const handleEditClick = (task) => {
-    // open the edit dialog on the next tick to avoid Radix
-    // treating the current click as an outside interaction
     setTimeout(() => {
       setEditingTask(task);
     }, 0);
@@ -130,7 +128,7 @@ export function TaskManagementTable({
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           key="edit"
-                          onClick={() => handleEditClick(task)}
+                          onSelect={() => handleEditClick(task)}
                         >
                           <Pencil className="mr-2 h-4 w-4" />
                           Editar
@@ -157,9 +155,13 @@ export function TaskManagementTable({
       <Dialog
         open={!!editingTask}
         onOpenChange={(open) => !open && setEditingTask(null)}
-        modal={false}
+        
       >
-        <DialogContent nonModal className="sm:max-w-[600px]">
+        <DialogContent
+          nonModal
+          onInteractOutside={(e) => e.preventDefault()}
+          className="sm:max-w-[600px]"
+        >
           <DialogHeader>
             <DialogTitle>Editar tarea</DialogTitle>
             <DialogDescription>
