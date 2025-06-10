@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import PlatformHeader from "../../components/platform_page_components/platform.access.header";
@@ -145,4 +145,4 @@ const ACCProjectsPage = () => {
   );
 };
 
-export default ACCProjectsPage;
+export default React.memo(ACCProjectsPage);

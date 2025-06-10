@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 
@@ -119,4 +119,4 @@ const PlatformPage = () => {
   );
 };
 
-export default PlatformPage;
+export default React.memo(PlatformPage);

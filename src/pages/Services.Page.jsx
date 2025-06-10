@@ -1,3 +1,4 @@
+import React from "react";
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 
@@ -95,4 +96,4 @@ const ServicesPage = () => {
   );
 };
 
-export default ServicesPage;
+export default React.memo(ServicesPage);

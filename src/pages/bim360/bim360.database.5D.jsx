@@ -976,4 +976,4 @@ const BIM3605DDatabase = () => {
   );
 };
 
-export default BIM3605DDatabase;
+export default React.memo(BIM3605DDatabase);
