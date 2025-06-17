@@ -20,6 +20,7 @@ import {
   fetchBIM360ProjectData,
   fetchBIM360ProjectRFI,
 } from "../../pages/services/bim360.services";
+import exportToExcel from "../../utils/exportToExcel";
 
 const sampleQuestionsRFI = [
   "How many RFIs are open?",
@@ -150,6 +151,23 @@ const BIM360RFIPage = () => {
     setActiveFilters({ status: null, priority: null, discipline: null });
   };
 
+  const handleExportRFIs = () => {
+    const fields = [
+      "customIdentifier",
+      "title",
+      "discipline",
+      "priority",
+      "status",
+      "createdAt",
+      "updatedAt",
+      "closedAt",
+      "assignedTo",
+      "reviewerId",
+      "managerId",
+    ];
+    exportToExcel(displayedRFIs, fields, `project-${projectId}-rfis.xlsx`);
+  };
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -248,17 +266,23 @@ const BIM360RFIPage = () => {
 
           {/* Reset filters */}
           <div className="mb-4 text-right">
-            <button
-              onClick={resetFilters}
-              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
-            >
-              Reset Table Filters
-            </button>
-            <button
-              onClick={toggleChat}
-              className="btn-primary text-xs font-bold py-2 px-4 rounded"
-            >
-              {isChatOpen ? "Show RFI Data" : "Ask AI Assistant"}
+          <button
+            onClick={resetFilters}
+            className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+          >
+            Reset Table Filters
+          </button>
+          <button
+            onClick={handleExportRFIs}
+            className="btn-primary text-xs font-bold py-2 px-4 rounded mx-2"
+          >
+            Export RFIs to Excel
+          </button>
+          <button
+            onClick={toggleChat}
+            className="btn-primary text-xs font-bold py-2 px-4 rounded"
+          >
+            {isChatOpen ? "Show RFI Data" : "Ask AI Assistant"}
             </button>
           </div>
 

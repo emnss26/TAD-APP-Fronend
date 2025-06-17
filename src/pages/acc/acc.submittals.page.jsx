@@ -15,6 +15,7 @@ import SubmittalsTable from "../../components/submittlas_page_components/submitt
 import { SubmittalsGanttChart } from "../../components/submittlas_page_components/submittals.gantt.chart";
 
 import { fetchACCProjectSubmittals } from "../../pages/services/acc.services";
+import exportToExcel from "../../utils/exportToExcel";
 
 const backendUrl =
   import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
@@ -169,6 +170,28 @@ const ACCSubmittalsPage = () => {
     });
   };
 
+  const handleExportSubmittals = () => {
+    const fields = [
+      "identifier",
+      "title",
+      "specTitle",
+      "stateId",
+      "managerName",
+      "submittedByName",
+    ];
+
+    const mapped = displayedSubmittals.map((s) => ({
+      identifier: s.identifier,
+      title: s.title,
+      specTitle: s.specDetails?.title ?? "",
+      stateId: s.stateId,
+      managerName: s.managerName,
+      submittedByName: s.submittedByName,
+    }));
+
+    exportToExcel(mapped, fields, `project-${projectId}-submittals.xlsx`);
+  };
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -271,17 +294,23 @@ const ACCSubmittalsPage = () => {
 
           {/* Botones */}
           <div className="mb-4 text-right">
-            <button
-              onClick={resetFilters}
-              className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
-            >
-              Reset Table Filters
-            </button>
-            <button
-              onClick={toggleChatSub}
-              className="btn-primary text-xs font-bold py-2 px-4 rounded"
-            >
-              {isChatOpen ? "Show Submittal Data" : "Ask AI Assistant"}
+          <button
+            onClick={resetFilters}
+            className="btn-primary font-bold text-xs py-2 px-4 rounded mx-2"
+          >
+            Reset Table Filters
+          </button>
+          <button
+            onClick={handleExportSubmittals}
+            className="btn-primary text-xs font-bold py-2 px-4 rounded mx-2"
+          >
+            Export Submittals to Excel
+          </button>
+          <button
+            onClick={toggleChatSub}
+            className="btn-primary text-xs font-bold py-2 px-4 rounded"
+          >
+            {isChatOpen ? "Show Submittal Data" : "Ask AI Assistant"}
             </button>
           </div>
 

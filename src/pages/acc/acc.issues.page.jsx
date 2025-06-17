@@ -14,6 +14,7 @@ import { IssuesGanttChart } from "../../components/issues_page_components/issues
 import DonutChartGeneric from "../../components/issues_page_components/issues.generic.chart";
 
 import { fechACCProjectIssues } from "../../pages/services/acc.services";
+import exportToExcel from "../../utils/exportToExcel";
 
 const backendUrl =
   import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
@@ -133,6 +134,20 @@ const ACCIssuesPage = () => {
 
   const resetFilters = () =>
     setActiveFilters({ status: null, issueTypeName: null });
+
+  const handleExportIssues = () => {
+    const fields = [
+      "displayId",
+      "title",
+      "description",
+      "status",
+      "createdAt",
+      "dueDate",
+      "updatedAt",
+      "assignedTo",
+    ];
+    exportToExcel(displayedIssues, fields, `project-${projectId}-issues.xlsx`);
+  };
 
   /* ---------- Slick settings  ---------- */
   const slider = { 
@@ -259,6 +274,14 @@ const ACCIssuesPage = () => {
                     className="btn-primary text-xs font-bold py-2 px-4 rounded" // Estilo secundario
                 >
                     Reset Table Filters
+                </button>
+            )}
+            {!isChatOpen && (
+                <button
+                    onClick={handleExportIssues}
+                    className="btn-primary text-xs font-bold py-2 px-4 rounded"
+                >
+                    Export Issues to Excel
                 </button>
             )}
             {/* Botón para Abrir/Cerrar Chat */}
