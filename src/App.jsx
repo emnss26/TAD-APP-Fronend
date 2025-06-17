@@ -21,6 +21,7 @@ import ACC5DDatabase from "./pages/acc/acc.database.5D";
 import ACC6DDatabase from "./pages/acc/acc.database.6D";
 import ACCProjectPlansPage from "./pages/acc/acc.project.plans.jsx";
 import ACCProjectTaskManagementPage from "./pages/acc/acc.task.management.page.jsx";
+import ACCModelLODCheckerPage from "./pages/acc/acc.model.lod.checker.page.jsx";
 
 //BIM360 Pages
 import BIM360ProjectsPage from "./pages/bim360/bim360.projects.page.jsx";
@@ -93,6 +94,8 @@ function App() {
             path="/accprojects/:accountId/:projectId/task-manager"
             element={<ACCProjectTaskManagementPage />}
           />
+
+          <Route path="/acc/lod-checker" element={<ACCModelLODCheckerPage />} />
 
           {/* BIM360 Pages */}
           <Route path="/bim360projects" element={<BIM360ProjectsPage />} />
