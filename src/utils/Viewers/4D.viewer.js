@@ -1,13 +1,12 @@
 /* global Autodesk, THREE */
 
-const backendUrl =
-  import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
 
 import "../Viewers.extensions/extract.model.data";
 import "../Viewers.extensions/category.selection";
 import "../Viewers.extensions/show.dbId.data";
 import "../Viewers.extensions/visible.elements.selection";
 import "../Viewers.extensions/type.name.filter.selection";
+import { initViewer } from "./init.viewer";
 
 let data4Dglobal = [];
 let lastSliderDate = null;
@@ -148,123 +147,86 @@ function countDbIdsInNode(nodeId) {
 
 export async function data4Dviewer({
   federatedModel,
-
   setSelectionCount,
   setSelection,
   setIsLoadingTree,
   setCategoryData,
 }) {
-  
-  const response = await fetch(`${backendUrl}/auth/token`);
-  const { data } = await response.json();
+  const extensions = [
+    "ModeDataExtractionExtension",
+    "CategorySelectionExtension",
+    "VisibleSelectionExtension",
+    "TypeNameSelectionExtension",
+    "ShowDbIdExtension",
+  ];
 
-  const options = {
-    env: "AutodeskProduction",
-    api: "modelDerivativeV2",
-    accessToken: data.access_token,
-  };
+  const events = [
+    {
+      name: Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT,
+      handler: () => {
+        if (setIsLoadingTree) setIsLoadingTree(false);
 
-  const config = {
-    extensions: [
-      "ModeDataExtractionExtension",
-      "CategorySelectionExtension",
-      "VisibleSelectionExtension",
-      "TypeNameSelectionExtension",
-      "ShowDbIdExtension",
-    ],
-  };
+        if (setCategoryData) {
+          const instanceTree = window.data4Dviewer.model.getData().instanceTree;
+          const rootNodeId = instanceTree.getRootId();
+          const categoryCount = {};
 
-  const container = document.getElementById("TAD4DViwer");
-  if (!container) {
-    console.error("Viewer container not found!");
-    return;
-  }
+          instanceTree.enumNodeChildren(rootNodeId, (nodeId) => {
+            const nodeName = instanceTree.getNodeName(nodeId);
+            const categoryName = nodeName.replace(/\s*\[.*?\]\s*/g, "");
+            if (!categoryCount[categoryName]) {
+              categoryCount[categoryName] = 0;
+            }
+            const c = countDbIdsInNode(nodeId);
+            categoryCount[categoryName] += c;
+          });
 
-  let viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
+          setCategoryData(categoryCount);
+        }
+      },
+    },
+    {
+      name: Autodesk.Viewing.SELECTION_CHANGED_EVENT,
+      handler: (event) => {
+        if (setSelectionCount) {
+          setSelectionCount(event.dbIdArray.length);
+        }
+        if (setSelection) {
+          setSelection(event.dbIdArray);
+        }
+      },
+    },
+  ];
 
-  Autodesk.Viewing.Initializer(options, () => {
-    const startCode = viewer.start();
-    
-    if (startCode !== 0) {
-      console.error("Failed to start viewer");
-      return;
-    }
-
+  const onViewerReady = (viewer) => {
     window.data4Dviewer = viewer;
     window.data4Dviewer.set4DData = set4DData;
     window.data4Dviewer.resetViewerState = () => resetViewerState(viewer);
     viewer.setSelectionMode(Autodesk.Viewing.SelectionMode.MULTIPLE);
 
-    const documentId = `urn:${federatedModel}`;
-    Autodesk.Viewing.Document.load(
-      documentId,
-      (viewerDocument) => {
-        const defaultModel = viewerDocument.getRoot().getDefaultGeometry();
-        viewer.loadDocumentNode(viewerDocument, defaultModel);
-
-        viewer.addEventListener(
-          Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT,
-          () => {
-            if (setIsLoadingTree) setIsLoadingTree(false);
-
-            if (setCategoryData) {
-              const instanceTree = viewer.model.getData().instanceTree;
-              const rootNodeId = instanceTree.getRootId();
-              const categoryCount = {};
-
-              instanceTree.enumNodeChildren(rootNodeId, (nodeId) => {
-                const nodeName = instanceTree.getNodeName(nodeId);
-                const categoryName = nodeName.replace(/\s*\[.*?\]\s*/g, "");
-                if (!categoryCount[categoryName]) {
-                  categoryCount[categoryName] = 0;
-                }
-                const c = countDbIdsInNode(nodeId);
-                categoryCount[categoryName] += c;
-              });
-
-              setCategoryData(categoryCount);
-            }
-          }
+    viewer.applyColorByDiscipline = (dbIds, colorHex) => {
+      if (!viewer.model) return;
+      const color = new THREE.Color(colorHex);
+      dbIds.forEach((id) => {
+        viewer.setThemingColor(
+          id,
+          new THREE.Vector4(color.r, color.g, color.b, 1),
+          viewer.model
         );
+      });
+    };
 
-        viewer.addEventListener(
-          Autodesk.Viewing.SELECTION_CHANGED_EVENT,
-          (event) => {
-            //console.log("SELECTION_CHANGED_EVENT fired. dbIds:",event.dbIdArray );
-            if (setSelectionCount) {
-              setSelectionCount(event.dbIdArray.length);
-            }
-            if (setSelection) {
-              setSelection(event.dbIdArray);
-            }
-          }
-        );
+    const slider = document.getElementById("dateSlider");
+    if (slider) {
+      slider.addEventListener("input", (evt) => handleSliderChange(evt, viewer));
+    }
+  };
 
-        viewer.applyColorByDiscipline = (dbIds, colorHex) => {
-          if (!viewer.model) return;
-          const color = new THREE.Color(colorHex);
-          dbIds.forEach((id) => {
-            viewer.setThemingColor(
-              id,
-              new THREE.Vector4(color.r, color.g, color.b, 1),
-              viewer.model
-            );
-          });
-        };
-
-        window.data4Dviewer.set4DData = set4DData;
-        window.data4Dviewer.resetViewerState = () => resetViewerState(viewer);
-
-        const slider = document.getElementById("dateSlider");
-        if (slider) {
-          slider.addEventListener("input", (evt) =>
-            handleSliderChange(evt, viewer)
-          );
-        }
-      },
-      (error) => {
-        console.error("Error loading document:", error);
-      }
-    );
+  await initViewer({
+    containerId: "TAD4DViwer",
+    urn: federatedModel,
+    extensions,
+    events,
+    onViewerReady,
   });
 }
