@@ -135,7 +135,7 @@ export function TaskManagementTable({
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           key="delete"
-                          onClick={() => onDeleteTask(task.id)}
+                          onClick={() => onDeleteTask(task._id || task.id)}
                           className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
