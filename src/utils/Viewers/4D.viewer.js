@@ -115,7 +115,7 @@ function set4DData(newData) {
 function resetViewerState(viewer) {
   viewer.showAll();
   viewer.clearThemingColors();
-  const slider = document.getElementById("4D-slider");
+  const slider = document.getElementById("dateSlider");
   if (slider) {
     slider.value = 0;
   }
