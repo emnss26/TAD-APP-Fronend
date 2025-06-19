@@ -380,15 +380,11 @@ const ACC4DDatabase = () => {
 
 
  const handleSubmit = async () => {
-    // Definición de los campos numéricos (asegúrate que esta variable esté definida en tu componente)
-    // Ejemplo: const numericFields = ["Length", "Area", "Volume", "Width"];
-    // Si 'data', 'backendUrl', 'accountId', 'projectId' son props o vienen del estado, asegúrate que estén accesibles.
-  
+
     try {
-      // 1) Limpiar y parsear valores numéricos
-      const cleanedData = data.map((row) => {
+            const cleanedData = data.map((row) => {
         const cleanedRow = { ...row };
-        // Asegúrate que numericFields esté definido y accesible aquí
+        
         if (typeof numericFields !== 'undefined' && Array.isArray(numericFields)) {
           numericFields.forEach((field) => {
             const v = cleanedRow[field];
@@ -752,7 +748,6 @@ const ACC4DDatabase = () => {
     setChatbotResponse('Error processing your request.');
   } finally { setIsLoading(false); }
 }
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {

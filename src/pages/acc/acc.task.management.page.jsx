@@ -105,6 +105,7 @@ const ACCProjectTaskManagementPage = () => {
     ) {
       return;
     }
+    console.log("Deleting task:", taskId);
     try {
       setError(null);
       await taskService.deleteTask(projectId, accountId, taskId);

@@ -87,7 +87,7 @@ export function TaskManagementTable({
           </TableHeader>
           <TableBody>
             {tasks.map((task) => {
-              const rowKey = task._id || task.id;
+              const rowKey = task.id;
               const user = getUserById(task.assignedTo);
               return (
                 <TableRow key={rowKey}>
@@ -135,7 +135,7 @@ export function TaskManagementTable({
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           key="delete"
-                          onClick={() => onDeleteTask(task._id || task.id)}
+                          onClick={() => onDeleteTask(task.id)}
                           className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />

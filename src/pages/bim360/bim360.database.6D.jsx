@@ -563,143 +563,56 @@ const backendUrl =
       }
     };
   
-    const handleSendMessage = async () => {
+      const updateKeywords = [
+      "change", "update", "modify", "transform", "upgrade", "adjust", // English
+      "cambia", "modifica", "modificar", "sustituye", "sustituir", "adapta", "adaptar" // Español
+    ];
+    
+      async function handleSendMessage() {
       setIsLoading(true);
-      try {
-        const lowerMsg = userMessage.toLowerCase();
-        let endpoint = `${backendUrl}/accprojectdatabase`;
-        let isViewerCommand = false;
-        let isDBIDCommand = false;
-        let isUpdateCommand = false;
-        let isDateRangeCommand = false;
-  
-        // Palabras clave para "update"
-        const updateKeywords = [
-          "change",
-          "update",
-          "modify",
-          "transform",
-          "upgrade",
-          "adjust",
-          "cambia",
-          "modifica",
-          "modificar",
-          "sustituye",
-          "sustituir",
-          "adapta",
-          "adaptar",
-        ];
-        const containsDBID = lowerMsg.includes("dbid");
-        const containsUpdateKeyword = updateKeywords.some((k) =>
-          lowerMsg.includes(k)
-        );
-  
-        if (containsDBID && !containsUpdateKeyword) {
-          endpoint = `${backendUrl}/accprojectdatabase/dbid-question`;
-          isDBIDCommand = true;
-        } else if (containsDBID && containsUpdateKeyword) {
-          endpoint = `${backendUrl}/accprojectdatabase/update-field`;
-          isUpdateCommand = true;
-        } else if (
-          lowerMsg.startsWith("aisla") ||
-          lowerMsg.startsWith("oculta") ||
-          lowerMsg.startsWith("resalta") ||
-          lowerMsg.startsWith("isolate") ||
-          lowerMsg.startsWith("hide") ||
-          lowerMsg.startsWith("highlight")
-        ) {
-          endpoint = `${backendUrl}/accprojectdatabase/autodesk-command`;
-          isViewerCommand = true;
-        } else if (
-          lowerMsg.startsWith("date range:") ||
-          (lowerMsg.includes("construction") && lowerMsg.includes("dates"))
-        ) {
-          endpoint = `${backendUrl}/accprojectdatabase/date-range`;
-          isDateRangeCommand = true;
-        }
-  
-        let response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: userMessage,
-            projectId: cleanprojectId,
-            contextData: null,
-          }),
-        });
-  
-        let data = await response.json();
-  
-        if (isDBIDCommand) {
-          setChatbotResponse(`${data.reply}\nData: ${JSON.stringify(data.data)}`);
-        } else if (isUpdateCommand) {
-          setChatbotResponse(data.reply);
-          const affectedDiscipline = data.discipline;
-          if (affectedDiscipline) {
-            await handlePullData(affectedDiscipline);
-          } else {
-            await handlePullData();
-          }
-        } else if (isDateRangeCommand) {
-          setChatbotResponse(data.reply);
-        } else if (!isViewerCommand) {
-          if (data.reply.includes("ha sido actualizado")) {
-            setChatbotResponse(data.reply);
-            setIsLoading(false);
-  
-            const affectedDiscipline = data.discipline;
-            if (affectedDiscipline) {
-              await handlePullData(affectedDiscipline);
-            } else {
-              await handlePullData();
-            }
-            return;
-          }
-          if (!data.reply.includes("No encontré elementos")) {
-            setChatbotResponse(data.reply);
-            setIsLoading(false);
-            return;
-          }
-          // Reintentar con todo el contexto
-          const allData = await fetchAllData(cleanprojectId);
-          response = await fetch(`${backendUrl}/accprojectdatabase`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              message: userMessage,
-              projectId: cleanprojectId,
-              contextData: allData,
-            }),
-          });
-  
-          data = await response.json();
-          setChatbotResponse(data.reply);
-        } else {
-          // Comando para el visor
-          setChatbotResponse(data.reply);
-          if (data.dbIds && data.action) {
-            switch (data.action) {
-              case "isolate":
-                isolateObjectsInViewer(window.data5Dviewer, data.dbIds);
-                break;
-              case "hide":
-                hideObjectsInViewer(window.data5Dviewer, data.dbIds);
-                break;
-              case "highlight":
-                highlightObjectsInViewer(window.data5Dviewer, data.dbIds);
-                break;
-              default:
-                break;
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error en el chatbot:", error);
-        setChatbotResponse("Hubo un error al procesar tu solicitud.");
-      } finally {
-        setIsLoading(false);
+      const msg = userMessage;
+      const lower = msg.toLowerCase();
+      let route = "/ai-modeldata";
+      let mode = 'general';
+    
+      if (lower.includes('dbid') && updateKeywords.some(k=>lower.includes(k))) {
+        route = '/ai-modeldata/update-field'; mode = 'update';
+      } else if (lower.includes('dbid')) {
+        route = '/ai-modeldata/dbid-question'; mode = 'dbid';
+      } else if (/^(hide|isolate|highlight|aisla|oculta|resalta)/.test(lower)) {
+        route = '/ai-modeldata/autodesk-command'; mode = 'viewer';
+      } else if (lower.startsWith('date range:') || (lower.includes('construction') && lower.includes('dates'))) {
+        route = '/ai-modeldata/date-range'; mode = 'daterange';
       }
-    };
+    
+      try {
+        const body = { message: msg, accountId: accountId, projectId: projectId, contextData: mode==='general'? null : null };
+        const res = await fetch(`${backendUrl}${route}`, {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        setChatbotResponse(data.reply);
+    
+        if (mode==='viewer' && data.dbIds && data.action) {
+          const fnMap = { isolate: isolateObjectsInViewer, hide: hideObjectsInViewer, highlight: highlightObjectsInViewer };
+          fnMap[data.action]?.(window.data4Dviewer, data.dbIds);
+        }
+    
+        if (mode==='update' && data.field && data.value) {
+          // call backend update endpoint directly
+          await fetch(`${backendUrl}/model/${projectId}/${accountId}/${data.dbIds[0]}`, {
+            method:'PATCH', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({ field:data.field, value:data.value })
+          });
+          // refresh table
+          handlePullData(data.discipline);
+        }
+    
+      } catch(err) {
+        console.error(err);
+        setChatbotResponse('Error processing your request.');
+      } finally { setIsLoading(false); }
+    }
   
     useEffect(() => {
       const handleClickOutside = (event) => {
