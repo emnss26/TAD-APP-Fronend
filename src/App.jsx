@@ -6,7 +6,7 @@ import LoginPage from "./pages/Login.Page";
 import PlatformPage from "./pages/Platform.Page";
 import AboutPage from "./pages/About.Page";
 import ServicesPage from "./pages/Services.Page";
-import NotFoundPage from "./pages/NotFound.Page"; 
+import NotFoundPage from "./pages/NotFound.Page";
 import NotAuthorizedPage from "./pages/NotAllowed";
 
 //ACC Pages
@@ -34,6 +34,7 @@ import BIM3605DDatabase from "./pages/bim360/bim360.database.5D";
 import BIM3606DDatabase from "./pages/bim360/bim360.database.6D";
 import BIM360ProjectPlansPage from "./pages/bim360/bim360.project.plans.jsx";
 import BIM360ProjectTaskManagementPage from "./pages/bim360/bim360.task.management.page.jsx";
+import BIM360ModelLODCheckerPage from "./pages/bim360/bim360.model.lod.checker.page.jsx";
 
 //Protected Route
 import ProtectedRoute from "./components/general_pages_components/protected.route";
@@ -52,92 +53,98 @@ function App() {
           <Route path="/platform" element={<PlatformPage />} />
 
           <Route element={<ProtectedRoute />}>
-          {/* ACC Pages */}
-          <Route path="/accprojects" element={<ACCProjectsPage />} />
-          <Route
-            path="/accprojects/:accountId/:projectId"
-            element={<ACCProjectPage />}
-          />
-          <Route
-            path="/accprojects/:accountId/:projectId/accusers"
-            element={<ACCProjectUsers />}
-          />
-          <Route
-            path="/accprojects/:accountId/:projectId/accissues"
-            element={<ACCIssuesPage />}
-          />
-          <Route
-            path="/accprojects/:accountId/:projectId/accrfis"
-            element={<ACCRFIsPage />}
-          />
-          <Route
-            path="/accprojects/:accountId/:projectId/accsubmittals"
-            element={<ACCSubmittalsPage />}
-          />
-          <Route
-            path="/accprojects/:accountId/:projectId/acc4ddata"
-            element={<ACC4DDatabase />}
-          />
-          <Route
-            path="/accprojects/:accountId/:projectId/acc5ddata"
-            element={<ACC5DDatabase />}
-          />
-          <Route
-            path="/accprojects/:accountId/:projectId/acc6ddata"
-            element={<ACC6DDatabase />}
-          />
-          <Route
-            path="/accprojects/:accountId/:projectId/plans"
-            element={<ACCProjectPlansPage />}
-          />
-          <Route
-            path="/accprojects/:accountId/:projectId/task-manager"
-            element={<ACCProjectTaskManagementPage />}
-          />
+            {/* ACC Pages */}
+            <Route path="/accprojects" element={<ACCProjectsPage />} />
+            <Route
+              path="/accprojects/:accountId/:projectId"
+              element={<ACCProjectPage />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/accusers"
+              element={<ACCProjectUsers />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/accissues"
+              element={<ACCIssuesPage />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/accrfis"
+              element={<ACCRFIsPage />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/accsubmittals"
+              element={<ACCSubmittalsPage />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/acc4ddata"
+              element={<ACC4DDatabase />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/acc5ddata"
+              element={<ACC5DDatabase />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/acc6ddata"
+              element={<ACC6DDatabase />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/plans"
+              element={<ACCProjectPlansPage />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/task-manager"
+              element={<ACCProjectTaskManagementPage />}
+            />
 
-          <Route path="/acc/lod-checker" element={<ACCModelLODCheckerPage />} />
+            <Route
+              path="/accprojects/:accountId/:projectId/lod-checker"
+              element={<ACCModelLODCheckerPage />}
+            />
 
-          {/* BIM360 Pages */}
-          <Route path="/bim360projects" element={<BIM360ProjectsPage />} />
-          <Route
-            path="/bim360projects/:accountId/:projectId"
-            element={<BIM360ProjectPage />}
-          />
-          <Route
-            path="/bim360projects/:accountId/:projectId/bim360users"
-            element={<BIM360ProjectUsers />}
-          />
-          <Route
-            path="/bim360projects/:accountId/:projectId/bim360issues"
-            element={<BIM360IssuesPage />}
-          />
-          <Route
-            path="/bim360projects/:accountId/:projectId/bim360rfis"
-            element={<BIM360RFIsPage />}
-          />
-          <Route
-            path="/bim360projects/:accountId/:projectId/bim3604ddata"
-            element={<BIM3604DDatabase />}
-          />
-          <Route
-            path="/bim360projects/:accountId/:projectId/bim3605ddata"
-            element={<BIM3605DDatabase />}
-          />
-          <Route
-            path="/bim360projects/:accountId/:projectId/bim3606ddata"
-            element={<BIM3606DDatabase />}
-          />
-          <Route
-            path="/bim360projects/:accountId/:projectId/plans"
-            element={<BIM360ProjectPlansPage />}
-          />
-          <Route
-            path="/bim360projects/:accountId/:projectId/task-manager"
-            element={<BIM360ProjectTaskManagementPage />}
-          />
-
+            {/* BIM360 Pages */}
+            <Route path="/bim360projects" element={<BIM360ProjectsPage />} />
+            <Route
+              path="/bim360projects/:accountId/:projectId"
+              element={<BIM360ProjectPage />}
+            />
+            <Route
+              path="/bim360projects/:accountId/:projectId/bim360users"
+              element={<BIM360ProjectUsers />}
+            />
+            <Route
+              path="/bim360projects/:accountId/:projectId/bim360issues"
+              element={<BIM360IssuesPage />}
+            />
+            <Route
+              path="/bim360projects/:accountId/:projectId/bim360rfis"
+              element={<BIM360RFIsPage />}
+            />
+            <Route
+              path="/bim360projects/:accountId/:projectId/bim3604ddata"
+              element={<BIM3604DDatabase />}
+            />
+            <Route
+              path="/bim360projects/:accountId/:projectId/bim3605ddata"
+              element={<BIM3605DDatabase />}
+            />
+            <Route
+              path="/bim360projects/:accountId/:projectId/bim3606ddata"
+              element={<BIM3606DDatabase />}
+            />
+            <Route
+              path="/bim360projects/:accountId/:projectId/plans"
+              element={<BIM360ProjectPlansPage />}
+            />
+            <Route
+              path="/bim360projects/:accountId/:projectId/task-manager"
+              element={<BIM360ProjectTaskManagementPage />}
+            />
+            <Route
+              path="/bim360projects/:accountId/:projectId/lod-checker"
+              element={<BIM360ModelLODCheckerPage />}
+            />
           </Route>
-          
+
           {/* 404 Not Found */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

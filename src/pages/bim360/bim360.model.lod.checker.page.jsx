@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import ACCPlatformLayout from "../../components/platform_page_components/acc.platform.layout";
+import BIM360PlatformLayout from "../../components/platform_page_components/bim360.platform.layout";
 import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
 import DisciplineSidebar from "../../components/model_LOD_checker_components/DisciplineSidebar"
 
@@ -16,9 +16,11 @@ import { LODTableMechanicalCompliance } from "../../components/model_LOD_checker
 
 import { modelcheckerviewer } from "@/utils/Viewers/model.checker.viewer";
 
-import { fetchACCFederatedModel } from "../../pages/services/acc.services";
+import {
+  fetchBIM360FederatedModel,
+} from "../../pages/services/bim360.services";
 
-export default function ACCModelLODCheckerPage() {
+export default function BIM360ModelLODCheckerPage() {
   const { projectId, accountId } = useParams();
 
   const disciplinas = [
@@ -65,7 +67,7 @@ export default function ACCModelLODCheckerPage() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    Promise.all([fetchACCFederatedModel(projectId, accountId)])
+    Promise.all([fetchBIM360FederatedModel(projectId, accountId)])
       .then(([federatedModelResp]) => {
         setFederatedModel(federatedModelResp);
       })
@@ -83,7 +85,7 @@ export default function ACCModelLODCheckerPage() {
   }, [federatedModel]);
 
   return (
-    <ACCPlatformLayout projectId={projectId} accountId={accountId}>
+    <BIM360PlatformLayout projectId={projectId} accountId={accountId}>
       {loading && <LoadingOverlay />}
 
       {/* Main Content header */}
@@ -121,6 +123,6 @@ export default function ACCModelLODCheckerPage() {
           <div id="TADModelCheckerViwer" className= "flex-1 w-full h-[600px] relative" />
         </div>
       </div>
-    </ACCPlatformLayout>
+    </BIM360PlatformLayout>
   );
 }

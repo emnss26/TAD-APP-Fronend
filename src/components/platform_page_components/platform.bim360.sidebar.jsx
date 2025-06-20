@@ -15,6 +15,7 @@ import {
   Clock,
   PanelLeftClose,
   PanelRightClose,
+  HardDrive,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,23 +39,72 @@ export default function BIM360Sidebar() {
   const { accountId, projectId } = useParams();
   const location = useLocation();
 
-   React.useEffect(() => {
-      localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
-    }, [collapsed]);
+  React.useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
+  }, [collapsed]);
 
   // Define menu items for BIM360
   const menuItems = [
-    { icon: <Home className="h-4 w-4" />, label: "Home Projects", path: "/bim360projects" },
-    { icon: <LayoutGrid className="h-4 w-4" />, label: "Project Page", path: `/bim360projects/${accountId}/${projectId}` },
-    { icon: <Users className="h-4 w-4" />, label: "Users Report", path: `/bim360projects/${accountId}/${projectId}/bim360users` },
-    { icon: <ClipboardList className="h-4 w-4" />, label: "Issues Report", path: `/bim360projects/${accountId}/${projectId}/bim360issues` },
-    { icon: <Mail className="h-4 w-4" />, label: "RFI Report", path: `/bim360projects/${accountId}/${projectId}/bim360rfis` },
-    { icon: <Layers className="h-4 w-4" />, label: "ACC 4D Data", path: `/bim360projects/${accountId}/${projectId}/bim3604ddata` },
-    { icon: <DollarSign className="h-4 w-4" />, label: "ACC 5D Data", path: `/bim360projects/${accountId}/${projectId}/bim3605ddata` },
-    { icon: <Wrench className="h-4 w-4" />, label: "ACC 6D Data", path: `/bim360projects/${accountId}/${projectId}/bim3606ddata` },
-    { icon: <FileCode className="h-4 w-4" />, label: "Plans", path: `/bim360projects/${accountId}/${projectId}/plans` },
-    { icon: <ClipboardCheck className="h-4 w-4" />, label: "Team Task Manager", path: `/bim360projects/${accountId}/${projectId}/task-manager` },
-    { icon: <Clock className="h-4 w-4" />, label: "Project Time & Budget Management", path: `/bim360projects/${accountId}/${projectId}/time-budget-management` },
+    {
+      icon: <Home className="h-4 w-4" />,
+      label: "Home Projects",
+      path: "/bim360projects",
+    },
+    {
+      icon: <LayoutGrid className="h-4 w-4" />,
+      label: "Project Page",
+      path: `/bim360projects/${accountId}/${projectId}`,
+    },
+    {
+      icon: <Users className="h-4 w-4" />,
+      label: "Users Report",
+      path: `/bim360projects/${accountId}/${projectId}/bim360users`,
+    },
+    {
+      icon: <ClipboardList className="h-4 w-4" />,
+      label: "Issues Report",
+      path: `/bim360projects/${accountId}/${projectId}/bim360issues`,
+    },
+    {
+      icon: <Mail className="h-4 w-4" />,
+      label: "RFI Report",
+      path: `/bim360projects/${accountId}/${projectId}/bim360rfis`,
+    },
+    {
+      icon: <Layers className="h-4 w-4" />,
+      label: "ACC 4D Data",
+      path: `/bim360projects/${accountId}/${projectId}/bim3604ddata`,
+    },
+    {
+      icon: <DollarSign className="h-4 w-4" />,
+      label: "ACC 5D Data",
+      path: `/bim360projects/${accountId}/${projectId}/bim3605ddata`,
+    },
+    {
+      icon: <Wrench className="h-4 w-4" />,
+      label: "ACC 6D Data",
+      path: `/bim360projects/${accountId}/${projectId}/bim3606ddata`,
+    },
+    {
+      icon: <FileCode className="h-4 w-4" />,
+      label: "Plans",
+      path: `/bim360projects/${accountId}/${projectId}/plans`,
+    },
+    {
+      icon: <ClipboardCheck className="h-4 w-4" />,
+      label: "Team Task Manager",
+      path: `/bim360projects/${accountId}/${projectId}/task-manager`,
+    },
+    {
+      icon: <Clock className="h-4 w-4" />,
+      label: "Project Time & Budget Management",
+      path: `/bim360projects/${accountId}/${projectId}/time-budget-management`,
+    },
+    {
+      icon: <HardDrive className="h-4 w-4" />,
+      label: "LOD Checker",
+      path: `/bim360projects/${accountId}/${projectId}/lod-checker`,
+    },
   ];
 
   // Group into categories
@@ -63,6 +113,7 @@ export default function BIM360Sidebar() {
     { title: "REPORTS", items: menuItems.slice(2, 5) },
     { title: "DATABASE", items: menuItems.slice(5, 8) },
     { title: "PROJECT MANAGEMENT", items: menuItems.slice(8, 11) },
+    { title: "BIM MANAGEMENT", items: menuItems.slice(11, 12) },
   ];
 
   return (
@@ -80,71 +131,87 @@ export default function BIM360Sidebar() {
           className="mb-6 self-end text-[#6b7474] hover:bg-gray-200 hover:text-[#6b7474]"
           aria-label={collapsed ? "Expand menu" : "Collapse menu"}
         >
-           {collapsed ? <PanelRightClose className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-                  </Button>
-          
-                  <div className="space-y-6">
-                    {menuGroups.map((group, gi) => (
-                      <div key={gi} className="space-y-2">
-                        {!collapsed && (
-                          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
-                            {group.title}
-                          </h3>
+          {collapsed ? (
+            <PanelRightClose className="h-4 w-4" />
+          ) : (
+            <PanelLeftClose className="h-4 w-4" />
+          )}
+        </Button>
+
+        <div className="space-y-6">
+          {menuGroups.map((group, gi) => (
+            <div key={gi} className="space-y-2">
+              {!collapsed && (
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2">
+                  {group.title}
+                </h3>
+              )}
+
+              {group.items.map((item, i) => {
+                const isActive = location.pathname === item.path;
+
+                return (
+                  <Tooltip key={i}>
+                    <TooltipTrigger asChild>
+                      <Link
+                        to={item.path}
+                        className={cn(
+                          "flex items-center gap-3 px-2 py-2 rounded-md transition-all duration-200 relative",
+                          isActive
+                            ? "bg-[#e6f4fa] text-[#2ea3e3] font-medium"
+                            : "text-[#6b7474] hover:bg-gray-200 hover:text-[#2ea3e3]"
                         )}
-          
-                        {group.items.map((item, i) => {
-                          const isActive = location.pathname === item.path;
-          
-                          return (
-                            <Tooltip key={i}>
-                              <TooltipTrigger asChild>
-                                <Link
-                                  to={item.path}
-                                  className={cn(
-                                    "flex items-center gap-3 px-2 py-2 rounded-md transition-all duration-200 relative",
-                                    isActive
-                                      ? "bg-[#e6f4fa] text-[#2ea3e3] font-medium"
-                                      : "text-[#6b7474] hover:bg-gray-200 hover:text-[#2ea3e3]"
-                                  )}
-                                >
-                                  <span
-                                    className={cn(
-                                      "flex-shrink-0 transition-transform duration-200",
-                                      isActive && "text-[#2ea3e3]",
-                                      !isActive && "group-hover:scale-110"
-                                    )}
-                                  >
-                                    {item.icon}
-                                  </span>
-          
-                                  {!collapsed && (
-                                    <span className={cn("text-xs truncate", isActive && "font-medium")}>
-                                      {item.label}
-                                    </span>
-                                  )}
-          
-                                  {isActive && <span className="absolute left-0 w-1 h-6 bg-[#2ea3e3] rounded-r-full" />}
-                                </Link>
-                              </TooltipTrigger>
-                              {collapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
-                            </Tooltip>
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
-          
-                  <div className="mt-auto pt-6">
-                    {!collapsed && (
-                      <div className="text-xs text-gray-500 px-2">
-                        <p>Version 1.0.0</p>
-                        <a href="#" className="text-[#2ea3e3] hover:underline mt-1 inline-block">
-                          Help and support
-                        </a>
-                      </div>
+                      >
+                        <span
+                          className={cn(
+                            "flex-shrink-0 transition-transform duration-200",
+                            isActive && "text-[#2ea3e3]",
+                            !isActive && "group-hover:scale-110"
+                          )}
+                        >
+                          {item.icon}
+                        </span>
+
+                        {!collapsed && (
+                          <span
+                            className={cn(
+                              "text-xs truncate",
+                              isActive && "font-medium"
+                            )}
+                          >
+                            {item.label}
+                          </span>
+                        )}
+
+                        {isActive && (
+                          <span className="absolute left-0 w-1 h-6 bg-[#2ea3e3] rounded-r-full" />
+                        )}
+                      </Link>
+                    </TooltipTrigger>
+                    {collapsed && (
+                      <TooltipContent side="right">{item.label}</TooltipContent>
                     )}
-                  </div>
-                </aside>
-              </TooltipProvider>
-            );
-          }
+                  </Tooltip>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-auto pt-6">
+          {!collapsed && (
+            <div className="text-xs text-gray-500 px-2">
+              <p>Version 1.0.0</p>
+              <a
+                href="#"
+                className="text-[#2ea3e3] hover:underline mt-1 inline-block"
+              >
+                Help and support
+              </a>
+            </div>
+          )}
+        </div>
+      </aside>
+    </TooltipProvider>
+  );
+}

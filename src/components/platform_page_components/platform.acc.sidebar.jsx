@@ -15,6 +15,7 @@ import {
   Clock,
   PanelLeftClose,
   PanelRightClose,
+  HardDrive,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +35,7 @@ export default function ACCSidebar() {
     }
     return false;
   });
-  
+
   const { accountId, projectId } = useParams();
   const location = useLocation();
 
@@ -44,18 +45,71 @@ export default function ACCSidebar() {
 
   // Define all menu items
   const menuItems = [
-    { icon: <Home className="h-4 w-4" />, label: "Home Projects", path: "/accprojects" },
-    { icon: <LayoutGrid className="h-4 w-4" />, label: "Project Page", path: `/accprojects/${accountId}/${projectId}` },
-    { icon: <Users className="h-4 w-4" />, label: "Users Report", path: `/accprojects/${accountId}/${projectId}/accusers` },
-    { icon: <ClipboardList className="h-4 w-4" />, label: "Issues Report", path: `/accprojects/${accountId}/${projectId}/accissues` },
-    { icon: <Mail className="h-4 w-4" />, label: "RFI Report", path: `/accprojects/${accountId}/${projectId}/accrfis` },
-    { icon: <FileText className="h-4 w-4" />, label: "Submittals Report", path: `/accprojects/${accountId}/${projectId}/accsubmittals` },
-    { icon: <Layers className="h-4 w-4" />, label: "ACC 4D Data", path: `/accprojects/${accountId}/${projectId}/acc4ddata` },
-    { icon: <DollarSign className="h-4 w-4" />, label: "ACC 5D Data", path: `/accprojects/${accountId}/${projectId}/acc5ddata` },
-    { icon: <Wrench className="h-4 w-4" />, label: "ACC 6D Data", path: `/accprojects/${accountId}/${projectId}/acc6ddata` },
-    { icon: <FileCode className="h-4 w-4" />, label: "Plans", path: `/accprojects/${accountId}/${projectId}/plans` },
-    { icon: <ClipboardCheck className="h-4 w-4" />, label: "Team Task Manager", path: `/accprojects/${accountId}/${projectId}/task-manager` },
-    { icon: <Clock className="h-4 w-4" />, label: "Project Time & Budget Management", path: `/accprojects/${accountId}/${projectId}/time-budget-management` },
+    {
+      icon: <Home className="h-4 w-4" />,
+      label: "Home Projects",
+      path: "/accprojects",
+    },
+    {
+      icon: <LayoutGrid className="h-4 w-4" />,
+      label: "Project Page",
+      path: `/accprojects/${accountId}/${projectId}`,
+    },
+    {
+      icon: <Users className="h-4 w-4" />,
+      label: "Users Report",
+      path: `/accprojects/${accountId}/${projectId}/accusers`,
+    },
+    {
+      icon: <ClipboardList className="h-4 w-4" />,
+      label: "Issues Report",
+      path: `/accprojects/${accountId}/${projectId}/accissues`,
+    },
+    {
+      icon: <Mail className="h-4 w-4" />,
+      label: "RFI Report",
+      path: `/accprojects/${accountId}/${projectId}/accrfis`,
+    },
+    {
+      icon: <FileText className="h-4 w-4" />,
+      label: "Submittals Report",
+      path: `/accprojects/${accountId}/${projectId}/accsubmittals`,
+    },
+    {
+      icon: <Layers className="h-4 w-4" />,
+      label: "ACC 4D Data",
+      path: `/accprojects/${accountId}/${projectId}/acc4ddata`,
+    },
+    {
+      icon: <DollarSign className="h-4 w-4" />,
+      label: "ACC 5D Data",
+      path: `/accprojects/${accountId}/${projectId}/acc5ddata`,
+    },
+    {
+      icon: <Wrench className="h-4 w-4" />,
+      label: "ACC 6D Data",
+      path: `/accprojects/${accountId}/${projectId}/acc6ddata`,
+    },
+    {
+      icon: <FileCode className="h-4 w-4" />,
+      label: "Plans",
+      path: `/accprojects/${accountId}/${projectId}/plans`,
+    },
+    {
+      icon: <ClipboardCheck className="h-4 w-4" />,
+      label: "Team Task Manager",
+      path: `/accprojects/${accountId}/${projectId}/task-manager`,
+    },
+    {
+      icon: <Clock className="h-4 w-4" />,
+      label: "Project Time & Budget Management",
+      path: `/accprojects/${accountId}/${projectId}/time-budget-management`,
+    },
+    {
+      icon: <HardDrive className="h-4 w-4" />,
+      label: "LOD Checker",
+      path: `/accprojects/${accountId}/${projectId}/lod-checker`,
+    },
   ];
 
   // Group items
@@ -64,6 +118,7 @@ export default function ACCSidebar() {
     { title: "REPORTS", items: menuItems.slice(2, 6) },
     { title: "DATABASE", items: menuItems.slice(6, 9) },
     { title: "PROJECT MANAGEMENT", items: menuItems.slice(9, 12) },
+    { title: "BIM MANAGEMENT", items: menuItems.slice(12, 13) },
   ];
 
   return (
@@ -81,7 +136,11 @@ export default function ACCSidebar() {
           className="mb-6 self-end text-[#6b7474] hover:bg-gray-200 hover:text-[#6b7474]"
           aria-label={collapsed ? "Expand menu" : "Collapse menu"}
         >
-          {collapsed ? <PanelRightClose className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          {collapsed ? (
+            <PanelRightClose className="h-4 w-4" />
+          ) : (
+            <PanelLeftClose className="h-4 w-4" />
+          )}
         </Button>
 
         <div className="space-y-6">
@@ -119,15 +178,24 @@ export default function ACCSidebar() {
                         </span>
 
                         {!collapsed && (
-                          <span className={cn("text-xs truncate", isActive && "font-medium")}>
+                          <span
+                            className={cn(
+                              "text-xs truncate",
+                              isActive && "font-medium"
+                            )}
+                          >
                             {item.label}
                           </span>
                         )}
 
-                        {isActive && <span className="absolute left-0 w-1 h-6 bg-[#2ea3e3] rounded-r-full" />}
+                        {isActive && (
+                          <span className="absolute left-0 w-1 h-6 bg-[#2ea3e3] rounded-r-full" />
+                        )}
                       </Link>
                     </TooltipTrigger>
-                    {collapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
+                    {collapsed && (
+                      <TooltipContent side="right">{item.label}</TooltipContent>
+                    )}
                   </Tooltip>
                 );
               })}
@@ -139,7 +207,10 @@ export default function ACCSidebar() {
           {!collapsed && (
             <div className="text-xs text-gray-500 px-2">
               <p>Version 1.0.0</p>
-              <a href="#" className="text-[#2ea3e3] hover:underline mt-1 inline-block">
+              <a
+                href="#"
+                className="text-[#2ea3e3] hover:underline mt-1 inline-block"
+              >
                 Help and support
               </a>
             </div>
