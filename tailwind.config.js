@@ -1,3 +1,6 @@
+import plugin from "tailwindcss/plugin";
+import animate from "tailwindcss-animate";
+
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: ["class"],
@@ -57,6 +60,19 @@ export default {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    animate,
+    plugin(function ({ addComponents }) {
+      addComponents({
+        ".btn-secondary": {
+          backgroundColor: "#2980b9",
+          color: "#ffffff",
+          "&:hover": {
+            backgroundColor: "#e67e22",
+          },
+        },
+      });
+    }),
+  ],
 }
 
