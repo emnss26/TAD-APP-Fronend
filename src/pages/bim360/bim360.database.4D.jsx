@@ -326,7 +326,7 @@ const BIM3604DDatabase = () => {
   }, []);
 
   useEffect(() => {
-    if (!federatedModel || window.viewerInitialized) return;
+    if (!federatedModel || window.viewerInitialized || !showViewer) return;
 
     const conditionalSelectionHandler = (dbIdArray) => {
       if (!syncViewerSelectionRef.current) {
@@ -345,7 +345,17 @@ const BIM3604DDatabase = () => {
     });
 
     window.viewerInitialized = true;
-  }, [federatedModel, handleViewerSelectionChanged]);
+  }, [federatedModel, showViewer, handleViewerSelectionChanged]);
+
+  const handleToggleViewer = () => {
+    if (showViewer && window.data4Dviewer) {
+      window.data4Dviewer.impl.unload();
+      window.data4Dviewer = null;
+      window.viewerInitialized = false;
+    }
+
+    setShowViewer((prev) => !prev);
+  };
 
   useEffect(() => {
     syncViewerSelectionRef.current = syncViewerSelection;
@@ -815,7 +825,7 @@ const BIM3604DDatabase = () => {
             <ControlPanel
               viewer={window.data4Dviewer}
               showViewer={showViewer}
-              setShowViewer={setShowViewer}
+              toggleViewer={handleToggleViewer}
               showAIpanel={showAIpanel}
               setAIpanel={setAIpanel}
               syncViewerSelection={syncViewerSelection}

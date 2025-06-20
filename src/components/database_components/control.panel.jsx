@@ -53,7 +53,7 @@ import EnhancedColorPicker from "./color.selector";
 export default function ControlPanel({
   viewer,
   showViewer,
-  setShowViewer,
+  toggleViewer,
   showAIpanel,
   setAIpanel,
   syncViewerSelection,
@@ -197,7 +197,7 @@ export default function ControlPanel({
                       </Button>
                       <Button
                         variant="default"
-                        onClick={() => setShowViewer(!showViewer)}
+                        onClick={toggleViewer}
                         className="flex items-center gap-2 bg-gray-200 text-black hover:bg-[#2ea3e3] hover:text-white rounded shadow-sm"
                       >
                         {showViewer ? (
