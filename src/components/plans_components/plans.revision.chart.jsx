@@ -26,7 +26,7 @@ const RevisionPlansPieChart = ({
   const chartData = data.map(d => ({ id: d.id, value: d.value }));
 
   return (
-    <div style={{ height: 400, width: 350, margin: "1px auto" }}>
+    <div style={{ height: 320, width: 280, margin: "1px auto" }}>
       {chartData.length === 0 ? (
         <div className="w-full h-full flex items-center justify-center text-gray-500">
           No data
