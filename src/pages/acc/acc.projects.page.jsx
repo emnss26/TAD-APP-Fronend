@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import PlatformHeader from "../../components/platform_page_components/platform.access.header";
 import { Footer } from "../../components/general_pages_components/general.pages.footer";
+import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
 
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
@@ -13,11 +14,13 @@ const backendUrl =
 
 const ACCProjectsPage = () => {
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch ACC projects from the backend
   useEffect(() => {
     const getProjects = async () => {
       try {
+        setLoading(true);
         const response = await fetch(`${backendUrl}/acc/accprojects`, {
           credentials: "include",
         });
@@ -30,8 +33,10 @@ const ACCProjectsPage = () => {
             (p) => p.attributes.extension.data.projectType === "ACC"
           )
         );
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching ACC projects:", error);
+        setLoading(false);
       }
     };
 
@@ -79,6 +84,7 @@ const ACCProjectsPage = () => {
 
   return (
     <div className="relative flex flex-col min-h-screen bg-[#ffffff] z-10">
+      {loading && <LoadingOverlay />}
       {/* Decorative background particle animation */}
       <Particles
         id="tsparticles"
