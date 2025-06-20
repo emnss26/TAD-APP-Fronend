@@ -1,32 +1,38 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { SketchPicker } from "react-color";
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
 
 const DEFAULT_COLOR = "#f28c28"; 
 
 export default function EnhancedColorPicker({
   selectedColor,
   setSelectedColor,
+  isPickerOpen,
+  setIsPickerOpen,
+  pickerRef,
 }) {
-  const [displayPicker, setDisplayPicker] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = typeof isPickerOpen === "boolean" ? isPickerOpen : internalOpen;
+  const setOpen =
+    typeof setIsPickerOpen === "function" ? setIsPickerOpen : setInternalOpen;
   const [position, setPosition] = useState({ top: 0, left: 0 });
-  const containerRef = useRef(null);
+  const containerRef = pickerRef || useRef(null);
 
   useEffect(() => {
-    if (displayPicker && containerRef.current) {
+    if (open && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-  
+
       setPosition({ top: rect.bottom + 35, left: rect.left - 60 });
     }
-  }, [displayPicker]); 
+  }, [open]);
 
   const handleColorChangeComplete = (color) => {
     setSelectedColor(color.hex);
   };
 
   const togglePicker = () => {
-    setDisplayPicker((prevDisplay) => !prevDisplay);
+    setOpen(!open);
   };
 
   return (
@@ -43,7 +49,7 @@ export default function EnhancedColorPicker({
           aria-hidden="true" 
         />
       </Button>
-      {displayPicker &&
+      {open &&
         createPortal(
           <div
             className="absolute z-50" 
