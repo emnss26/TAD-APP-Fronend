@@ -13,6 +13,7 @@ export default function EnhancedColorPicker({
   pickerRef,
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
+  
   const open = typeof isPickerOpen === "boolean" ? isPickerOpen : internalOpen;
   const setOpen =
     typeof setIsPickerOpen === "function" ? setIsPickerOpen : setInternalOpen;

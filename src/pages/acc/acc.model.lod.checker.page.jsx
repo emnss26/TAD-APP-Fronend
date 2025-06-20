@@ -109,7 +109,7 @@ export default function ACCModelLODCheckerPage() {
         />
 
         {/* Table */}
-        <section className="w-3/5 p-4 overflow-auto bg-white h-[650px]">
+        <section className="w-2/5 p-4 overflow-auto bg-white h-[650px]">
           <h2 className="text-2xl font-bold mb-4">
             LOD Checker – {disciplina}
           </h2>
@@ -117,7 +117,7 @@ export default function ACCModelLODCheckerPage() {
         </section>
 
         {/* Viewer */}
-        <div className="w-2/5 p-4 bg-gray-50 h-[650px]">
+        <div className="w-3/5 p-4 bg-gray-50 h-[650px]">
           <div id="TADModelCheckerViwer" className= "flex-1 w-full h-[600px] relative" />
         </div>
       </div>
