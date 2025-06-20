@@ -51,7 +51,7 @@ const ACCProjectPlansPage = () => {
   const [revisionCounts, setRevisionCounts] = useState([]);
 
   /* ---------- Filter State ---------- */
-  const [selectedDiscipline, setSelectedDiscipline] = useState(null);
+  const [tableFilter, setTableFilter] = useState({ discipline: null, revision: null });
   const [selectedRows, setSelectedRows] = useState([]);
 
   /* ---------- Folder Mapping States ---------- */
@@ -139,11 +139,20 @@ const ACCProjectPlansPage = () => {
   }, [plans]);
 
   const filteredPlansForTable = useMemo(() => {
-    if (!selectedDiscipline || !Array.isArray(plans)) return plans ?? [];
-    return plans.filter(
-      (plan) => (plan.Discipline || "Unassigned") === selectedDiscipline
-    );
-  }, [plans, selectedDiscipline]);
+    let data = mappedPlans.length ? mappedPlans : plans;
+    if (!Array.isArray(data)) return [];
+    if (tableFilter.discipline) {
+      data = data.filter(
+        (p) => (p.Discipline || "Unassigned") === tableFilter.discipline
+      );
+    }
+    if (tableFilter.revision) {
+      data = data.filter(
+        (p) => (p.Revision || "N/A") === tableFilter.revision
+      );
+    }
+    return data;
+  }, [plans, mappedPlans, tableFilter]);
 
   /* ---------- Event Handlers ---------- */
   const handleSubmit = async () => {
@@ -204,12 +213,16 @@ const ACCProjectPlansPage = () => {
     fetchPlansData();
   };
 
-  const handleDisciplineClick = useCallback((d) => {
-    setSelectedDiscipline((prev) => (prev === d.id ? null : d.id));
+  const handleDisciplineClick = useCallback((value) => {
+    setTableFilter((prev) => ({ ...prev, discipline: value }));
+  }, []);
+
+  const handleRevisionClick = useCallback((value) => {
+    setTableFilter((prev) => ({ ...prev, revision: value }));
   }, []);
 
   const resetChartFilter = () => {
-    setSelectedDiscipline(null);
+    setTableFilter({ discipline: null, revision: null });
   };
 
   /* ---------- Chart Slides ---------- */
@@ -253,6 +266,7 @@ const ACCProjectPlansPage = () => {
         Component: RevisionPlansPieChart,
         props: {
           data: revisionCounts,
+          onSliceClick: handleRevisionClick,
           innerRadius: 0.5,
           padAngle: 0.7,
           cornerRadius: 3,
@@ -261,7 +275,7 @@ const ACCProjectPlansPage = () => {
       });
     }
     return slides;
-  }, [disciplineCounts, revisionCounts, handleDisciplineClick]);
+  }, [disciplineCounts, revisionCounts, handleDisciplineClick, handleRevisionClick]);
 
   const sliderSettings = {
     dots: true,
@@ -585,10 +599,7 @@ const ACCProjectPlansPage = () => {
 
             <section className="w-3/4 bg-white p-4 rounded-lg shadow-md overflow-y-auto h-[700px]">
               <PlansTable
-                plans={displayedPlans.filter(
-                  (p) =>
-                    !selectedDiscipline || p.Discipline === selectedDiscipline
-                )}
+                plans={filteredPlansForTable}
                 onInputChange={handleInputChange}
                 onAddRow={handleAddRow}
                 onRemoveRows={handleRemoveRows}

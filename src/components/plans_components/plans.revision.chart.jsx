@@ -3,6 +3,7 @@ import { ResponsivePie } from "@nivo/pie";
 
 const RevisionPlansPieChart = ({
   data = [],
+  onSliceClick,
   // Mantener firma para consistencia, aunque no se usa callback
   innerRadius = 0.65,
   padAngle = 1,
@@ -45,6 +46,7 @@ const RevisionPlansPieChart = ({
           arcLabelsSkipAngle={10}
           arcLabelsTextColor="#ffffff"
           legends={legends}
+          onClick={(slice) => onSliceClick?.(slice.id)}
         />
       )}
     </div>
