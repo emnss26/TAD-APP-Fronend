@@ -793,13 +793,15 @@ const backendUrl =
                           Send
                         </button>
                       </div>
-                      <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded text-xs">
-                        <p className="text-gray-700 font-medium text-xs">
-                          Answer:
-                        </p>
-                        <p className="mt-2 text-gray-800 text-xs">
-                          {chatbotResponse}
-                        </p>
+                      <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                        <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded text-xs">
+                          <p className="text-gray-700 font-medium text-xs">
+                            Answer:
+                          </p>
+                          <p className="mt-2 text-gray-800 text-xs">
+                            {chatbotResponse}
+                          </p>
+                        </div>
                       </div>
                       <div className="mt-2">
                         <p className="text-gray-700 font-medium text-[0.7rem]">
