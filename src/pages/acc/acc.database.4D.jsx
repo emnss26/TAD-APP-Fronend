@@ -84,6 +84,14 @@ const ACC4DDatabase = () => {
     useState("");
   const [selectedColor, setSelectedColor] = useState("#ff0000");
   const [isPullMenuOpen, setIsPullMenuOpen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  const handleToggleFullScreen = () => {
+    if (window.data4Dviewer) {
+      window.data4Dviewer.setFullScreen(!isFullScreen);
+      setIsFullScreen(!isFullScreen);
+    }
+  };
 
   //AI Chatbot
   const [userMessage, setUserMessage] = useState("");
@@ -861,6 +869,12 @@ const ACC4DDatabase = () => {
                   <>
                     <div className="flex justify-between items-center mb-2">
                       <h2 className="text-xl font-bold">Model Viewer</h2>
+                      <button
+                        onClick={handleToggleFullScreen}
+                        className="ml-2 px-2 py-1 text-xs bg-gray-200 text-black rounded hover:bg-[#2ea3e3] hover:text-white"
+                      >
+                        Expand Viewer
+                      </button>
                     </div>
                     <hr className="my-4 border-t border-gray-300" />
                     <div className="relative" style={{ height: "550px" }}>
