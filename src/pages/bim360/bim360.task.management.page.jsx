@@ -114,13 +114,7 @@ const BIM360ProjectTaskManagementPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto py-6">
-        Loading tasks...
-      </div>
-    );
-  }
+
 
   return (
     <BIM360PlatformLayout projectId={projectId} accountId={accountId}>
