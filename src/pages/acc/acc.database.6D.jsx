@@ -805,15 +805,15 @@ const ACC6DDatabase = () => {
                         value={userMessage}
                         onChange={(e) => setUserMessage(e.target.value)}
                       />
-                      <button
-                        onClick={handleSendMessage}
-                        disabled={userMessage.trim() === ""}
-                        className={`w-full py-2 px-4 rounded text-xs ${
-                          userMessage.trim() === ""
-                            ? "bg-[#2ea3e3] text-white cursor-not-allowed"
-                            : "bg-[#F19A3E] text-white hover:bg-[#FE7F2D]"
-                        }`}
-                      >
+                        <button
+                          onClick={handleSendMessage}
+                          disabled={userMessage.trim() === ""}
+                          className={`w-full py-2 px-4 rounded text-xs ${
+                            userMessage.trim() === ""
+                              ? "bg-[#2ea3e3] text-white cursor-not-allowed"
+                              : "btn-secondary"
+                          }`}
+                        >
                         Send
                       </button>
                     </div>
