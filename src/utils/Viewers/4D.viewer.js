@@ -134,11 +134,15 @@ function resetViewerState(viewer) {
 }
 
 function countDbIdsInNode(nodeId) {
+  if (!instanceTree) return 0;
+  const node = instanceTree.nodeAccess.dbIdToNode[nodeId];
+  if (!node) return 0;
+
   let count = 0;
   instanceTree.enumNodeChildren(nodeId, (childNodeId) => {
     count += countDbIdsInNode(childNodeId);
   });
-  // Check if leaf
+
   const isLeafNode = instanceTree.getChildCount(nodeId) === 0;
   if (isLeafNode) {
     count++;
