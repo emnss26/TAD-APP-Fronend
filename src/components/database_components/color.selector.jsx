@@ -18,7 +18,10 @@ export default function EnhancedColorPicker({
   const setOpen =
     typeof setIsPickerOpen === "function" ? setIsPickerOpen : setInternalOpen;
   const [position, setPosition] = useState({ top: 0, left: 0 });
-  const containerRef = pickerRef || useRef(null);
+
+  // Always create a ref so hooks are called consistently
+  const internalRef = useRef(null);
+  const containerRef = pickerRef || internalRef;
 
   useEffect(() => {
     if (open && containerRef.current) {
@@ -26,7 +29,7 @@ export default function EnhancedColorPicker({
 
       setPosition({ top: rect.bottom + 35, left: rect.left - 60 });
     }
-  }, [open]);
+  }, [open, containerRef]);
 
   const handleColorChangeComplete = (color) => {
     setSelectedColor(color.hex);
