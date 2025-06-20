@@ -184,22 +184,21 @@ const ACCRFIPage = () => {
       chart: RFIsStatusChart,
       content: statusCounts,
       data: statusCounts,
-      onClickName: (status) =>
-        handleFilterClick("status", status.toLowerCase()),
+      filterKey: "status",
     },
     {
       title: "RFI Priority Chart",
       chart: RFIsPriorityChart,
       content: priorityCounts,
       data: priorityCounts,
-      onClickName: (pr) => handleFilterClick("priority", pr),
+      filterKey: "priority",
     },
     {
       title: "RFI Discipline Chart",
       chart: RFIsDisciplineChart,
       content: disciplineCounts,
       data: disciplineCounts,
-      onClickName: (d) => handleFilterClick("discipline", d),
+      filterKey: "discipline",
     },
   ];
 
