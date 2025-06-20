@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useCookies } from "react-cookie";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
+import useUserProfile from "../../hooks/useUserProfile";
+import useLogout from "../../hooks/useLogout";
+import useProjectData from "../../hooks/useProjectData";
 
 import {
   fetchBIM360ProjectsData,
@@ -10,87 +12,24 @@ import {
 
 import { ProjectsDropdownMenu } from "./drop.down.menu";
 
-const backendUrl =
-  import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
-
 const BIM360PlatformprojectsHeader = ({ accountId, projectId }) => {
-  const [userProfile, setUserProfile] = useState(null);
-  const [error, setError] = useState(null);
+  const { userProfile } = useUserProfile();
+  const handleLogout = useLogout();
+  const { projectsData, project } = useProjectData({
+    accountId,
+    projectId,
+    fetchProjects: fetchBIM360ProjectsData,
+    fetchProject: fetchBIM360ProjectData,
+  });
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
-  const dropdownRef = useRef(null);
-
   const containerRef = useRef(null);
-  const [newproject, setNewProject] = useState(null);
-
-  //Cookies
-  const [cookies] = useCookies(["access_token"]);
-
-  //Drop Down Menu
-  const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
-  const [selectedProjectName, setSelectedProjectName] = useState("");
-  const [projectsData, setProjectsData] = useState(null);
-  const [project, setProject] = useState(null);
 
   //console.log("Project ID Header:", projectId);
   //console.log("Account ID Header:", accountId);
 
-  //ProjectsData
-  useEffect(() => {
-    const getProjects = async () => {
-      const projectsData = await fetchBIM360ProjectsData();
 
-      //console.log("Projects Data:", projectData.name);
-
-      setProjectsData(projectsData);
-    };
-    getProjects();
-  }, []);
-
-  //console.log("Projects Data Header:", projectsData?.projects);
-
-  //ProjectData
-  useEffect(() => {
-    const getProject = async () => {
-      const projectData = await fetchBIM360ProjectData(
-        projectId,
-        accountId
-      );
-
-      //console.log("Project Name:", projectData.name);
-
-      setProject(projectData);
-    };
-    getProject();
-  }, [projectId, accountId]);
-
-  //console.log("Project Data Header:", project?.name);
-
-  //User Profile Data
-  useEffect(() => {
-    const getUserProfile = async () => {
-      try {
-        const response = await fetch(`${backendUrl}/general/userprofile`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          console.error("Error fetching user profile:");
-          setError("Error fetching user profile");
-          return;
-        }
-
-        const data = await response.json();
-        setUserProfile(data.user);
-      } catch (error) {
-        setError(
-          error?.response?.data?.message || "Error fetching user profile"
-        );
-      }
-    };
-    getUserProfile();
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -105,13 +44,6 @@ const BIM360PlatformprojectsHeader = ({ accountId, projectId }) => {
     };
   }, []);
 
-  const handleLogout = async () => {
-    await fetch(`${backendUrl}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    window.location.href = "/";
-  };
 
   const handleGoPlatform = () => {
     navigate("/platform");

@@ -1,44 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useCookies } from "react-cookie";
+import useUserProfile from "../../hooks/useUserProfile";
+import useLogout from "../../hooks/useLogout";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 
-const backendUrl =
-  import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
-
 const PlatformHeader = () => {
-  const [userProfile, setUserProfile] = useState(null);
-  const [error, setError] = useState(null);
+  const { userProfile } = useUserProfile();
+  const handleLogout = useLogout();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
-  const dropdownRef = useRef(null);
-
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    const getUserProfile = async () => {
-      try {
-        const response = await fetch(`${backendUrl}/general/userprofile`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          console.error("Error fetching user profile:");
-          setError("Error fetching user profile");
-          return;
-        }
-
-        const data = await response.json();
-        setUserProfile(data.user);
-      } catch (error) {
-        setError(
-          error?.response?.data?.message || "Error fetching user profile"
-        );
-      }
-    };
-    getUserProfile();
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -53,13 +26,6 @@ const PlatformHeader = () => {
     };
   }, []);
 
-  const handleLogout = async () => {
-    await fetch(`${backendUrl}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    window.location.href = "/";
-  };
 
   const handleGoPlatform = () => {
     navigate("/platform");
