@@ -26,22 +26,12 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-export default function BIM360Sidebar() {
-  // Persist collapse state separately
-  const [collapsed, setCollapsed] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("bim360SidebarCollapsed");
-      return saved ? JSON.parse(saved) : true;
-    }
-    return true;
-  });
+export default function BIM360Sidebar({ collapsed: collapsedProp = false }) {
+  const [collapsed, setCollapsed] = React.useState(collapsedProp);
 
   const { accountId, projectId } = useParams();
   const location = useLocation();
 
-  React.useEffect(() => {
-    localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
-  }, [collapsed]);
 
   // Define menu items for BIM360
   const menuItems = [

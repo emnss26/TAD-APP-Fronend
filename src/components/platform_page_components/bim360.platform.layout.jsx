@@ -9,7 +9,7 @@ const BIM360PlatformLayout = ({ children, projectId, accountId }) => {
     <div className="flex flex-col min-h-screen bg-white">
       <BIM360PlatformprojectsHeader projectId={projectId} accountId={accountId} />
       <div className="flex flex-1 pt-16">
-        <BIM360Sidebar />
+        <BIM360Sidebar collapsed={false} />
         <main className="flex-1 p-3 overflow-y-auto">{children}</main>
       </div>
       <Footer />
