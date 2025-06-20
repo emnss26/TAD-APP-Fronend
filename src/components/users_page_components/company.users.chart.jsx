@@ -8,7 +8,8 @@ const CompanyUsersChart = ({ companyCounts, onCompanyClick }) => {
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
       if (entries[0]) {
-        setContainerWidth(entries[0].contentRect.width);
+        const w = Number(entries[0].contentRect.width);
+        setContainerWidth(Number.isNaN(w) ? 0 : w);
       }
     });
 
@@ -25,10 +26,13 @@ const CompanyUsersChart = ({ companyCounts, onCompanyClick }) => {
 
   const data = Object.keys(companyCounts).map((company) => ({
     company,
-    users: companyCounts[company],
+    users: Number(companyCounts[company]) || 0,
   }));
 
-  const maxUsers = Math.max(...Object.values(companyCounts), 0);
+  const maxUsers = Math.max(
+    ...Object.values(companyCounts).map((v) => Number(v) || 0),
+    0
+  );
 
   const tickStep = maxUsers <= 20 ? 1 : 10;
   const tickValues = Array.from(
@@ -63,7 +67,7 @@ const CompanyUsersChart = ({ companyCounts, onCompanyClick }) => {
         }}
         enableGridX={true}
         enableGridY={false}
-        width={containerWidth}
+        width={Number(containerWidth) || 0}
         height={250}
         tooltip={({ id, value }) => (
           <div
