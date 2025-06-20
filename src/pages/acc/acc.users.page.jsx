@@ -93,33 +93,35 @@ const ACCProjectUsersPage = () => {
       let notSpecifiedRole = 0;
 
       projectUsers.users.forEach((user) => {
-        total++;
+        total = Number(total) + 1;
 
         if (user.companyName) {
-          companies[user.companyName] = (companies[user.companyName] || 0) + 1;
+          const current = Number(companies[user.companyName]) || 0;
+          companies[user.companyName] = current + 1;
         } else {
-          notSpecifiedCompany++;
+          notSpecifiedCompany = Number(notSpecifiedCompany) + 1;
         }
 
         if (user.roles && user.roles.length > 0) {
           user.roles.forEach((role) => {
-            roles[role.name] = (roles[role.name] || 0) + 1;
+            const cur = Number(roles[role.name]) || 0;
+            roles[role.name] = cur + 1;
           });
         } else {
-          notSpecifiedRole++;
+          notSpecifiedRole = Number(notSpecifiedRole) + 1;
         }
       });
 
       const roleCountsArray = Object.entries(roles).map(([name, count]) => ({
         id: name,
-        value: count,
+        value: Number(count) || 0,
       }));
 
       setCompanyCounts(companies);
       setRoleCounts(roleCountsArray);
-      setNotSpecifiedCompanyCount(notSpecifiedCompany);
-      setNotSpecifiedRoleCount(notSpecifiedRole);
-      setTotalUsers(total);
+      setNotSpecifiedCompanyCount(Number(notSpecifiedCompany) || 0);
+      setNotSpecifiedRoleCount(Number(notSpecifiedRole) || 0);
+      setTotalUsers(Number(total) || 0);
     };
     getProjectUsers();
   }, [projectId, accountId]);
