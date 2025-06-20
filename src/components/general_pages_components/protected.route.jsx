@@ -22,6 +22,5 @@ export default function ProtectedRoute() {
       });
   }, [navigate]);
 
-  // ESTE es el “hueco” donde se renderizan las rutas hijas
   return <Outlet />;
 }

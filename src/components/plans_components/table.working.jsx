@@ -91,13 +91,12 @@ export default function PlansTable({ plans = [] }) { // Props renombradas
     const rows = [...paginated];
     const emptyRowCount = itemsPerPage - rows.length;
     if (emptyRowCount > 0 && currentPage === 1 && searchTerm === "" && disciplineFilter === "") {
-      // Solo añadir placeholders en la primera página sin filtros activos
-      // O ajusta esta condición si siempre quieres rellenar
+      
       for (let i = 0; i < emptyRowCount; i++) {
         rows.push({ id: `empty-${currentPage}-${i}`, isPlaceholder: true });
       }
     } else if (emptyRowCount > 0) {
-        // Si quieres rellenar *siempre* hasta 10 filas por página, incluso después de filtrar:
+       
         for (let i = 0; i < emptyRowCount; i++) {
             rows.push({ id: `empty-${currentPage}-${i}`, isPlaceholder: true });
         }
@@ -137,7 +136,7 @@ export default function PlansTable({ plans = [] }) { // Props renombradas
    const handleReset = () => {
       setSearchTerm("");
       setDisciplineFilter("");
-      setSortField("SheetNumber"); // Volver al sort por defecto
+      setSortField("SheetNumber"); 
       setSortDirection("asc");
       setCurrentPage(1);
     };

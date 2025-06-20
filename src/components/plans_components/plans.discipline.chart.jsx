@@ -4,7 +4,6 @@ import { ResponsivePie } from "@nivo/pie";
 const DisciplinePlansPieChart = ({
   data = [],
   onSliceClick,
-  // Mantener firma, pero usar valores por defecto del diseño genérico
   innerRadius = 0.65,
   padAngle = 1,
   cornerRadius = 3,

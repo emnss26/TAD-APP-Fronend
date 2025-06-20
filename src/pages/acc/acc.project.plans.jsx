@@ -3,8 +3,7 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
-  useRef,
-  use,
+
 } from "react";
 import { useParams } from "react-router-dom";
 import { useCookies } from "react-cookie";
@@ -56,7 +55,7 @@ const ACCProjectPlansPage = () => {
 
   /* ---------- Folder Mapping States ---------- */
   const [showMapping, setShowMapping] = useState(false);
-  const [folderTree, setFolderTree] = useState(null);
+
   const [mappedPlans, setMappedPlans] = useState([]);
 
   /* ---------- Data Fetching Function (Reusable) ---------- */

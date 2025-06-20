@@ -22,14 +22,11 @@ const BIM360PlatformprojectsHeader = ({ accountId, projectId }) => {
   const dropdownRef = useRef(null);
 
   const containerRef = useRef(null);
-  const [newproject, setNewProject] = useState(null);
 
   //Cookies
   const [cookies] = useCookies(["access_token"]);
 
   //Drop Down Menu
-  const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
-  const [selectedProjectName, setSelectedProjectName] = useState("");
   const [projectsData, setProjectsData] = useState(null);
   const [project, setProject] = useState(null);
 

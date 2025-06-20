@@ -65,24 +65,6 @@ export function IssuesGanttChart({ issues }) {
       namesColumnRef.current.scrollTop = e.currentTarget.scrollTop;
     }
   };
-
-  // Filtrado de issues: sólo abiertos + búsqueda + filtro de estado (si se usa)
-  // useEffect(() => {
-  //   let result = issues.filter((i) => i.status === "open");
-
-  //   if (searchTerm) {
-  //     const term = searchTerm.toLowerCase();
-  //     result = result.filter(
-  //       (i) =>
-  //         i.title.toLowerCase().includes(term) ||
-  //         i.assignedTo.toLowerCase().includes(term)
-  //     );
-  //   }
-  //   if (statusFilter !== "all") {
-  //     result = result.filter((i) => i.status === statusFilter);
-  //   }
-  //   setFilteredIssues(result);
-  // }, [issues, searchTerm, statusFilter]);
   
   useEffect(() => {
    
