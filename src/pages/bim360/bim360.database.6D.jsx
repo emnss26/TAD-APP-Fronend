@@ -337,7 +337,7 @@ const backendUrl =
     }, []);
   
     useEffect(() => {
-      if (!federatedModel || window.viewerInitialized) return;
+      if (!federatedModel || window.viewerInitialized || !showViewer) return;
   
       const conditionalSelectionHandler = (dbIdArray) => {
         if (!syncViewerSelectionRef.current) {
@@ -356,7 +356,17 @@ const backendUrl =
       });
   
       window.viewerInitialized = true;
-    }, [federatedModel, handleViewerSelectionChanged]);
+    }, [federatedModel, showViewer, handleViewerSelectionChanged]);
+
+    const handleToggleViewer = () => {
+      if (showViewer && window.data5Dviewer) {
+        window.data5Dviewer.impl.unload();
+        window.data5Dviewer = null;
+        window.viewerInitialized = false;
+      }
+
+      setShowViewer((prev) => !prev);
+    };
   
     useEffect(() => {
       syncViewerSelectionRef.current = syncViewerSelection;
@@ -678,7 +688,7 @@ const backendUrl =
               <ControlPanel
                 viewer={window.data5Dviewer}
                 showViewer={showViewer}
-                setShowViewer={setShowViewer}
+                toggleViewer={handleToggleViewer}
                 showAIpanel={showAIpanel}
                 setAIpanel={setAIpanel}
                 syncViewerSelection={syncViewerSelection}
