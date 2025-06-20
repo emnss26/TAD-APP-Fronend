@@ -15,3 +15,13 @@ If you are developing a production application, we recommend using TypeScript an
 # TAD-APP-Fronend
 TAD-APP-Fronend
 >>>>>>> 0d465505cda816f13c117229ca450ea61acfb01b
+
+## Proposed Viewer Extensions
+
+The Autodesk Platform Services viewer supports many optional extensions. Consider enabling additional tools such as:
+
+- `Autodesk.Viewing.ZoomWindow` for quick zoom window selection.
+- `Autodesk.Viewing.MeasureTools` to measure distances and areas in the model.
+- `Autodesk.Viewing.MarkupsCore` for markup and annotation features.
+
+These extensions can enhance the user experience when working with the built-in APS viewer.
