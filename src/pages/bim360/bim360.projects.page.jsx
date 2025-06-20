@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import PlatformHeader from "../../components/platform_page_components/platform.access.header";
 import { Footer } from "../../components/general_pages_components/general.pages.footer";
+import LoadingOverlay from "../../components/general_pages_components/general.loading.overlay";
 
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
@@ -13,9 +14,11 @@ const backendUrl =
 
 const BIM360ProjectsPage = () => {
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getProjects = async () => {
+      setLoading(true);
       const response = await fetch(`${backendUrl}/bim360/bim360projects`, {
         credentials: "include",
       });
@@ -33,6 +36,7 @@ const BIM360ProjectsPage = () => {
       //console.log("BIM360 Projects:", accProjects);
 
       setProjects(accProjects);
+      setLoading(false);
     };
 
     getProjects();
@@ -76,6 +80,7 @@ const BIM360ProjectsPage = () => {
 
   return (
     <div className="relative flex flex-col min-h-screen bg-[#ffffff] z-10">
+          {loading && <LoadingOverlay />}
           {/* Partículas cubriendo todo, sin bloquear interacciones */}
           <Particles
             id="tsparticles"
