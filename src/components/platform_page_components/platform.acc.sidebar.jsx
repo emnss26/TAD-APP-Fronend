@@ -26,22 +26,12 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-export default function ACCSidebar() {
-  // Persist collapse state
-  const [collapsed, setCollapsed] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("sidebarCollapsed");
-      return saved ? JSON.parse(saved) : true;
-    }
-    return false;
-  });
+export default function ACCSidebar({ collapsed: collapsedProp = false }) {
+  const [collapsed, setCollapsed] = React.useState(collapsedProp);
 
   const { accountId, projectId } = useParams();
   const location = useLocation();
 
-  React.useEffect(() => {
-    localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
-  }, [collapsed]);
 
   // Define all menu items
   const menuItems = [
