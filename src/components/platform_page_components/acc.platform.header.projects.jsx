@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
+import ThemeToggle from "../ui/theme-toggle";
 
 import {
   fetchACCProjectsData,
@@ -119,7 +120,7 @@ const ACCPlatformprojectsHeader = ({ accountId, projectId }) => {
   };
 
   return (
-    <header className="app-header h-[65px] w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md">
+    <header className="app-header h-[65px] w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md bg-background dark:bg-gray-900">
       {/* Branding (izquierda) */}
       <div className="nav-link flex items-center gap-6 text-md">
         {/* Principal Text */}
@@ -154,6 +155,7 @@ const ACCPlatformprojectsHeader = ({ accountId, projectId }) => {
             Services
           </Link>
         </nav>
+        <ThemeToggle />
 
         {/* Información de usuario y menú desplegable */}
         <div className="relative flex items-center gap-2 text-sm">

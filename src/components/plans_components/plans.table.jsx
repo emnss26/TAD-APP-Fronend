@@ -131,8 +131,8 @@ export default function PlansTable({
   };
 
   return (
-    <Card className="w-full bg-white">
-      <CardHeader className="bg-gray-50 pb-2">
+    <Card className="w-full bg-white dark:bg-gray-900">
+      <CardHeader className="bg-gray-50 dark:bg-gray-800 pb-2">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <CardTitle className="text-xl font-bold">Plans List</CardTitle>
           <div className="flex items-center gap-2 w-full md:w-auto">
@@ -303,10 +303,10 @@ export default function PlansTable({
                 padded.map((plan) =>
                   plan.isPlaceholder ? (
                     <TableRow key={plan.id} className="h-9">
-                      <TableCell colSpan={9} className="bg-gray-50" />
+                      <TableCell colSpan={9} className="bg-gray-50 dark:bg-gray-800" />
                     </TableRow>
                   ) : (
-                    <TableRow key={plan.id} className="hover:bg-gray-50">
+                    <TableRow key={plan.id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                       {/* 1 */}
                       <TableCell className="p-2">
                         <Checkbox
