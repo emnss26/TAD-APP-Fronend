@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   Command,
   Layers,
@@ -106,7 +106,7 @@ export default function ControlPanel({
   }, [isPickerOpen]);
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden w-full"
@@ -143,7 +143,7 @@ export default function ControlPanel({
       {/* Contenido del Panel */}
       <AnimatePresence>
         {isPanelExpanded && (
-          <motion.div
+          <Motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -417,9 +417,9 @@ export default function ControlPanel({
                 </Card>
               </TabsContent>
             </Tabs>
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </Motion.div>
   );
 }
