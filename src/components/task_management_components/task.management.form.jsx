@@ -245,7 +245,7 @@ export function TaskManagementForm({
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
         </Button>
-        <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
+        <Button type="submit" className="btn-secondary text-xs font-bold py-2 px-4 rounded">
           {isEditing ? "Actualizar tarea" : "Crear tarea"}
         </Button>
       </div>

@@ -143,7 +143,7 @@ const ACCProjectTaskManagementPage = () => {
           <div className="flex items-center justify-between mb-6">
             <Button
               onClick={() => setIsFormOpen(true)}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="btn-secondary text-xs font-bold py-2 px-4 rounded"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               New Task
