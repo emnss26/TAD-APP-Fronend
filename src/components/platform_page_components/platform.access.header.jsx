@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
+import ThemeToggle from "../ui/theme-toggle";
 
 const backendUrl =
   import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
@@ -70,7 +71,7 @@ const PlatformHeader = () => {
   };
 
   return (
-    <header className="app-header h-[65px] w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md">
+    <header className="app-header h-[65px] w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md bg-background dark:bg-gray-900">
       {/* Branding (izquierda) */}
       <div className="nav-link text-md">
         <Link to="/">TAD | Taller de Arquitectura Digital</Link>
@@ -90,6 +91,7 @@ const PlatformHeader = () => {
             Services
           </Link>
         </nav>
+        <ThemeToggle />
 
         {/* Información de usuario y menú desplegable */}
         <div className="relative flex items-center gap-2 text-sm">

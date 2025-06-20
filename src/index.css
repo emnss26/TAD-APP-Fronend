@@ -196,7 +196,7 @@
   }
 
   .nav-link {
-    @apply text-black transition-colors;
+    @apply text-black dark:text-gray-200 transition-colors;
   }
 
   .nav-link:hover {
