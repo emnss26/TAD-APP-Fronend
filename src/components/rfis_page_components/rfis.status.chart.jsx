@@ -58,6 +58,7 @@ const RFIsStatusChart = ({ data, onSliceClick }) => {
         arcLinkLabelsColor={{ from: "color" }}
         arcLabelsSkipAngle={10}
         arcLabelsTextColor="#ffffff"
+        theme={{ labels: { text: { fill: "#fff", fontSize: 12 } } }}
         fill={[]}
         legends={[
           {

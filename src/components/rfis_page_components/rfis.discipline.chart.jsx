@@ -30,6 +30,7 @@ const RFIsDisciplineChart = ({ data, onSliceClick }) => {
         arcLinkLabelsSkipAngle={10}
         arcLabelsSkipAngle={10}
         arcLinkLabelsTextColor="#ffffff"
+        theme={{ labels: { text: { fill: "#fff", fontSize: 12 } } }}
         legends={[
           {
             anchor: "right",
