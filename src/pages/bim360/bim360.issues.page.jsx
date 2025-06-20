@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { useCookies } from "react-cookie";
 
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -37,7 +36,6 @@ const sampleQuestions = [
 const BIM360IssuesPage = () => {
   /* ---------- Router / Auth ---------- */
   const { projectId, accountId } = useParams();
-  const [cookies] = useCookies(["access_token"]);
 
   /* ---------- UI State ---------- */
   const [loading, setLoading] = useState(true);
