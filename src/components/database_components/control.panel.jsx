@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Command,
@@ -85,6 +85,25 @@ export default function ControlPanel({
 }) {
   const [activeTab, setActiveTab] = useState("viewer");
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const colorPickerRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        isPickerOpen &&
+        colorPickerRef.current &&
+        !colorPickerRef.current.contains(event.target)
+      ) {
+        setIsPickerOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isPickerOpen]);
 
   return (
     <motion.div
@@ -255,6 +274,9 @@ export default function ControlPanel({
                         <EnhancedColorPicker
                           selectedColor={selectedColor}
                           setSelectedColor={setSelectedColor}
+                          isPickerOpen={isPickerOpen}
+                          setIsPickerOpen={setIsPickerOpen}
+                          pickerRef={colorPickerRef}
                         />
                         <Button
                           variant="secondary"
