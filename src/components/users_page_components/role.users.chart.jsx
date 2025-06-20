@@ -10,7 +10,12 @@ const RoleUsersChart = ({ roleCounts, onRoleClick }) => {
     const resizeObserver = new ResizeObserver((entries) => {
       if (entries[0]) {
         const { width, height } = entries[0].contentRect;
-        setDimensions({ width, height });
+        const w = Number(width);
+        const h = Number(height);
+        setDimensions({
+          width: Number.isNaN(w) ? 0 : w,
+          height: Number.isNaN(h) ? 0 : h,
+        });
       }
     });
 
@@ -25,8 +30,14 @@ const RoleUsersChart = ({ roleCounts, onRoleClick }) => {
     };
   }, []);
 
+  const normalizedCounts = Array.isArray(roleCounts)
+    ? roleCounts.map((r) => ({ id: r.id, value: Number(r.value) || 0 }))
+    : [];
+
   const maxRoles =
-    roleCounts.length > 0 ? Math.max(...roleCounts.map((r) => r.value)) : 0;
+    normalizedCounts.length > 0
+      ? Math.max(...normalizedCounts.map((r) => r.value))
+      : 0;
 
   const tickStep = maxRoles <= 20 ? 1 : 10;
   const tickValues = Array.from(
@@ -43,9 +54,9 @@ const RoleUsersChart = ({ roleCounts, onRoleClick }) => {
         position: "relative",
       }}
     >
-      {dimensions.width && dimensions.height && (
+      {Number(dimensions.width) && Number(dimensions.height) && (
         <ResponsiveBar
-          data={Array.isArray(roleCounts) ? roleCounts : []}
+          data={normalizedCounts}
           keys={["value"]}
           indexBy="id"
           margin={{ top: 3, right: 3, bottom: 25, left: 150 }}
