@@ -1,0 +1,32 @@
+<svg viewBox="0 0 390 130" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style><![CDATA[
+      @keyframes dash {
+        to { stroke-dashoffset: 0; }
+      }
+      .tad-path {
+        stroke: #111;
+        stroke-width: 9;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+        animation: dash 1.3s cubic-bezier(0.3,0.5,0.5,1) forwards;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+      }
+      .tad-t { animation-delay: 0.1s; }
+      .tad-a { animation-delay: 0.4s; }
+      .tad-d { animation-delay: 0.7s; }
+    ]]></style>
+  </defs>
+  <g transform="translate(45,0)">
+    <path class="tad-path tad-t"
+      d="M30 40 H90 M60 40 V110" />
+    <path class="tad-path tad-a"
+      d="M120 110 L150 40 L180 110 M135 80 H165" />
+    <path class="tad-path tad-d"
+      d="M210 40 H245 Q275 40 275 75 Q275 110 245 110 H210 Z" />
+  </g>
+</svg>

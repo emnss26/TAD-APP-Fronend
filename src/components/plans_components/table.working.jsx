@@ -91,13 +91,12 @@ export default function PlansTable({ plans = [] }) { // Props renombradas
     const rows = [...paginated];
     const emptyRowCount = itemsPerPage - rows.length;
     if (emptyRowCount > 0 && currentPage === 1 && searchTerm === "" && disciplineFilter === "") {
-      // Solo añadir placeholders en la primera página sin filtros activos
-      // O ajusta esta condición si siempre quieres rellenar
+      
       for (let i = 0; i < emptyRowCount; i++) {
         rows.push({ id: `empty-${currentPage}-${i}`, isPlaceholder: true });
       }
     } else if (emptyRowCount > 0) {
-        // Si quieres rellenar *siempre* hasta 10 filas por página, incluso después de filtrar:
+       
         for (let i = 0; i < emptyRowCount; i++) {
             rows.push({ id: `empty-${currentPage}-${i}`, isPlaceholder: true });
         }
@@ -137,16 +136,16 @@ export default function PlansTable({ plans = [] }) { // Props renombradas
    const handleReset = () => {
       setSearchTerm("");
       setDisciplineFilter("");
-      setSortField("SheetNumber"); // Volver al sort por defecto
+      setSortField("SheetNumber"); 
       setSortDirection("asc");
       setCurrentPage(1);
     };
 
 
   return (
-    <Card className="w-full bg-white h-full flex flex-col"> {/* Añadido h-full y flex */}
+    <Card className="w-full bg-white dark:bg-gray-900 h-full flex flex-col"> {/* Añadido h-full y flex */}
       {/* Header */}
-      <CardHeader className="bg-slate-50 pb-2 pt-4 px-4 border-b"> {/* Ajustado padding */}
+      <CardHeader className="bg-slate-50 dark:bg-gray-800 pb-2 pt-4 px-4 border-b"> {/* Ajustado padding */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4"> {/* Añadido items-center */}
           <CardTitle className="text-lg font-semibold">Plans List</CardTitle> {/* Ajustado tamaño */}
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto"> {/* items-center y flex-wrap */}
@@ -297,7 +296,7 @@ export default function PlansTable({ plans = [] }) { // Props renombradas
       {/* Pagination Footer */}
        {/* Asegurarse que la paginación solo aparezca si hay más de una página y que esté fuera del scroll principal */}
        {totalPages > 1 && (
-         <div className="flex justify-between items-center p-3 border-t bg-white flex-shrink-0"> {/* Estilo consistente */}
+         <div className="flex justify-between items-center p-3 border-t bg-white dark:bg-gray-900 flex-shrink-0"> {/* Estilo consistente */}
            <span className="text-sm text-gray-600">
               Showing {paginated.length} of {sorted.length} plans {/* Texto adaptado */}
            </span>

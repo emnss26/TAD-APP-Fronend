@@ -20,9 +20,6 @@ import {
   fetchACCProjectSubmittals,
 } from "../../pages/services/acc.services";
 
-const backendUrl =
-  import.meta.env.VITE_API_BACKEND_BASE_URL || "http://localhost:3000";
-
 const sliderSettings = {
   dots: true,
   infinite: false,
@@ -65,7 +62,7 @@ const ACCProjectPage = () => {
   const { projectId, accountId } = useParams();
 
   //Model Data
-  const [urn, setUrn] = useState("");
+  
   const [federatedModel, setFederatedModel] = useState(null);
 
   //General

@@ -4,7 +4,6 @@ import React, {
   useMemo,
   useState,
   useCallback,
-  useEffect,
   useRef,
 } from "react";
 import {
@@ -70,27 +69,6 @@ const elementTypeColorMap = {
 };
 const fallbackTypeColor = "#6b7280";
 
-const disciplineColorMap = {
-  "Preliminary Works": { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Structural Foundations": { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Concrete Structure": { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Metallic Structure": { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Masonry Works": { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Walls and Ceilings": { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Aluminium works windows and glazing": {
-    bg: "bg-[#2ea3e3]",
-    text: "text-white",
-  },
-  Blaksmithing: { bg: "bg-[#2ea3e3]", text: "text-white" },
-  Finishes: { bg: "bg-[#2ea3e3]", text: "text-white" },
-  Furniture: { bg: "bg-[#2ea3e3]", text: "text-white" },
-  Carpentry: { bg: "bg-[#2ea3e3]", text: "text-white" },
-  Mechanical: { bg: "bg-[#2ea3e3]", text: "text-white" },
-  Electrical: { bg: "bg-[#2ea3e3]", text: "text-white" },
-  Plumbing: { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Fire Protection": { bg: "bg-[#2ea3e3]", text: "text-white" },
-  "Special Systems": { bg: "bg-[#2ea3e3]", text: "text-white" },
-};
 
 const columnGroups = {
   general: [
@@ -152,8 +130,6 @@ const numericColumns = [
 const TableControls = React.memo(function TableControls({
   activeSection,
   handleChangeSection,
-  handleToggleSort,
-  sortDisciplinesAsc,
   handleExpandAll,
   handleCollapseAll,
   searchDbId,
@@ -161,10 +137,6 @@ const TableControls = React.memo(function TableControls({
   handleDbIdSearch,
   filterText,
   setFilterText,
-  hoverColor,
-  setHoverColor,
-  handleScrollUp,
-  handleScrollDown,
   page,
   totalPages,
   handlePrevPage,
@@ -609,7 +581,6 @@ const ElementRow = React.memo(function ElementRow({
 const CodeHeaderRow = React.memo(function CodeHeaderRow({
   discipline,
   code,
-  rows,
   toggleCodes,
   collapsed,
   isolateCode,
@@ -1027,8 +998,7 @@ const Database5DTable = ({
   }, [displayRows, page, perPage]);
 
   // Otros controles (lastClickedRowNumber se recibe por props)
-  const [hoverColor, setHoverColor] = useState("bg-slate-100");
-  const [sortDisciplinesAsc, setSortDisciplinesAsc] = useState(false);
+  const hoverColor = "bg-slate-100";
   const [loading, setLoading] = useState(false);
   const [searchDbId, setSearchDbId] = useState("");
 
@@ -1061,9 +1031,6 @@ const Database5DTable = ({
     setCollapsedDisciplinesState(newState);
   }, [data]);
 
-  const handleToggleSort = useCallback(() => {
-    setSortDisciplinesAsc((prev) => !prev);
-  }, []);
 
   const handleChangeSection = useCallback(
     (section) => {
@@ -1150,15 +1117,6 @@ const Database5DTable = ({
     [isolateObjectsInViewer]
   );
 
-  const hideDisciplineAction = useCallback(
-    (rows) => {
-      hideObjectsInViewer(
-        window.data5Dviewer,
-        rows.map((r) => r.dbId)
-      );
-    },
-    [hideObjectsInViewer]
-  );
 
   const isolateRow = useCallback(
     (dbId) => {
@@ -1168,34 +1126,7 @@ const Database5DTable = ({
   );
 
   const tableContainerRef = useRef(null);
-  const handleScrollUp = useCallback(() => {
-    if (tableContainerRef.current) tableContainerRef.current.scrollTop -= 100;
-  }, []);
-  const handleScrollDown = useCallback(() => {
-    if (tableContainerRef.current) tableContainerRef.current.scrollTop += 100;
-  }, []);
 
-  const nestedGroupData = useMemo(() => {
-    return data.reduce((acc, row) => {
-      const discipline = row.Discipline || "No Discipline";
-      const code = row.Code || "No Code";
-      if (!acc[discipline]) acc[discipline] = {};
-      if (!acc[discipline][code]) acc[discipline][code] = [];
-      acc[discipline][code].push(row);
-      return acc;
-    }, {});
-  }, [data]);
-
-  const getGrandTotalCost = useMemo(() => {
-    let sum = 0;
-    Object.keys(nestedGroupData).forEach((discipline) => {
-      Object.keys(nestedGroupData[discipline]).forEach((code) => {
-        const groupKey = `${discipline}||${code}`;
-        sum += parseFloat(calculateGroupTotal(groupKey)) || 0;
-      });
-    });
-    return sum.toFixed(2);
-  }, [nestedGroupData, calculateGroupTotal]);
 
   const sumTotalCost = useMemo(() => {
     return data
@@ -1226,8 +1157,6 @@ const Database5DTable = ({
       <TableControls
         activeSection={activeSection}
         handleChangeSection={handleChangeSection}
-        handleToggleSort={handleToggleSort}
-        sortDisciplinesAsc={sortDisciplinesAsc}
         handleExpandAll={handleExpandAll}
         handleCollapseAll={handleCollapseAll}
         searchDbId={searchDbId}
@@ -1235,10 +1164,6 @@ const Database5DTable = ({
         handleDbIdSearch={handleDbIdSearch}
         filterText={filterText}
         setFilterText={setFilterText}
-        hoverColor={hoverColor}
-        setHoverColor={setHoverColor}
-        handleScrollUp={handleScrollUp}
-        handleScrollDown={handleScrollDown}
         page={page}
         totalPages={totalPages}
         handlePrevPage={handlePrevPage}
@@ -1345,7 +1270,6 @@ const Database5DTable = ({
                             key={`code-${item.discipline}-${item.code}`}
                             discipline={item.discipline}
                             code={item.code}
-                            rows={item.rows}
                             toggleCodes={toggleCodes}
                             collapsed={
                               collapsedCodes[

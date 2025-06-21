@@ -33,8 +33,7 @@ export default function ACCModelLODCheckerPage() {
   ];
 
   const [disciplina, setDisciplina] = useState(disciplinas[0]);
-  const [collapsed, setCollapsed] = useState(true);
-  const [urn, setUrn] = useState("");
+
   const [federatedModel, setFederatedModel] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);

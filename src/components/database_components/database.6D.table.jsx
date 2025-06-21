@@ -1,5 +1,3 @@
-"use client";
-
 import React, {
   useState,
   useRef,
@@ -422,7 +420,6 @@ const PartialTotalsRow = React.memo(function PartialTotalsRow({
   visibleColumns,
   totalsByDiscipline,
 }) {
-  const { bg, text } = disciplineColorMap[discipline] || fallbackDisc;
   const formatTotal = useCallback((col, val) => {
     if (!numericColumns.includes(col.toUpperCase())) return "";
     if (val == null || val === "") return "";
@@ -522,10 +519,6 @@ const TableControls = React.memo(function TableControls({
   handleDbIdSearch,
   filterText,
   setFilterText,
-  hoverColor,
-  setHoverColor,
-  handleScrollUp,
-  handleScrollDown,
   page,
   totalPages,
   handlePrevPage,
@@ -540,7 +533,7 @@ const TableControls = React.memo(function TableControls({
       <div className="flex flex-wrap gap-2 justify-between">
         {/* Izquierda */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* <Button
+          <Button
             variant="outline"
             size="sm"
             onClick={handleToggleSort}
@@ -548,7 +541,7 @@ const TableControls = React.memo(function TableControls({
           >
             <ArrowUpDown className="h-4 w-4" />
             {sortDisciplinesAsc ? "Restore Order" : "Sort A→Z"}
-          </Button> */}
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -705,7 +698,6 @@ function Database6DTable({
   setSelectedRows,
   lastClickedRowNumber,
   setLastClickedRowNumber,
-  hideColumns,
   onVisibleColumnsChange,
 }) {
   const [loading, setLoading] = useState(false);
@@ -721,7 +713,7 @@ function Database6DTable({
   const isDimensionsView = activeSection === "dimensions";
   const [page, setPage] = useState(1);
   const perPage = 250;
-  const [hoverColor, setHoverColor] = useState("bg-slate-100");
+  const [hoverColor] = useState("bg-slate-100");
   const [filterText, setFilterText] = useState("");
   const [sortDisciplinesAsc, setSortDisciplinesAsc] = useState(false);
 
@@ -936,12 +928,6 @@ function Database6DTable({
   }, [visibleColumns, onVisibleColumnsChange]);
 
   const tableContainerRef = useRef(null);
-  const handleScrollUp = useCallback(() => {
-    if (tableContainerRef.current) tableContainerRef.current.scrollTop -= 100;
-  }, []);
-  const handleScrollDown = useCallback(() => {
-    if (tableContainerRef.current) tableContainerRef.current.scrollTop += 100;
-  }, []);
 
   return (
     <Card className="w-full shadow-lg border-0 h-full flex flex-col">
@@ -965,10 +951,6 @@ function Database6DTable({
         handleDbIdSearch={handleDbIdSearch}
         filterText={filterText}
         setFilterText={setFilterText}
-        hoverColor={hoverColor}
-        setHoverColor={setHoverColor}
-        handleScrollUp={handleScrollUp}
-        handleScrollDown={handleScrollDown}
         page={page}
         totalPages={totalPages}
         handlePrevPage={handlePrevPage}
@@ -1032,8 +1014,6 @@ function Database6DTable({
                 ) : (
                   paginatedRows.map((item, idx) => {
                     if (item.type === "header") {
-                      const discColors =
-                        disciplineColorMap[item.disc] || fallbackDisc;
                       const isCollapsed =
                         collapsedDisciplines[item.disc] || false;
                       return (

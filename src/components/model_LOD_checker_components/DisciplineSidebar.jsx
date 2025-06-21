@@ -12,7 +12,6 @@ import {
   PanelLeftClose, 
   PanelRightClose 
 } from "lucide-react";
-import { Link, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -23,8 +22,6 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function DisciplineSidebar({ selected, onSelect }) {
-  const { accountId, projectId } = useParams();
-  const location = useLocation();
   const [collapsed, setCollapsed] = React.useState(() => {
     const saved = localStorage.getItem("sidebarCollapsed");
     return saved ? JSON.parse(saved) : false;

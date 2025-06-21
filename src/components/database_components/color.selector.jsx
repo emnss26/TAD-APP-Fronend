@@ -19,7 +19,6 @@ export default function EnhancedColorPicker({
     typeof setIsPickerOpen === "function" ? setIsPickerOpen : setInternalOpen;
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
-  // Always create a ref so hooks are called consistently
   const internalRef = useRef(null);
   const containerRef = pickerRef || internalRef;
 

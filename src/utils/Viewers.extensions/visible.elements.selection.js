@@ -68,8 +68,8 @@ class VisibleSelectionExtension extends Autodesk.Viewing.Extension {
 
       allLeafDbIds.forEach((dbId) => {
         // Log properties to debug
-        this.viewer.model.getProperties(dbId, (props) => {
-          //console.log( `DBID: ${dbId} - Name: ${props.name} - ExternalId: ${props.externalId}`, props );
+        this.viewer.model.getProperties(dbId, () => {
+          // console.log(`DBID: ${dbId}`);
         });
 
         // Determine if visible

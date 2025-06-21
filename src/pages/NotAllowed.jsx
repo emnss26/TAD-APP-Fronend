@@ -59,7 +59,7 @@ const NotAuthorizedPage = () => {
 
   // Render: Particle background + Unauthorized Message layout
   return (
-    <div className="relative flex flex-col min-h-screen bg-white">
+    <div className="relative flex flex-col min-h-screen bg-background dark:bg-gray-900 text-foreground">
       {/* Background Particles (non-blocking interaction) */}
       <Particles
         id="tsparticles"
@@ -72,14 +72,14 @@ const NotAuthorizedPage = () => {
       <Header className="relative z-10" />
 
       {/* Main Content */}
-      <main className="relative z-10 flex flex-1 flex-row items-center justify-center px-8 py-8 mt-20">
+      <main className="relative z-10 flex flex-1 flex-col md:flex-row items-center justify-center px-4 md:px-8 py-8 mt-20 gap-6">
         {/* Left Side */}
-        <div className="w-1/2 flex items-center justify-center h-[60vh]">
+        <div className="w-full md:w-1/2 flex items-center justify-center h-[60vh]">
           <h1 className="text-7xl font-semibold text-primary">T A D</h1>
         </div>
 
         {/* Right Side */}
-        <div className="w-1/2 flex flex-col justify-center items-center text-center px-6">
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-center text-center px-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Not Authorized<br />
             Please Contact the Administrator
