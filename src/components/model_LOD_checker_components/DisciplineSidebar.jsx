@@ -43,7 +43,7 @@ export default function DisciplineSidebar({ selected, onSelect }) {
     { key: "Electrical Installation", icon: <Zap className="h-4 w-4" /> },
     { key: "Special Systems", icon: <Cpu className="h-4 w-4" /> },
     { key: "Mechanical - HVAC", icon: <Wrench className="h-4 w-4" /> },
-    { key: "LOD Checker",     icon: <ActivitySquare className="h-4 w-4" /> },
+    //{ key: "LOD Checker",     icon: <ActivitySquare className="h-4 w-4" /> },
   ];
 
   return (
