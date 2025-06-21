@@ -18,6 +18,7 @@ export default function EnhancedColorPicker({
   const setOpen =
     typeof setIsPickerOpen === "function" ? setIsPickerOpen : setInternalOpen;
   const [position, setPosition] = useState({ top: 0, left: 0 });
+
   const internalRef = useRef(null);
   const containerRef = pickerRef || internalRef;
 
