@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import ThemeToggle from "../ui/theme-toggle";
 
 export function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -20,24 +21,27 @@ export function Header() {
   }, []);
 
   return (
-    <header className="app-header h-[65px] w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md">
-      <div className="nav-link text - md">
+    <header className="app-header h-[65px] w-full flex justify-between items-center px-6 py-4 fixed top-0 left-0 z-50 shadow-md bg-background dark:bg-gray-900">
+      <div className="nav-link text-md">
         <Link to="/"> TAD | Taller de Arquitectura Digital</Link>
       </div>
-      <nav className="hidden md:flex space-x-6">
-        <Link to="/" className="nav-link">
-          Home
-        </Link>
-        <Link to="/about" className="nav-link">
-          About
-        </Link>
-        <Link to="/services" className="nav-link">
-          Services
-        </Link>
-        <Link to="/login" className="nav-link">
-          Login
-        </Link>
-      </nav>
+      <div className="flex items-center gap-4">
+        <nav className="hidden md:flex space-x-6 items-center">
+          <Link to="/" className="nav-link">
+            Home
+          </Link>
+          <Link to="/about" className="nav-link">
+            About
+          </Link>
+          <Link to="/services" className="nav-link">
+            Services
+          </Link>
+          <Link to="/login" className="nav-link">
+            Login
+          </Link>
+        </nav>
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

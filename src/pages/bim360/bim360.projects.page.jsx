@@ -79,7 +79,7 @@ const BIM360ProjectsPage = () => {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-[#ffffff] z-10">
+    <div className="relative flex flex-col min-h-screen bg-background dark:bg-gray-900 z-10">
           {loading && <LoadingOverlay />}
           {/* Partículas cubriendo todo, sin bloquear interacciones */}
           <Particles
@@ -115,7 +115,7 @@ const BIM360ProjectsPage = () => {
                 {projects.map((project) => (
                   <li
                     key={project.id}
-                    className="bg-gray-100 shadow-md rounded-lg p-4 flex justify-between items-center"
+                    className="bg-gray-100 dark:bg-gray-700 shadow-md rounded-lg p-4 flex justify-between items-center"
                   >
                     <div>
                       <h2 className="text-m font-semibold">
