@@ -22,6 +22,7 @@ import ACC6DDatabase from "./pages/acc/acc.database.6D";
 import ACCProjectPlansPage from "./pages/acc/acc.project.plans.jsx";
 import ACCProjectTaskManagementPage from "./pages/acc/acc.task.management.page.jsx";
 import ACCModelLODCheckerPage from "./pages/acc/acc.model.lod.checker.page.jsx";
+import ACCVRPage from "./pages/acc/acc.vr.jsx";
 
 //BIM360 Pages
 import BIM360ProjectsPage from "./pages/bim360/bim360.projects.page.jsx";
@@ -99,6 +100,10 @@ function App() {
             <Route
               path="/accprojects/:accountId/:projectId/lod-checker"
               element={<ACCModelLODCheckerPage />}
+            />
+            <Route
+              path="/accprojects/:accountId/:projectId/vr-viewer"
+              element={<ACCVRPage />}
             />
 
             {/* BIM360 Pages */}

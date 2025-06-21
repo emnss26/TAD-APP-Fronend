@@ -25,3 +25,14 @@ The Autodesk Platform Services viewer supports many optional extensions. Conside
 - `Autodesk.Viewing.MarkupsCore` for markup and annotation features.
 
 These extensions can enhance the user experience when working with the built-in APS viewer.
+
+## VR Viewer Usage
+
+To enable the WebXR viewer you need Three.js and its GLTF loader:
+
+```bash
+npm install three
+npm install three/examples/jsm/loaders/GLTFLoader.js
+```
+
+Open the application in the Oculus Browser and navigate to the VR viewer page. Press the **VR** button to start the immersive experience. The viewer only supports models in **GLTF** or **GLB** format. If your federated model is in another format you must convert it before using this feature.
