@@ -418,7 +418,6 @@ const PartialTotalsRow = React.memo(function PartialTotalsRow({
   visibleColumns,
   totalsByDiscipline,
 }) {
-  const { bg, text } = disciplineColorMap[discipline] || fallbackDisc;
   const formatTotal = useCallback((col, val) => {
     if (!numericColumns.includes(col.toUpperCase())) return "";
     if (val == null || val === "") return "";
@@ -498,8 +497,6 @@ const GrandTotalsRow = React.memo(function GrandTotalsRow({
 const TableControls = React.memo(function TableControls({
   activeSection,
   handleChangeSection,
-  handleToggleSort,
-  sortDisciplinesAsc,
   handleExpandAll,
   handleCollapseAll,
   searchDbId,
@@ -507,10 +504,6 @@ const TableControls = React.memo(function TableControls({
   handleDbIdSearch,
   filterText,
   setFilterText,
-  hoverColor,
-  setHoverColor,
-  handleScrollUp,
-  handleScrollDown,
   page,
   totalPages,
   handlePrevPage,
@@ -523,15 +516,7 @@ const TableControls = React.memo(function TableControls({
       <div className="flex flex-wrap gap-2 justify-between">
         {/* Izquierda */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* <Button
-            variant="outline"
-            size="sm"
-            onClick={handleToggleSort}
-            className="flex items-center gap-1 bg-gray-200 text-black shadow-sm hover:bg-[#2ea3e3] hover:text-white"
-          >
-            <ArrowUpDown className="h-4 w-4" />
-            {sortDisciplinesAsc ? "Restore Order" : "Sort A→Z"}
-          </Button> */}
+
           <Button
             variant="outline"
             size="sm"
@@ -704,7 +689,7 @@ function Database4DTable({
   const isDimensionsView = activeSection === "dimensions";
   const [page, setPage] = useState(1);
   const perPage = 250;
-  const [hoverColor, setHoverColor] = useState("bg-slate-100");
+  const hoverColor = "bg-slate-100";
   const [filterText, setFilterText] = useState("");
   const [sortDisciplinesAsc, setSortDisciplinesAsc] = useState(false);
 
@@ -908,10 +893,6 @@ function Database4DTable({
     simulateLoading(() => setPage(totalPages));
   }, [page, totalPages, simulateLoading]);
 
-  const handleToggleSort = useCallback(() => {
-    setSortDisciplinesAsc((prev) => !prev);
-  }, []);
-
   const visibleColumns = columnGroups[activeSection] || [];
   useEffect(() => {
     if (typeof onVisibleColumnsChange === "function") {
@@ -920,12 +901,6 @@ function Database4DTable({
   }, [visibleColumns, onVisibleColumnsChange]);
 
   const tableContainerRef = useRef(null);
-  const handleScrollUp = useCallback(() => {
-    if (tableContainerRef.current) tableContainerRef.current.scrollTop -= 100;
-  }, []);
-  const handleScrollDown = useCallback(() => {
-    if (tableContainerRef.current) tableContainerRef.current.scrollTop += 100;
-  }, []);
 
   return (
     <Card className="w-full shadow-lg border-0 h-full flex flex-col">
@@ -940,8 +915,6 @@ function Database4DTable({
       <TableControls
         activeSection={activeSection}
         handleChangeSection={handleChangeSection}
-        handleToggleSort={handleToggleSort}
-        sortDisciplinesAsc={sortDisciplinesAsc}
         handleExpandAll={handleExpandAll}
         handleCollapseAll={handleCollapseAll}
         searchDbId={searchDbId}
@@ -949,10 +922,6 @@ function Database4DTable({
         handleDbIdSearch={handleDbIdSearch}
         filterText={filterText}
         setFilterText={setFilterText}
-        hoverColor={hoverColor}
-        setHoverColor={setHoverColor}
-        handleScrollUp={handleScrollUp}
-        handleScrollDown={handleScrollDown}
         page={page}
         totalPages={totalPages}
         handlePrevPage={handlePrevPage}
@@ -1017,10 +986,8 @@ function Database4DTable({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedRows.map((item, idx) => {
+                  paginatedRows.map((item) => {
                     if (item.type === "header") {
-                      const discColors =
-                        disciplineColorMap[item.disc] || fallbackDisc;
                       const isCollapsed =
                         collapsedDisciplines[item.disc] || false;
                       return (

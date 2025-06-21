@@ -44,7 +44,7 @@ class ShowDbIdExtension extends Autodesk.Viewing.Extension {
     this._button.addClass("showDbIdExtensionIcon");
 
     // Acción al dar clic en el botón
-    this._button.onClick = (ev) => {
+    this._button.onClick = () => {
       const selection = this.viewer.getSelection();
       if (selection.length === 0) {
         alert("No hay ningún elemento seleccionado.");

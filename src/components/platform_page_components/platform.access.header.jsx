@@ -97,12 +97,12 @@ const PlatformHeader = () => {
         <div className="relative flex items-center gap-2 text-sm">
           {userProfile ? (
             <>
-              <span>{userProfile.emailId}</span>
+              <span className="dark:text-white">{userProfile.emailId}</span>
               <button
                 className="focus:outline-none"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
-                <FaUser className="h-5 w-5" />
+                <FaUser className="h-5 w-5 dark:text-white" />
               </button>
               {dropdownOpen && (
                 <div className="absolute top-10 right-0 mt-2 bg-[#f6f6f6] border border-gray-600 rounded-md shadow-lg w-48 z-50 text-black">

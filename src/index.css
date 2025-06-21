@@ -172,7 +172,7 @@
 @layer components {
   /* Header y Sidebar homogéneos */
   .app-header{
-    @apply bg-[#ffffff] text-black;
+    @apply bg-background text-foreground;
   }
 
   .app-sidebar {
